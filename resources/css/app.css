@@ -1,0 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Esteban&family=Fanwood+Text:ital@0;1&family=Jost:ital,wght@0,100..900;1,100..900&family=Sofia&display=swap');
+body {
+    font-family: "Jost", sans-serif;
+    behavior: "smooth";
+    margin: 0;
+}
+
+@font-face {
+    font-family: 'GT Alpina Fine Trial';    
+    src: url('/fonts/GT-Alpina-Fine-Standard-Medium-Italic-Trial.otf') format('opentype');   
+    font-weight: 500;
+    font-style: italic;
+    /* font-display: swap;  */
+}
