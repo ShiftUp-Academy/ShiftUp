@@ -225,6 +225,10 @@ onMounted(async () => {
   margin: 0;
 }
  
+.resources-grid:has(.image-container:hover) .program-card:not(:has(.image-container:hover)) {
+  filter: opacity(0.7) grayscale(0.5) brightness(0.9) sepia(0.2) hue-rotate(220deg) blur(1px);
+}
+
 .resources-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

@@ -101,11 +101,12 @@
 // Fonction pour transformer le texte en tableau de caractères pour l'animation
 const splitText = (text) => text.split('');
 
-const scrollToTop = () => {
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  });
+const scrollToTop = () => { 
+  if (window.lenis) {
+    window.lenis.scrollTo(0);
+  } else {
+    window.scrollTo({ top: 0, behavior: 'smooth' }); 
+  }
 };
 
 // Listes de liens pour l'affichage dynamique

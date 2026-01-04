@@ -1,0 +1,16 @@
+{
+    "web": {
+        "client_id": "573462059194-ic5upogdb5lque33ue2kk1ku4cjvrgli.apps.googleusercontent.com",
+        "project_id": "shiftup-academy",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_secret": "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",
+        "redirect_uris": [
+            "http://127.0.0.1:8000/t/auth/google/callback"
+        ],
+        "javascript_origins": [
+            "http://127.0.0.1:8000"
+        ]
+    }
+}

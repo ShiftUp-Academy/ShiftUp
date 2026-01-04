@@ -36,7 +36,7 @@
         <p class="price">{{ price }}</p>
   
         <button class="action-btn">
-          <span class="btn-text">Ajouter au panier</span>
+          <span class="btn-text">En savoir plus</span>
           <img :src="ArrowIcon" alt="Flèche lien" class="btn-icon">
         </button>
       </div>
@@ -165,11 +165,11 @@ function handleFlashLeave() {
 }
 
 .tag-in-person {
-  background-color: #00e535; /* Green */
+  background-color: #1A888D;
 }
 
 .tag-online {
-  background-color: #f00119; /* Red */
+  background-color: #A71543;
 }
 
 .card-title {

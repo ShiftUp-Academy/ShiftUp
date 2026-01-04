@@ -22,7 +22,7 @@
 
       <div class="left-content" ref="titleRef">
         <h2 class="title-main">
-          NOS PROGRAMMES DE FORMATION IMMINENTS EN LIGNE ET PRESENTIELS
+          NOS PROGRAMMES DE FORMATION EN LIGNE ET PRESENTIELS
         </h2>
         <p class="description-text">
           Explorez toutes les catégories proposées par ShiftUp regroupées en une seule page.

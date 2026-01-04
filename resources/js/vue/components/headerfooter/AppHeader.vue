@@ -41,7 +41,22 @@
 
   <div class="footer-menu" :class="{ 'invert-colors': isLightBackground, 'is-visible': showFooter }">
     <div class="action-buttons">
-      <Link href="/login" class="action-button login-btn">
+      <template v-if="user">
+        <div class="user-display" @click.stop="toggleProfil" @mousedown.stop>
+          <img v-if="user.profil?.PhotoProfil" :src="user.profil.PhotoProfil" class="user-avatar" />
+          <div v-else class="user-avatar-placeholder">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          
+          <div class="action-button user-name-btn">
+            <span v-for="(char, index) in userNameChars" :key="`user-${index}`" class="char"
+              :style="{ 'animation-delay': `${index * 0.03}s` }">
+              {{ char === ' ' ? '&nbsp;' : char }}
+            </span>
+          </div>
+        </div>
+      </template>
+      <Link v-else href="/login" class="action-button login-btn">
       <span v-for="(char, index) in loginChars" :key="`login-${index}`" class="char"
         :style="{ 'animation-delay': `${index * 0.03}s` }">
         {{ char === ' ' ? '&nbsp;' : char }}
@@ -68,13 +83,17 @@
       <div class="top-icon"><i class="fa-solid fa-arrow-up icon-up"></i></div>
     </div>
   </div>
+  
+  <Profil :is-open="isProfilOpen" :user="user" @close="isProfilOpen = false" />
 </template>
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed, nextTick, reactive, watch } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import Profil from './Profil.vue';
 
 const page = usePage();
+const user = computed(() => page.props.auth.user);
 
 const menuItemsData = [
   { label: 'Accueil', route: '/' },
@@ -85,6 +104,8 @@ const dynamicHomeLabel = computed(() => {
   const currentPath = page.url;
   if (currentPath === '/organisme') return 'L\'organisme';
   if (currentPath === '/toutcategorie') return 'Toutes les Catégories';
+  if (currentPath === '/login') return 'Identification';
+  if (currentPath === '/contact') return 'Contactez-moi !';
   return 'Accueil';
 });
 
@@ -100,7 +121,6 @@ const renderedMenuItems = computed(() => {
 // Simplified active index logic
 const findActiveIndex = () => {
   const currentPath = page.url;
-  // If we're on a known page mapped to the first slot
   if (currentPath === '/' || currentPath === '/organisme' || currentPath === '/toutcategorie') return 0;
   
   const index = menuItemsData.findIndex(item => item.route !== '/' && currentPath.startsWith(item.route));
@@ -121,6 +141,10 @@ const loginText = 'Se connecter';
 const programsText = 'Les programmes';
 const loginChars = computed(() => loginText.split(''));
 const programsChars = computed(() => programsText.split(''));
+const userNameChars = computed(() => {
+  const name = user.value?.profil?.Prenom || 'User';
+  return name.split('');
+});
 
 const menuBackground = ref(null);
 const logoSrc = ref('images/logo-site-blanc.png');
@@ -131,6 +155,13 @@ const topFlash = reactive({ x: '50%', y: '50%', opacity: 0 });
 
 const isLightBackground = ref(false);
 const showFooter = ref(false);
+
+const isProfilOpen = ref(false);
+
+const toggleProfil = () => {
+    isProfilOpen.value = !isProfilOpen.value;
+};
+
 
 const scrollToTop = () => { 
   if (window.lenis) {
@@ -431,6 +462,10 @@ watch(() => page.url, () => {
   line-height: 1.3rem;
   text-decoration: none;
   display: inline-block;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
 }
 
 @keyframes letter-fall {
@@ -494,5 +529,45 @@ watch(() => page.url, () => {
 
 .top-icon-wrapper:hover {
   background-color: #1A888D;
+}
+.user-display {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.user-avatar-placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px 20px;
+  border-radius: 30px;
+  background-color: #ffffff;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.action-button:hover .char {
+  animation: letter-fall 0.7s forwards;
+  color: #8A38F5;
 }
 </style>

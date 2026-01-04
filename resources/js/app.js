@@ -6,6 +6,7 @@ import { InertiaProgress } from '@inertiajs/progress';
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
+import ToastService from 'primevue/toastservice';
 
 import AppLayout from './vue/layout/AppLayout.vue';
 
@@ -45,6 +46,7 @@ createInertiaApp({
                 }
             }
         });
+        app.use(ToastService);
         app.mount(el);
     },
 });

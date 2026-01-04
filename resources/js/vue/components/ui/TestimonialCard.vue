@@ -66,7 +66,7 @@ function handleFlashLeave() {
   height: 100%;
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
 }
 
 .card-content {
@@ -117,7 +117,6 @@ function handleFlashLeave() {
   margin: 0;
 }
 
-/* --- Effets Flashlight & Liquid Glass --- */
 .flashlight-overlay {
   position: absolute;
   inset: 0;
@@ -125,7 +124,7 @@ function handleFlashLeave() {
   z-index: 2;
   background: radial-gradient(
     600px circle at var(--mouse-x) var(--mouse-y), 
-    rgba(255, 255, 255, 0.06), 
+    rgba(255, 255, 255, 0.116), 
     transparent 80%
   );
   opacity: var(--flash-opacity, 0);

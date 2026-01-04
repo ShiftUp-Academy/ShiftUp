@@ -112,9 +112,9 @@ const imgCategoriesBg = '/images/catégorie.jpg';
 
 const categoryLinks = [
     { label: 'Toutes les catégories', href: '/toutcategorie' },
-    { label: 'Formations', href: '/programmes/formations' },
-    { label: 'Offres', href: '/programmes/offres' },
-    { label: 'Consultations', href: '/programmes/consultations' },
+    { label: 'Formations', href: '/programmes' },
+    { label: 'Offres', href: '/programmes' },
+    { label: 'Consultations', href: '/programmes' },
 ];
 
 const liveDot = ref(null);

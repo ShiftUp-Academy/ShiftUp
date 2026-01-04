@@ -67,9 +67,12 @@ function handleFlashLeave() {
   cursor: pointer;
   border: none;
   width: 100%;
+  transition: filter 0.8s ease;
+  will-change: transform, opacity, filter;
 }
 
-.image-container {
+.image-container 
+{
   position: relative;
   width: 100%;
   aspect-ratio: 18 / 9;
@@ -84,11 +87,6 @@ function handleFlashLeave() {
   object-fit: cover;
   transition: transform 0.8s cubic-bezier(0.2, 0, 0.2, 1);
 }
-
-.program-card:hover .program-image {
-  transform: scale(1.1); 
-}
-
 
 .flashlight-overlay {
   position: absolute;

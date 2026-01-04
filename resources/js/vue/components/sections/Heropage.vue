@@ -1,6 +1,9 @@
 <template>
-    <div class="hero-page-container no-global-reveal" @mousemove="handleMouseMove" @mouseover="showCursor = true; animateCursorIn()"
-        @mouseleave="showCursor = false; animateCursorOut()">
+    <div class="hero-page-container no-global-reveal" 
+        @mousemove="handleMouseMove" 
+        @mouseover="showCursor = true; animateCursorIn()"
+        @mouseleave="showCursor = false; animateCursorOut()"
+        @click="navigateToProgrammes">
 
         <video class="hero-video" ref="videoRef" muted loop playsinline autoplay preload="metadata" :src="heroVideoSrc"></video>
 
@@ -46,6 +49,11 @@
 import { ref, onMounted, onBeforeUnmount, reactive } from 'vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { router } from '@inertiajs/vue3';
+
+function navigateToProgrammes() {
+    router.visit('/programmes');
+}
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -221,7 +229,7 @@ function onWindowResize() { /* Laisser vide ou gérer la responsivité si néces
     top: 50%;
     left: 50%;
     min-width: 100%;
-    min-height: 90%;
+    min-height: 100%;
     width: auto;
     height: auto;
     z-index: 1;
@@ -315,14 +323,12 @@ function onWindowResize() { /* Laisser vide ou gérer la responsivité si néces
 .custom-cursor {
     position: fixed;
     pointer-events: none;
-    /* Crucial pour laisser les éléments cliquables */
     z-index: 100;
-    width: 90px;
-    height: 90px;
-    padding: 1.5vw;
+    width: 9vw;
+    height: 20vh;
+    padding: 1.5vw !important;
     border-radius: 50%;
     background-color: #8A38F5;
-    /* Couleur vive */
     display: flex;
     justify-content: center;
     align-items: center;

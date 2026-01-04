@@ -65,8 +65,17 @@ const setupScrollAnimations = () => {
     // Added .infinite-photo-scroll and .video-grid to exclude these components from scroll animations
     // Added .founder-section to prevent opacity issues
     // Added .resource-card and .program-card to prevent buggy scale animations
-    if (node.closest('[data-lenis-prevent]') || node.closest('.consultation-lists') || node.closest('.no-global-reveal') || node.closest('.infinite-photo-scroll') || node.closest('.video-grid') || node.closest('.founder-section') || node.closest('.program-card') || node.closest('.resource-card')) {
+    if (node.closest('[data-lenis-prevent]') || node.closest('.consultation-lists') || node.closest('.no-global-reveal') || node.closest('.infinite-photo-scroll') || node.closest('.video-grid') || node.closest('.founder-section')) {
       return;
+    }
+
+    // NEW: Prevent double animation if a parent is already being animated
+    let parent = node.parentElement;
+    while (parent) {
+      if (parent.dataset && parent.dataset.hasScrollAnim) {
+        return; 
+      }
+      parent = parent.parentElement;
     }
     
     node.dataset.hasScrollAnim = "true";
@@ -104,7 +113,7 @@ const setupScrollAnimations = () => {
   const scanAndAnimate = (root) => {
     if (!root || !root.querySelectorAll) return;
     
-    const selector = 'article, h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, img, button, a, .training-card, .asset-card, .card-wrapper, .founder-section p, .vision-line';
+    const selector = 'article, h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, img, button, a, .training-card, .asset-card, .card-wrapper, .vision-line, .program-card, .resource-card';
     
     const elements = root.querySelectorAll(selector);
     elements.forEach(animateNode);

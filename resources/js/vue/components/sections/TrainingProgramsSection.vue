@@ -169,7 +169,6 @@ onMounted(async () => {
         start: "top 70%", 
       }
     });
-
   }
 });
 </script>
@@ -246,6 +245,11 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 60px;
+}
+
+/* Exclusive hover effect - triggered specifically by photo hover */
+.programs-grid:has(.image-container:hover) .program-card:not(:has(.image-container:hover)) {
+  filter: opacity(0.3) grayscale(0.5) brightness(0.6) sepia(0.2) hue-rotate(220deg) blur(1px);
 }
 
 .programs-grid {

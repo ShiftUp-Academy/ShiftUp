@@ -1,18 +1,19 @@
 <template>
-  <div class="filters-container">
-    <div class="filter-item search-wrapper">
-      <AutoComplete :modelValue="searchValue" @update:modelValue="$emit('update:searchValue', $event)"
-        :suggestions="suggestions" @complete="$emit('complete', $event)" placeholder="recherchez par mot clé"
-        class="search-autocomplete full-width-prime" />
-    </div>
+  <div class="filters-container" :class="{ 'is-vertical': vertical }">
+    <div class="filter-inputs">
+      <div class="filter-item search-wrapper">
+        <AutoComplete :modelValue="searchValue" @update:modelValue="$emit('update:searchValue', $event)"
+          :suggestions="suggestions" @complete="$emit('complete', $event)" placeholder="recherchez par mot clé"
+          class="search-autocomplete full-width-prime" />
+      </div>
 
-    <div class="filter-item category-wrapper">
-      <FloatLabel variant="on" class="full-width-float">
-        <Select :modelValue="selectedCategory" @update:modelValue="$emit('update:selectedCategory', $event)"
-          inputId="category_label" :options="categories" optionLabel="name" editable
-          class="search-select full-width-prime" />
-        <label for="category_label">Catégories</label>
-      </FloatLabel>
+      <div class="filter-item category-wrapper">
+        <FloatLabel variant="on" class="full-width-float">
+          <Select :modelValue="selectedCategory" @update:modelValue="$emit('update:selectedCategory', $event)"
+            inputId="category_label" placeholder="Catégorie" :options="categories" optionLabel="name"
+            editable class="search-select full-width-prime" />
+        </FloatLabel>
+      </div>
     </div>
 
     <div class="actions-wrapper">
@@ -22,6 +23,10 @@
             d="M4 4V9H4.58152M19.9381 11C19.446 7.05361 16.0796 4 12 4C8.64262 4 5.76829 6.06817 4.58152 9M4.58152 9H9M20 20V15H19.4185M19.4185 15C18.2317 17.9318 15.3574 20 12 20C7.92038 20 4.55399 16.9464 4.06189 13M19.4185 15H15"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
+      </button>
+
+      <button class="text-reset-button" @click="$emit('reset')">
+        ACTUALISER
       </button>
 
       <button class="view-all-button" @click="$emit('view-all')">
@@ -44,7 +49,11 @@ defineProps({
   searchValue: String,
   selectedCategory: [Object, String],
   categories: Array,
-  suggestions: Array
+  suggestions: Array,
+  vertical: {
+    type: Boolean,
+    default: false
+  }
 });
 
 defineEmits(['update:searchValue', 'update:selectedCategory', 'complete', 'reset', 'view-all']);
@@ -58,6 +67,29 @@ defineEmits(['update:searchValue', 'update:selectedCategory', 'complete', 'reset
   width: 100%;
   max-width: 800px;
   padding: 10px 0;
+}
+
+.filter-inputs {
+  display: contents;
+}
+
+.is-vertical {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.is-vertical .filter-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.is-vertical .actions-wrapper {
+  width: 100%;
+  justify-content: flex-start;
+  padding-bottom: 0;
 }
 
 .filter-item {
@@ -85,13 +117,15 @@ defineEmits(['update:searchValue', 'update:selectedCategory', 'complete', 'reset
   border-bottom: 1px solid rgba(255, 255, 255, 0.6) !important;
   border-radius: 0 !important;
   color: #fff !important;
-  font-size: 1.7rem !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 1rem !important;
   padding: 10px 0 !important;
   box-shadow: none !important;
 }
 
 :deep(.p-autocomplete-input::placeholder) {
-  font-size: 1.7rem;
+  font-size: 1rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   color: rgba(255, 255, 255, 0.4);
 }
 
@@ -106,11 +140,14 @@ defineEmits(['update:searchValue', 'update:selectedCategory', 'complete', 'reset
 :deep(.p-select-label) {
   background: transparent !important;
   color: #fff !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 1rem !important;
 }
 
 :deep(.p-select-option) {
   background: transparent !important;
   color: #fff !important;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 :deep(.p-select-option.p-select-option-selected),
@@ -121,6 +158,7 @@ defineEmits(['update:searchValue', 'update:selectedCategory', 'complete', 'reset
 
 :deep(.p-floatlabel label) {
   left: 0 !important;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   color: rgba(255, 255, 255, 0.6) !important;
 }
 
@@ -143,12 +181,30 @@ defineEmits(['update:searchValue', 'update:selectedCategory', 'complete', 'reset
   opacity: 0.7;
 }
 
+.text-reset-button {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 12px 10px 0 10px;
+  transition: opacity 0.4s;
+  text-transform: uppercase;
+}
+
+.text-reset-button:hover {
+  opacity: 0.7;
+}
+
 .view-all-button {
-  padding: 12px 0 12px 20px;
+  padding: 12px 0 0px 0px;
   background: transparent;
   color: #ffffff;
   border: none;
-  font-size: 0.9rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1rem;
   font-weight: 800;
   cursor: pointer;
   display: flex;
@@ -160,7 +216,7 @@ defineEmits(['update:searchValue', 'update:selectedCategory', 'complete', 'reset
 
 .view-all-button .btn-text {
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9rem;
   transition: transform 0.4s;
 }
 
@@ -188,4 +244,5 @@ defineEmits(['update:searchValue', 'update:selectedCategory', 'complete', 'reset
     align-items: stretch;
     max-width: 100%;
   }
-}</style>
+}
+</style>

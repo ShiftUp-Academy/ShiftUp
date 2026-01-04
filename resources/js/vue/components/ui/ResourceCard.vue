@@ -62,6 +62,8 @@ function handleFlashLeave() {
   cursor: pointer;
   border: none;
   width: 100%;
+  transition: filter 0.8s ease;
+  will-change: transform, opacity, filter;
 }
 
 .image-container {

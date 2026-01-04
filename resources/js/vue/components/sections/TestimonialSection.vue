@@ -1,14 +1,12 @@
 <template>
   <section class="testimonial-section no-global-reveal" ref="sectionRef">
     
-    <!-- Header avec Titre et Navigation -->
     <div class="container section-header">
       <div class="title-wrapper">
         <h2 class="title">Ce qu'ils disent de nous</h2>
         <p class="subtitle">Découvrez les retours d'expérience de nos apprenants.</p>
       </div>
       
-      <!-- Boutons de navigation (Design LiveTrainings) -->
       <div class="navigation-buttons">
           <button class="nav-arrow left-arrow" @click="scrollCarrousel(-1)">
             <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -162,7 +160,7 @@ onMounted(() => {
 
 <style scoped>
 .testimonial-section {
-  background-color: #050505; /* Dark Mode */
+  background-color: #050505;
   padding: 20vh 0;
   padding-top: 0;
   color: white;
@@ -193,19 +191,18 @@ onMounted(() => {
   margin: 0;
 }
 
-/* Navigation Buttons (Style LiveTrainings) */
 .navigation-buttons {
   display: flex;
   gap: 15px;
 }
 
 .nav-arrow {
-  background-color: #222;
+  background-color: #111111;
   color: white;
   width: 50px;
   height: 50px;
-  border-radius: 50%; /* Cercle */
-  border: 1px solid #333;
+  border-radius: 50%;
+  border: 0.5px solid #656565;
   display: flex;
   align-items: center;
   justify-content: center;
