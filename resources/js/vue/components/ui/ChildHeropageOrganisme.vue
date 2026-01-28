@@ -1,5 +1,6 @@
 <template>
-  <div class="monopo-root interaction-scroll-cursor" ref="rootContainer" @mouseenter="isInsideSection = true" @mouseleave="isInsideSection = false">
+  <div class="monopo-root interaction-scroll-cursor" ref="rootContainer" @mouseenter="isInsideSection = true"
+    @mouseleave="isInsideSection = false">
     <div class="custom-cursor" ref="cursorRef">
       <span>{{ cursorText }}</span>
     </div>
@@ -17,7 +18,7 @@
             </div>
           </h1>
 
-          <div class="hero-subtitle anim-opacity" @click.stop="scrollToContent" @mouseenter="isHoveringLink = true"
+          <div class="hero-subtitle anim-opacity" @click.stop="goToHowItWorks" @mouseenter="isHoveringLink = true"
             @mouseleave="isHoveringLink = false">
             Comment l'entreprise fonctionne ?
           </div>
@@ -37,6 +38,7 @@
 <script setup>
 import { onMounted, onBeforeUnmount, ref, computed } from 'vue'
 import { gsap } from 'gsap'
+import { router } from '@inertiajs/vue3'
 import ShaderBackground from './ShaderBackground.vue'
 
 // --- PROPS ---
@@ -51,7 +53,7 @@ const props = defineProps({
   }
 })
 
-// --- THEME ---
+
 const themeColors = {
   primary: '#F7B455',
   secondary: '#0E7EC3',
@@ -59,7 +61,6 @@ const themeColors = {
   dark: '#000000'
 }
 
-// --- LOGIQUE TEXTE ---
 const highlights = ['ShiftUp', 'reconvertir', 'dirigeants', 'TPE / PME', 'Entrepreneur Libre'];
 const formattedLines = computed(() => {
   return props.title.split('<br />').map(line => {
@@ -98,6 +99,10 @@ const formattedLines = computed(() => {
 // --- REFS ---
 const rootContainer = ref(null)
 const cursorRef = ref(null)
+
+const goToHowItWorks = () => {
+  router.visit('/comment-ca-fonctionne');
+}
 
 // État curseur
 const isInsideSection = ref(false)

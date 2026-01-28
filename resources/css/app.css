@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Esteban&family=Fanwood+Text:ital@0;1&family=Jost:ital,wght@0,100..900;1,100..900&family=Sofia&display=swap');
+
 body {
     font-family: "Jost", sans-serif;
     behavior: "smooth";
@@ -7,9 +8,37 @@ body {
 }
 
 @font-face {
-    font-family: 'GT Alpina Fine Trial';    
-    src: url('/fonts/GT-Alpina-Fine-Standard-Medium-Italic-Trial.otf') format('opentype');   
+    font-family: 'GT Alpina Fine Trial';
+    src: url('/fonts/GT-Alpina-Fine-Standard-Medium-Italic-Trial.otf') format('opentype');
     font-weight: 500;
     font-style: italic;
-    /* font-display: swap;  */
+}
+
+.p-icon {
+    color: #fdfdfd !important;
+}
+
+.p-button-icon-only.p-button-rounded {
+    background: #202020 !important;
+    border-radius: 50% !important;
+}
+
+html,
+body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    display: none;
+}
+
+.p-toast {
+    z-index: 10000 !important;
+}
+
+/* Force PrimeVue overlays to be above everything else */
+.p-select-overlay, .p-dropdown-panel, .p-datepicker-panel, .p-overlaypanel {
+    z-index: 99999 !important;
 }

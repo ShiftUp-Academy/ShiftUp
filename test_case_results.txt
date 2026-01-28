@@ -1,0 +1,10 @@
+quoted_pascal: SUCCESS
+quoted_lower: FAILED (SQLSTATE[42P01]: Undefined table: 7 ERREUR:  la relation « programmeformation » n'existe pas
+LINE 1: SELECT 1 FROM "programmeformation" LIMIT 1
+                      ^ (Connection: pgsql, SQL: SELECT 1 FROM "programmeformation" LIMIT 1))
+unquoted_pascal: FAILED (SQLSTATE[42P01]: Undefined table: 7 ERREUR:  la relation « programmeformation » n'existe pas
+LINE 1: SELECT 1 FROM ProgrammeFormation LIMIT 1
+                      ^ (Connection: pgsql, SQL: SELECT 1 FROM ProgrammeFormation LIMIT 1))
+unquoted_lower: FAILED (SQLSTATE[42P01]: Undefined table: 7 ERREUR:  la relation « programmeformation » n'existe pas
+LINE 1: SELECT 1 FROM programmeformation LIMIT 1
+                      ^ (Connection: pgsql, SQL: SELECT 1 FROM programmeformation LIMIT 1))

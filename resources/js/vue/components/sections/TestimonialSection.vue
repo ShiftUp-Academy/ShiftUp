@@ -33,7 +33,6 @@
         @mousemove="handleDragMove"
         @mouseup="handleDragEnd"
         @mouseleave="handleDragEnd"
-        @wheel="handleWheelScroll"
     >
       <div class="testimonial-wrapper" v-for="(testimonial, index) in testimonials" :key="index">
          <TestimonialCard v-bind="testimonial" />
@@ -104,13 +103,6 @@ const scrollCarrousel = (direction) => {
   });
 };
 
-const handleWheelScroll = (e) => {
-  if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; // Laissez le scroll natif horizontal
-  if (Math.abs(e.deltaY) > 0) {
-    // Transforme le scroll vertical en horizontal
-    gridRef.value.scrollLeft += e.deltaY;
-  }
-};
 
 const handleDragStart = (e) => {
   isDragging.value = true;

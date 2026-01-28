@@ -6,8 +6,8 @@
     @mouseleave="onMouseLeave"
     @mousedown="onMouseDown"
     @mouseup="onMouseUp"
+    @click="goToFacebook"
   >
-    <!-- UNIQUE Marquee Cursor for this section only -->
     <div 
       ref="cursorRef"
       class="fb-isolated-marquee-cursor" 
@@ -30,7 +30,7 @@
         </p>
       </div>
 
-      <div class="main-content scrollable" data-lenis-prevent>
+      <div class="main-content scrollable" data-lenis-prevent @click.stop>
         <div v-for="(item, index) in videoSessions" :key="index" class="session-item">
           <div class="item-header">SÉQUENCE {{ index + 1 }}</div>
 

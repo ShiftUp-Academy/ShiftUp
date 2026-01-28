@@ -1,15 +1,12 @@
 <template>
-  <div 
-    class="training-card" 
-    ref="cardRef"
+  <div class="training-card" ref="cardRef"
     :style="{ '--mouse-x': flash.x, '--mouse-y': flash.y, '--flash-opacity': flash.opacity }"
-    @mousemove="handleFlashMove"
-    @mouseleave="handleFlashLeave"
-  >
+    @mousemove="handleFlashMove" @mouseleave="handleFlashLeave" @click="goToDetail">
     <div class="content">
-        
+
       <div class="tags">
-        <span class="tag tag-type" :class="type.includes('Présentiel') ? 'tag-in-person' : 'tag-online'">{{ type }}</span>
+        <span class="tag tag-type" :class="type.includes('Présentiel') ? 'tag-in-person' : 'tag-online'">{{ type
+          }}</span>
         <span class="tag tag-primary">{{ date }}</span>
         <span class="tag tag-secondary">{{ location }}</span>
       </div>
@@ -20,34 +17,31 @@
 
       <div class="author-info">
         <div class="author-image-wrapper">
-            <img :src="authorImage" alt="Photo de profil de l'auteur" class="author-image">
-            <div class="avatar-border-glow"></div>
+          <img :src="authorImage" alt="Photo de profil de l'auteur" class="author-image">
+          <div class="avatar-border-glow"></div>
         </div>
         <p class="author-name">{{ authorName }}</p>
       </div>
-      
+
       <div class="separator"></div>
 
       <div class="hidden-content">
         <p class="description">{{ description }}</p>
       </div>
-      
+
       <div class="action-footer">
         <p class="price">{{ price }}</p>
-  
+
         <button class="action-btn">
           <span class="btn-text">En savoir plus</span>
           <img :src="ArrowIcon" alt="Flèche lien" class="btn-icon">
         </button>
       </div>
     </div>
-    
+
     <div class="image-section">
-      <div 
-        class="bg-image" 
-        :style="{ backgroundImage: `url('${image}')` }"
-      ></div>
-      
+      <div class="bg-image" :style="{ backgroundImage: `url('${image}')` }"></div>
+
       <div class="overlay"></div>
       <div class="image-border-glow"></div>
     </div>
@@ -56,9 +50,11 @@
 
 <script setup>
 import { reactive, ref } from 'vue';
+import { router } from '@inertiajs/vue3';
 import ArrowIcon from '../../../assets/images/fleche-lien.svg';
 
-defineProps({
+const props = defineProps({
+  id: [Number, String],
   title: String,
   date: String,
   location: String,
@@ -92,37 +88,44 @@ function handleFlashMove(event) {
 function handleFlashLeave() {
   flash.opacity = 0;
 }
+
+const goToDetail = () => {
+  if (props.id) {
+    router.visit(`/programmes/${props.id}`);
+  }
+};
 </script>
 
 <style scoped>
 .training-card {
   position: relative;
-  height: 60vh; 
-  border-radius: 0; 
+  height: 60vh;
+  border-radius: 0;
   overflow: hidden;
   cursor: pointer;
-  background-color: #202020; 
-  border: none; 
-  border-right: 1px solid #333; 
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  background-color: #202020;
+  border: none;
+  border-right: 1px solid #333;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   justify-content: flex-start;
   /* CORRECTION CLÉ: Assure que l'image et le contenu s'empilent verticalement */
-  flex-direction: column; 
+  flex-direction: column;
 }
+
 .training-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 1px;
-    background-color: #333;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 1px;
+  background-color: #333;
 }
 
 .training-card:hover {
-  transform: translateY(-5px); 
+  transform: translateY(-5px);
   box-shadow: 0 10px 20px rgba(83, 83, 83, 0.06);
 }
 
@@ -146,7 +149,7 @@ function handleFlashLeave() {
   font-size: 0.8rem;
   font-weight: 500;
   text-transform: uppercase;
-  backdrop-filter: blur(2px); 
+  backdrop-filter: blur(2px);
 }
 
 .tag-primary {
@@ -179,19 +182,20 @@ function handleFlashLeave() {
   margin: 0 0 10px 0;
   line-height: 1.2;
 }
+
 .author-info {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .author-image-wrapper {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    overflow: hidden;
-    margin-right: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.1); 
-    position: relative;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
 }
 
 .avatar-border-glow {
@@ -201,11 +205,9 @@ function handleFlashLeave() {
   z-index: 3;
   border-radius: inherit;
   padding: 1.2px;
-  background: radial-gradient(
-    100px circle at var(--mouse-x) var(--mouse-y), 
-    rgba(255, 255, 255, 0.8), 
-    transparent 60%
-  );
+  background: radial-gradient(100px circle at var(--mouse-x) var(--mouse-y),
+      rgba(255, 255, 255, 0.8),
+      transparent 60%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -215,33 +217,34 @@ function handleFlashLeave() {
 }
 
 .author-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .author-name {
-    font-size: 0.9rem;
-    /* Couleur ajustée pour être visible */
-    color: #fbfbfb; 
-    margin: 0;
+  font-size: 0.9rem;
+  /* Couleur ajustée pour être visible */
+  color: #fbfbfb;
+  margin: 0;
 }
 
 .separator {
   width: 100%;
   height: 1px;
-  background-color: #c9c9c9; 
+  background-color: #c9c9c9;
   margin: 5px 0;
 }
+
 .hidden-content {
-  max-height: 0; 
+  max-height: 0;
   overflow: hidden;
   opacity: 0;
   transition: max-height 0.5s ease-out, opacity 0.5s ease-out 0.2s;
 }
 
 .training-card:hover .hidden-content {
-  max-height: 200px; 
+  max-height: 200px;
   opacity: 1;
 }
 
@@ -249,71 +252,73 @@ function handleFlashLeave() {
   color: #f6f6f6;
   font-size: 1rem;
   line-height: 1.5;
-  margin: 0 0 15px 0; 
+  margin: 0 0 15px 0;
 }
 
 /* ACTION FOOTER (TOUJOURS VISIBLE) */
 .action-footer {
-    opacity: 1; 
-    transform: translateY(0);
-    transition: none; 
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: auto;
+  opacity: 1;
+  transform: translateY(0);
+  transition: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
 }
 
 /* Prix */
 .price {
-    font-size: 1.2rem;
-    font-weight: 500;
-    color: white;
-    margin: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: white;
+  margin: 0;
 }
 
 /* Bouton CTA */
 .action-btn {
-    display: flex;
-    align-items: center;
-    gap: 1px;
-    background: none; 
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    color: white;
-    transition: transform 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: white;
+  transition: transform 0.3s ease;
 }
 
 .btn-text {
-    font-weight: 500;
-    font-size: 1rem;
-    margin-right: 0.5vw;
-    text-transform: uppercase; 
+  font-weight: 500;
+  font-size: 1rem;
+  margin-right: 0.5vw;
+  text-transform: uppercase;
 }
 
 .btn-icon {
-    width: 13px;
-    height: 13px;
-    margin-bottom: 5px;
-    transition: transform 0.3s ease;
-    filter: invert(1);
+  width: 13px;
+  height: 13px;
+  margin-bottom: 5px;
+  transition: transform 0.3s ease;
+  filter: invert(1);
 }
 
 .action-btn:hover {
-    transform: translateX(5px); 
+  transform: translateX(5px);
 }
 
 .action-btn:hover .btn-icon {
-    transform: translateX(3px);
+  transform: translateX(3px);
 }
 
 /* -------------------- Section Image - 50% de la carte -------------------- */
 .image-section {
   position: relative;
-  height: 50%; /* Hauteur de l'image comme défini dans votre dernier fichier */
+  height: 50%;
+  /* Hauteur de l'image comme défini dans votre dernier fichier */
   min-height: 190px;
   overflow: hidden;
-  border-radius: 0 0 15px 15px; /* Optionnel: arrondir le bas pour correspondre au design */
+  border-radius: 0 0 15px 15px;
+  /* Optionnel: arrondir le bas pour correspondre au design */
 }
 
 .image-border-glow {
@@ -323,11 +328,9 @@ function handleFlashLeave() {
   z-index: 6;
   border-radius: inherit;
   padding: 1.5px;
-  background: radial-gradient(
-    300px circle at var(--mouse-x) var(--mouse-y), 
-    rgba(255, 255, 255, 0.5), 
-    transparent 60%
-  );
+  background: radial-gradient(300px circle at var(--mouse-x) var(--mouse-y),
+      rgba(255, 255, 255, 0.5),
+      transparent 60%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -339,9 +342,9 @@ function handleFlashLeave() {
 /* Background Image et Overlay */
 .bg-image {
   position: absolute;
-  top: 0; 
+  top: 0;
   left: 0;
-  width: 100%; 
+  width: 100%;
   height: 100%;
   background-size: cover;
   background-position: center;

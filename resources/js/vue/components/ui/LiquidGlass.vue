@@ -10,7 +10,6 @@
     @mousemove="handleFlashMove" 
     @mouseleave="handleFlashLeave"
   >
-    <!-- Use unique ID for filter to avoid conflicts if multiple instances -->
     <div class="liquidGlass-effect" :style="{ filter: `url(#${filterId})` }"></div>
     <div class="liquidGlass-tint"></div>
     <div class="liquidGlass-shine"></div>
@@ -19,7 +18,6 @@
       <slot></slot>
     </div>
 
-    <!-- SVG Filter matching AppHeader exactly -->
     <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" aria-hidden="true">
       <defs>
         <filter :id="filterId" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox">
@@ -84,7 +82,10 @@ function handleFlashLeave() {
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
   /* Ensure clipping works for all children including absolute ones */
   isolation: isolate;
-  transform: translateZ(0); 
+  transform: translateZ(0);
+  
+  /* Base border - always visible like AppHeader */
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .liquidGlass-effect {
@@ -119,6 +120,7 @@ function handleFlashLeave() {
   border-radius: inherit;
 }
 
+/* Flashlight border effect - appears on hover */
 .liquid-glass-wrapper::after {
   content: "";
   position: absolute;
@@ -140,7 +142,8 @@ function handleFlashLeave() {
   mask-composite: exclude;
   pointer-events: none;
   z-index: 10;
-  opacity: 1;
+  opacity: var(--flash-opacity, 0);
+  transition: opacity 0.2s ease;
 }
 
 .content-slot {

@@ -23,6 +23,7 @@ class ProfilUtilisateur extends Model
         'NumeroTelephone',
         'Adresse',
         'Biographie',
+        'EmailContact',
     ];
 
     protected $casts = [
@@ -33,5 +34,9 @@ class ProfilUtilisateur extends Model
     public function utilisateur()
     {
         return $this->belongsTo(Utilisateur::class, 'IdUtilisateur', 'IdUtilisateur');
+    }
+    public function reseauxSociaux()
+    {
+        return $this->hasMany(ReseauSocial::class, 'IdUtilisateur', 'IdProfil');
     }
 }

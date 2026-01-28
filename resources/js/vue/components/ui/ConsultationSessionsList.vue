@@ -1,21 +1,26 @@
 <template>
-  <div class="consultation-sessions-list">
+  <div v-if="user" class="consultation-sessions-list">
     <div class="list-container">
       <div class="sidebar">
         <h2 class="sidebar-title">LISTES DES SESSIONS D’APRÈS VOS QUESTIONS</h2>
       </div>
-      
+
       <div class="main-content scrollable" data-lenis-prevent>
         <div v-for="(item, index) in sessions" :key="index" class="session-item">
           <div class="item-header">LES QUESTIONS</div>
           <div class="author-row">
-            <img :src="item.authorAvatar" :alt="item.authorName" class="avatar" />
-            <span class="author-name">{{ item.authorName }}</span>
+            <img :src="getAuthorAvatar()" :alt="getAuthorName()" class="avatar" />
+            <span class="author-name">{{ getAuthorName() }}</span>
           </div>
-          <p class="question-text">{{ item.question }}</p>
+          <p class="question-text">{{ item.Question }}</p>
           <div class="item-footer">
-            <span class="category-tag">catégorie : <span class="category-name">{{ item.category }}</span></span>
-            <a href="#" class="consultation-link">VOIR LA CONSULTATION <span class="arrow">↗</span></a>
+            <span class="category-tag">catégorie : <span class="category-name">{{ item.categorie?.Nom || 'Général'
+                }}</span></span>
+            <a v-if="item.reponse_consultations && item.reponse_consultations.length > 0" href="#"
+              class="consultation-link" @click.prevent="$emit('view-detail', item.reponse_consultations[0])">
+              VOIR LA RÉPONSE <span class="arrow">↗</span>
+            </a>
+            <span v-else class="pending-tag">EN ATTENTE DE RÉPONSE</span>
           </div>
         </div>
       </div>
@@ -24,26 +29,29 @@
 </template>
 
 <script setup>
-const sessions = [
-  {
-    authorName: 'Rakotoson Peta',
-    authorAvatar: '/images/Bibliothèque/Nantenaina.jpg',
-    question: 'Comment je fais pour les démarches administratives si je veux créé mon entreprise, et est ce que c’est nécessaire si je ne gagne pas encore beaucoup alors qu’en plus je dois encore payé des impôts?',
-    category: 'Catégorie de question 1'
-  },
-  {
-    authorName: 'Rakotoson Peta',
-    authorAvatar: '/images/Bibliothèque/Nantenaina.jpg',
-    question: 'Quelles sont les priorités pour les 3 prochains mois pour lancer mon activité sans me perdre dans l’administratif ?',
-    category: 'Catégorie de question 1'
-  },
-  {
-    authorName: 'Rakotoson Peta',
-    authorAvatar: '/images/Bibliothèque/Nantenaina.jpg',
-    question: 'Est-il possible de commencer une activité sans capital initial à Madagascar, surtout dans le domaine du numérique ?',
-    category: 'Financement'
+import { computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+
+const page = usePage();
+const user = computed(() => page.props.auth?.user);
+
+const props = defineProps({
+  sessions: {
+    type: Array,
+    default: () => []
   }
-];
+});
+
+const emit = defineEmits(['view-detail']);
+
+const getAuthorName = () => {
+  if (!user.value?.profil) return 'Utilisateur';
+  return `${user.value.profil.Prenom} ${user.value.profil.Nom}`;
+};
+
+const getAuthorAvatar = () => {
+  return user.value?.profil?.PhotoProfil || '/images/Bibliothèque/Nantenaina.jpg'; // Default placeholder if no photo
+};
 </script>
 
 <style scoped>
@@ -67,18 +75,19 @@ const sessions = [
 }
 
 .sidebar-title {
-    font-size: 3.5rem;
-    margin-left: 2vw;
-    margin-top: 0;
-    font-weight: 300;
-    line-height: 1.1;
-    color: #fff;
-    text-transform: uppercase;
+  font-size: 3.5rem;
+  margin-left: 2vw;
+  margin-top: 0;
+  font-weight: 300;
+  line-height: 1.1;
+  color: #fff;
+  text-transform: uppercase;
 }
 
 .main-content {
   flex: 1;
-  padding: 40px 60px 40px 60px; /* Added bottom padding */
+  padding: 40px 60px 40px 60px;
+  /* Added bottom padding */
   overflow-y: auto;
   overscroll-behavior: auto;
 }
@@ -170,6 +179,16 @@ const sessions = [
   text-transform: uppercase;
 }
 
+.pending-tag {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 6px 12px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
 .arrow {
   display: inline-block;
   margin-left: 5px;
@@ -180,15 +199,15 @@ const sessions = [
     flex-direction: column;
     height: auto;
   }
-  
+
   .sidebar {
     padding: 40px;
   }
-  
+
   .sidebar-title {
     font-size: 2.5rem;
   }
-  
+
   .main-content {
     padding: 40px;
     height: 500px;

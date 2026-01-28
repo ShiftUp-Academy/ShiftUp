@@ -1,13 +1,45 @@
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { router, usePage } from '@inertiajs/vue3';
 import AppHeader from '../components/headerfooter/AppHeader.vue';
 import AppFooter from '../components/headerfooter/AppFooter.vue';
 import Lenis from 'lenis';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Toast from 'primevue/toast';
+import { useToast } from 'primevue/usetoast';
 
 gsap.registerPlugin(ScrollTrigger);
+
+const toast = useToast();
+const page = usePage();
+
+// Watch for errors and flash messages
+watch(() => page.props.errors, (errors) => {
+  if (errors && Object.keys(errors).length > 0) {
+    Object.values(errors).forEach(error => {
+      toast.add({ severity: 'error', summary: 'Erreur', detail: error, life: 5000 });
+    });
+  }
+}, { immediate: true, deep: true });
+
+watch(() => page.props.flash, (flash) => {
+  if (flash?.success) {
+    toast.add({ severity: 'success', summary: 'Succès', detail: flash.success, life: 3000 });
+  }
+  if (flash?.error) {
+    toast.add({ severity: 'error', summary: 'Erreur', detail: flash.error, life: 5000 });
+  }
+  if (flash?.warning) {
+    toast.add({ severity: 'warn', summary: 'Attention', detail: flash.warning, life: 4000 });
+  }
+  if (flash?.info) {
+    toast.add({ severity: 'info', summary: 'Information', detail: flash.info, life: 3000 });
+  }
+  if (flash?.Bonjour) {
+    toast.add({ severity: 'success', summary: 'Bonjour', detail: flash.Bonjour, life: 4000 });
+  }
+}, { deep: true });
 
 // --- Smooth Scroll (Lenis) ---
 let lenis;
@@ -19,17 +51,15 @@ onMounted(() => {
     smoothWheel: true,
   });
 
-  // GSAP + Lenis Integration
   lenis.on('scroll', ScrollTrigger.update);
   window.lenis = lenis;
 
   gsap.ticker.add((time) => {
-    lenis.raf(time * 1000); // Lenis requires time in ms
+    lenis.raf(time * 1000);
   });
 
   gsap.ticker.lagSmoothing(0);
-  
-  // Initialize observer
+
   setupScrollAnimations();
 });
 
@@ -38,12 +68,14 @@ onUnmounted(() => {
     lenis.destroy();
     gsap.ticker.remove((time) => lenis.raf(time * 1000));
   }
+  if (window.scrollTimer) clearTimeout(window.scrollTimer);
+  document.body.classList.remove('is-scrolling'); // Cleanup
+
   if (mutationObserver) mutationObserver.disconnect();
   if (resizeObserver) resizeObserver.disconnect();
   if (unbindRouter) unbindRouter();
 });
 
-// --- Scroll Zoom/Breathing Animation ---
 const mainRef = ref(null);
 const cursorRef = ref(null);
 const footerRef = ref(null);
@@ -56,28 +88,20 @@ const setupScrollAnimations = () => {
 
   const animateNode = (node) => {
     if (node.nodeType !== 1) return; // Ensure element node
-    
-    // Ensure we don't double-animate
-    if (node.dataset.hasScrollAnim) return;
 
-    // EXCLUSION UPDATED: 
-    // Added .no-global-reveal to prevent AppLayout from hijacking animations in Heropage/LiveTrainings
-    // Added .infinite-photo-scroll and .video-grid to exclude these components from scroll animations
-    // Added .founder-section to prevent opacity issues
-    // Added .resource-card and .program-card to prevent buggy scale animations
-    if (node.closest('[data-lenis-prevent]') || node.closest('.consultation-lists') || node.closest('.no-global-reveal') || node.closest('.infinite-photo-scroll') || node.closest('.video-grid') || node.closest('.founder-section')) {
+    if (node.dataset.hasScrollAnim) return;
+    if (node.closest('[data-lenis-prevent]') || node.closest('.consultation-lists') || node.closest('.no-global-reveal') || node.closest('.infinite-photo-scroll') || node.closest('.video-grid') || node.closest('.founder-section') || node.closest('.programmes-page') || node.closest('.how-it-works-page')) {
       return;
     }
 
-    // NEW: Prevent double animation if a parent is already being animated
     let parent = node.parentElement;
     while (parent) {
       if (parent.dataset && parent.dataset.hasScrollAnim) {
-        return; 
+        return;
       }
       parent = parent.parentElement;
     }
-    
+
     node.dataset.hasScrollAnim = "true";
 
     const isFooter = node.closest('footer');
@@ -85,51 +109,52 @@ const setupScrollAnimations = () => {
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: node,
-        start: "top bottom",   
-        end: isFooter ? "center 90%" : "bottom top", 
-        scrub: 0.5,            
+        start: "top bottom",
+        end: isFooter ? "center 90%" : "bottom top",
+        scrub: 0.5,
       }
     });
 
     if (isFooter) {
-      tl.fromTo(node, 
-        { scale: 0.9, y: 0, opacity: 1, transformOrigin: "center center" }, 
+      tl.fromTo(node,
+        { scale: 0.9, y: 0, opacity: 1, transformOrigin: "center center" },
         { scale: 1, y: 0, opacity: 1, duration: 1, ease: "power2.out" }
       );
     } else {
-      tl.fromTo(node, 
-        { scale: 0.85, y: 0, opacity: 0, transformOrigin: "center center" }, 
+      tl.fromTo(node,
+        { scale: 0.85, y: 0, opacity: 0, transformOrigin: "center center" },
         { scale: 1, y: 0, opacity: 1, duration: 0.3, ease: "power2.out" }
       )
-      .to(node, 
-        { scale: 1, y: 0, opacity: 1, duration: 0.4 } 
-      )
-      .to(node, 
-        { scale: 0.85, y: 0, opacity: 0, duration: 0.3, ease: "power1.in" }
-      );
+        .to(node,
+          { scale: 1, y: 0, opacity: 1, duration: 0.4 }
+        )
+        .to(node,
+          { scale: 0.85, y: 0, opacity: 0, duration: 0.3, ease: "power1.in" }
+        );
     }
   };
 
   const scanAndAnimate = (root) => {
     if (!root || !root.querySelectorAll) return;
-    
+
     const selector = 'article, h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, img, button, a, .training-card, .asset-card, .card-wrapper, .vision-line, .program-card, .resource-card';
-    
+
     const elements = root.querySelectorAll(selector);
     elements.forEach(animateNode);
-    
+
     if (root !== mainRef.value && root.matches && root.matches(selector)) {
       animateNode(root);
     }
   };
 
   scanAndAnimate(mainRef.value);
-  
+
   const footerEl = footerRef.value?.$el || footerRef.value;
   scanAndAnimate(footerEl);
 
   let refreshTimer;
   const debouncedRefresh = () => {
+    if (document.body.classList.contains('is-hovering-expandable')) return;
     clearTimeout(refreshTimer);
     refreshTimer = setTimeout(() => {
       ScrollTrigger.refresh();
@@ -154,6 +179,7 @@ const setupScrollAnimations = () => {
   mutationObserver.observe(mainRef.value, { childList: true, subtree: true });
 
   resizeObserver = new ResizeObserver(() => {
+    if (document.body.classList.contains('is-hovering-expandable')) return;
     debouncedRefresh();
   });
   resizeObserver.observe(mainRef.value);
@@ -194,13 +220,13 @@ const setupScrollAnimations = () => {
     });
 
     document.addEventListener("mouseout", (e) => {
-       const target = e.target;
-       const related = e.relatedTarget;
-       const insideCard = related && (related.closest('.interaction-scroll-cursor') || related.closest('.training-card') || related.closest('.category-card'));
-       
-       if (!insideCard) {
-         gsap.to(cursor, { scale: 0, opacity: 0, duration: 0.3 });
-       }
+      const target = e.target;
+      const related = e.relatedTarget;
+      const insideCard = related && (related.closest('.interaction-scroll-cursor') || related.closest('.training-card') || related.closest('.category-card'));
+
+      if (!insideCard) {
+        gsap.to(cursor, { scale: 0, opacity: 0, duration: 0.3 });
+      }
     });
   }
 };
@@ -208,23 +234,23 @@ const setupScrollAnimations = () => {
 
 <template>
   <div class="min-h-screen relative bg-[#FDFDFC] dark:bg-[#0a0a0a]">
-    
+    <Toast />
+
     <div class="custom-scroll-cursor" ref="cursorRef">
       <span class="cursor-text">FAITES<br>DÉFILER</span>
     </div>
 
     <AppHeader class="absolute top-0 inset-x-0 z-50" />
-    
+
     <main class="flex-1" ref="mainRef">
       <slot />
     </main>
-    
+
     <AppFooter ref="footerRef" />
   </div>
 </template>
 
 <style>
-/* Global Cursor Styles */
 .custom-scroll-cursor {
   position: fixed;
   top: 0;
@@ -239,17 +265,23 @@ const setupScrollAnimations = () => {
   align-items: center;
   justify-content: center;
   text-align: center;
-  transform: translate(-50%, -50%) scale(0); 
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-  mix-blend-mode: normal; 
+  transform: translate(-50%, -50%) scale(0);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  mix-blend-mode: normal;
 }
 
-.training-card, .category-card {
+
+.training-card,
+.category-card {
   cursor: none !important;
 }
 
-.training-card button, .training-card a, .training-card [role="button"],
-.category-card button, .category-card a, .category-card [role="button"],
+.training-card button,
+.training-card a,
+.training-card [role="button"],
+.category-card button,
+.category-card a,
+.category-card [role="button"],
 .action-btn {
   cursor: pointer !important;
 }

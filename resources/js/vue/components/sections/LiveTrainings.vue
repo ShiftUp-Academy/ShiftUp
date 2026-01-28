@@ -22,7 +22,7 @@
 
       <div class="left-content" ref="titleRef">
         <h2 class="title-main">
-          NOS PROGRAMMES DE FORMATION EN LIGNE ET PRESENTIELS
+          NOS DATES DE SEMINAIRES EN LIGNE ET PRESENTIELS
         </h2>
         <p class="description-text">
           Explorez toutes les catégories proposées par ShiftUp regroupées en une seule page.
@@ -63,7 +63,6 @@
         <div 
           class="cards-grid" 
           ref="cardsGridRef" 
-          @wheel="handleWheelScroll"
           @mousedown="handleDragStart"
           @mousemove="handleDragMove"
           @mouseup="handleDragEnd"
@@ -149,23 +148,7 @@ const isDragging = ref(false);
 const startX = ref(0);
 const scrollStartX = ref(0);
 
-const handleWheelScroll = (e) => {
-  if (!cardsGridRef.value) return;
-  if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-    return;
-  }
 
-  if (Math.abs(e.deltaY) > 0) {
-    e.preventDefault();
-    
-    gsap.to(cardsGridRef.value, {
-      scrollLeft: cardsGridRef.value.scrollLeft + (e.deltaY * 2.5),
-      duration: 0.5,
-      ease: 'power2.out',
-      overwrite: 'auto'
-    });
-  }
-};
 
 const handleDragStart = (e) => {
   isDragging.value = true;

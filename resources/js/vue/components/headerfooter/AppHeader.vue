@@ -1,96 +1,112 @@
 <template>
-  <div class="liquidGlass-wrapper menu"
-    :style="{ '--mouse-x': menuFlash.x, '--mouse-y': menuFlash.y, '--flash-opacity': menuFlash.opacity }"
-    @mousemove="handleFlashMove($event, 'menu')" @mouseleave="handleFlashLeave('menu')">
-    <div class="liquidGlass-effect"></div>
-    <div class="liquidGlass-tint"></div>
-    <div class="liquidGlass-shine"></div>
-    <div class="menu-background" ref="menuBackground"></div>
+  <header>
+    <div class="liquidGlass-wrapper menu"
+      :style="{ '--mouse-x': menuFlash.x, '--mouse-y': menuFlash.y, '--flash-opacity': menuFlash.opacity }"
+      @mousemove="handleFlashMove($event, 'menu')" @mouseleave="handleFlashLeave('menu')">
+      <div class="liquidGlass-effect"></div>
+      <div class="liquidGlass-tint"></div>
+      <div class="liquidGlass-shine"></div>
+      <div class="menu-background" ref="menuBackground"></div>
 
-    <div class="liquidGlass-text menu-items">
-      <div class="menu-logo">
-        <Link href="/">
-          <img :src="logoSrc" alt="Logo" class="logo-image" />
+      <div class="liquidGlass-text menu-items">
+        <div class="menu-logo">
+          <Link href="/">
+            <img :src="logoSrc" alt="Logo" class="logo-image" />
+          </Link>
+        </div>
+
+        <Link v-for="(item, index) in renderedMenuItems" :key="index" :href="item.route" :data-index="index"
+          @click="setActive(index)" :class="{ 'is-active': activeIndex === index }">
+          {{ item.label }}
+        </Link>
+      </div>
+    </div>
+
+    <svg style="display: none">
+      <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox">
+        <feTurbulence type="fractalNoise" baseFrequency="0.01 0.01" numOctaves="1" seed="5" result="turbulence" />
+        <feComponentTransfer in="turbulence" result="mapped">
+          <feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5" />
+          <feFuncG type="gamma" amplitude="0" exponent="1" offset="0" />
+          <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5" />
+        </feComponentTransfer>
+        <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap" />
+        <feSpecularLighting in="softMap" surfaceScale="5" specularConstant="1" specularExponent="100"
+          lighting-color="white" result="specLight">
+          <fePointLight x="-200" y="-200" z="300" />
+        </feSpecularLighting>
+        <feComposite in="specLight" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage" />
+        <feDisplacementMap in="SourceGraphic" in2="softMap" scale="200" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
+
+    <div class="footer-menu" :class="{ 'invert-colors': isLightBackground, 'is-visible': showFooter }">
+      <div class="action-buttons">
+        <template v-if="user">
+          <div class="user-display" @click.stop="toggleProfil" @mousedown.stop>
+            <img v-if="user.profil?.PhotoProfil" :src="user.profil.PhotoProfil" class="user-avatar" />
+            <div v-else class="user-avatar-placeholder">
+              <i class="fa-solid fa-user"></i>
+            </div>
+
+            <div class="action-button user-name-btn">
+              <span v-for="(char, index) in userNameChars" :key="`user-${index}`" class="char"
+                :style="{ 'animation-delay': `${index * 0.03}s` }">
+                {{ char === ' ' ? '&nbsp;' : char }}
+              </span>
+            </div>
+          </div>
+        </template>
+        <button v-else @click="openLogin($event)" class="action-button login-btn">
+          <span v-for="(char, index) in loginChars" :key="`login-${index}`" class="char"
+            :style="{ 'animation-delay': `${index * 0.03}s` }">
+            {{ char === ' ' ? '&nbsp;' : char }}
+          </span>
+        </button>
+
+        <Link href="/programmes" class="action-button programs-btn">
+          <span v-for="(char, index) in programsChars" :key="`programs-${index}`" class="char"
+            :style="{ 'animation-delay': `${index * 0.03}s` }">
+            {{ char === ' ' ? '&nbsp;' : char }}
+          </span>
+        </Link>
+
+        <Link href="/coaching" class="action-button coaching-btn">
+          <span v-for="(char, index) in coachingChars" :key="`coaching-${index}`" class="char"
+            :style="{ 'animation-delay': `${index * 0.03}s` }">
+            {{ char === ' ' ? '&nbsp;' : char }}
+          </span>
         </Link>
       </div>
 
-      <Link v-for="(item, index) in renderedMenuItems" :key="index" :href="item.route" :data-index="index"
-        @click="setActive(index)" :class="{ 'is-active': activeIndex === index }">
-      {{ item.label }}
-      </Link>
-    </div>
-  </div>
-
-  <svg style="display: none">
-    <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox">
-      <feTurbulence type="fractalNoise" baseFrequency="0.01 0.01" numOctaves="1" seed="5" result="turbulence" />
-      <feComponentTransfer in="turbulence" result="mapped">
-        <feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5" />
-        <feFuncG type="gamma" amplitude="0" exponent="1" offset="0" />
-        <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5" />
-      </feComponentTransfer>
-      <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap" />
-      <feSpecularLighting in="softMap" surfaceScale="5" specularConstant="1" specularExponent="100" lighting-color="white"
-        result="specLight">
-        <fePointLight x="-200" y="-200" z="300" />
-      </feSpecularLighting>
-      <feComposite in="specLight" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage" />
-      <feDisplacementMap in="SourceGraphic" in2="softMap" scale="200" xChannelSelector="R" yChannelSelector="G" />
-    </filter>
-  </svg>
-
-  <div class="footer-menu" :class="{ 'invert-colors': isLightBackground, 'is-visible': showFooter }">
-    <div class="action-buttons">
-      <template v-if="user">
-        <div class="user-display" @click.stop="toggleProfil" @mousedown.stop>
-          <img v-if="user.profil?.PhotoProfil" :src="user.profil.PhotoProfil" class="user-avatar" />
-          <div v-else class="user-avatar-placeholder">
-            <i class="fa-solid fa-user"></i>
-          </div>
-          
-          <div class="action-button user-name-btn">
-            <span v-for="(char, index) in userNameChars" :key="`user-${index}`" class="char"
-              :style="{ 'animation-delay': `${index * 0.03}s` }">
-              {{ char === ' ' ? '&nbsp;' : char }}
-            </span>
-          </div>
-        </div>
-      </template>
-      <Link v-else href="/login" class="action-button login-btn">
-      <span v-for="(char, index) in loginChars" :key="`login-${index}`" class="char"
-        :style="{ 'animation-delay': `${index * 0.03}s` }">
-        {{ char === ' ' ? '&nbsp;' : char }}
-      </span>
+      <Link href="/contact" class="profile-icon-wrapper"
+        :style="{ '--mouse-x': profileFlash.x, '--mouse-y': profileFlash.y, '--flash-opacity': profileFlash.opacity }"
+        @mousemove="handleFlashMove($event, 'profile')" @mouseleave="handleFlashLeave('profile')">
+        <div class="profile-icon"><i class="far fa-envelope"></i></div>
       </Link>
 
-      <Link href="/programmes" class="action-button programs-btn">
-      <span v-for="(char, index) in programsChars" :key="`programs-${index}`" class="char"
-        :style="{ 'animation-delay': `${index * 0.03}s` }">
-        {{ char === ' ' ? '&nbsp;' : char }}
-      </span>
-      </Link>
+      <div class="top-icon-wrapper"
+        :style="{ '--mouse-x': topFlash.x, '--mouse-y': topFlash.y, '--flash-opacity': topFlash.opacity }"
+        @mousemove="handleFlashMove($event, 'top')" @mouseleave="handleFlashLeave('top')" @click.prevent="scrollToTop">
+        <div class="top-icon"><i class="fa-solid fa-arrow-up icon-up"></i></div>
+      </div>
     </div>
 
-    <Link href="/contact" class="profile-icon-wrapper"
-      :style="{ '--mouse-x': profileFlash.x, '--mouse-y': profileFlash.y, '--flash-opacity': profileFlash.opacity }"
-      @mousemove="handleFlashMove($event, 'profile')" @mouseleave="handleFlashLeave('profile')">
-    <div class="profile-icon"><i class="far fa-envelope"></i></div>
-    </Link>
-
-    <div class="top-icon-wrapper"
-      :style="{ '--mouse-x': topFlash.x, '--mouse-y': topFlash.y, '--flash-opacity': topFlash.opacity }"
-      @mousemove="handleFlashMove($event, 'top')" @mouseleave="handleFlashLeave('top')" @click.prevent="scrollToTop">
-      <div class="top-icon"><i class="fa-solid fa-arrow-up icon-up"></i></div>
+    <div class="robot-container" :class="{ 'is-visible': showFooter }">
+      <spline-viewer url="https://prod.spline.design/1NFsNvYihV-D5oUI/scene.splinecode" loading-anim-type="none"
+        events-target="global" style="pointer-events: none"></spline-viewer>
     </div>
-  </div>
-  
-  <Profil :is-open="isProfilOpen" :user="user" @close="isProfilOpen = false" />
+
+    <Profil :is-open="isProfilOpen" :user="user" @close="isProfilOpen = false" />
+    <LoginModal :is-open="isLoginOpen" :origin="loginButtonCoords" @close="isLoginOpen = false" />
+  </header>
 </template>
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed, nextTick, reactive, watch } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import Profil from './Profil.vue';
+import LoginModal from '../auth/LoginModal.vue';
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -106,6 +122,9 @@ const dynamicHomeLabel = computed(() => {
   if (currentPath === '/toutcategorie') return 'Toutes les Catégories';
   if (currentPath === '/login') return 'Identification';
   if (currentPath === '/contact') return 'Contactez-moi !';
+  if (currentPath === '/consultations') return 'Consultations';
+  if (currentPath === '/programmes') return 'Les programmes de formation';
+  if (currentPath === '/coaching') return 'Coachings';
   return 'Accueil';
 });
 
@@ -118,18 +137,16 @@ const renderedMenuItems = computed(() => {
   });
 });
 
-// Simplified active index logic
 const findActiveIndex = () => {
   const currentPath = page.url;
   if (currentPath === '/' || currentPath === '/organisme' || currentPath === '/toutcategorie') return 0;
-  
+
   const index = menuItemsData.findIndex(item => item.route !== '/' && currentPath.startsWith(item.route));
-  return index !== -1 ? index : 0; // Default to 0 for safety
+  return index !== -1 ? index : 0;
 };
 
 const activeIndex = ref(findActiveIndex());
 
-// Surveiller les changements de label et d'URL pour repositionner la pillule
 watch([() => page.url, dynamicHomeLabel], () => {
   activeIndex.value = findActiveIndex();
   nextTick(() => {
@@ -147,7 +164,7 @@ const userNameChars = computed(() => {
 });
 
 const menuBackground = ref(null);
-const logoSrc = ref('images/logo-site-blanc.png');
+const logoSrc = ref('/images/logo-site-blanc.png');
 
 const menuFlash = reactive({ x: '50%', y: '50%', opacity: 0 });
 const profileFlash = reactive({ x: '50%', y: '50%', opacity: 0 });
@@ -157,17 +174,26 @@ const isLightBackground = ref(false);
 const showFooter = ref(false);
 
 const isProfilOpen = ref(false);
+const isLoginOpen = ref(false);
+const loginButtonCoords = reactive({ x: 0, y: 0 });
+
+const openLogin = (event) => {
+  const rect = event.currentTarget.getBoundingClientRect();
+  loginButtonCoords.x = rect.left + rect.width / 2;
+  loginButtonCoords.y = rect.top + rect.height / 2;
+  isLoginOpen.value = true;
+};
 
 const toggleProfil = () => {
-    isProfilOpen.value = !isProfilOpen.value;
+  isProfilOpen.value = !isProfilOpen.value;
 };
 
 
-const scrollToTop = () => { 
+const scrollToTop = () => {
   if (window.lenis) {
     window.lenis.scrollTo(0);
   } else {
-    window.scrollTo({ top: 0, behavior: 'smooth' }); 
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 };
 
@@ -212,12 +238,11 @@ function updateBackground() {
 
 const initScrollLogic = async () => {
   const { ScrollTrigger } = await import("gsap/ScrollTrigger");
-  
+
   ScrollTrigger.getAll().forEach(t => {
     if (t.vars.id === 'floating-menu-trigger') t.kill();
   });
 
-  // Une seule zone de validité : de 100px jusqu'au footer
   ScrollTrigger.create({
     id: 'floating-menu-trigger',
     trigger: "body",
@@ -228,13 +253,21 @@ const initScrollLogic = async () => {
     onLeave: () => { showFooter.value = false; },
     onEnterBack: () => { showFooter.value = true; },
     onLeaveBack: () => { showFooter.value = false; },
-    refreshPriority: -1 // S'assure d'être calculé après les pins
+    refreshPriority: -1
   });
 };
 
 let resizeObserver = null;
 
 onMounted(async () => {
+  // Load Spline Viewer script
+  if (!window.SplineViewer) {
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js';
+    script.type = 'module';
+    document.head.appendChild(script);
+  }
+
   const menuItems = document.querySelector('.menu-items');
   if (menuItems) {
     resizeObserver = new ResizeObserver(() => {
@@ -246,11 +279,33 @@ onMounted(async () => {
   setTimeout(() => {
     updateBackground();
   }, 50);
-  
+
   window.addEventListener('resize', updateBackground);
-  
+
   await initScrollLogic();
-  // Forcer un rafraîchissement global après un court délai pour les pins
+
+  // Force hide Spline logo - intense version
+  const forceRemoveSplineLogo = () => {
+    const viewer = document.querySelector('spline-viewer');
+    if (viewer && viewer.shadowRoot) {
+      const logo = viewer.shadowRoot.querySelector('#logo') ||
+        viewer.shadowRoot.querySelector('a[href*="spline.design"]') ||
+        viewer.shadowRoot.querySelector('.spline-watermark');
+      if (logo) {
+        logo.remove();
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const logoCheckInterval = setInterval(forceRemoveSplineLogo, 50);
+
+  setTimeout(() => {
+    clearInterval(logoCheckInterval);
+    setInterval(forceRemoveSplineLogo, 1000);
+  }, 5000);
+
   setTimeout(() => {
     import("gsap/ScrollTrigger").then(({ ScrollTrigger }) => {
       ScrollTrigger.refresh();
@@ -261,7 +316,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   if (resizeObserver) resizeObserver.disconnect();
   window.removeEventListener('resize', updateBackground);
-  
+
   import("gsap/ScrollTrigger").then(({ ScrollTrigger }) => {
     ScrollTrigger.getAll().forEach(t => {
       if (t.vars.id === 'floating-menu-trigger') t.kill();
@@ -282,7 +337,6 @@ watch(() => page.url, () => {
 </script>
 
 <style scoped>
-/* TES STYLES ORIGINAUX RESTAURÉS À L'IDENTIQUE */
 .liquidGlass-wrapper {
   position: relative;
   display: flex;
@@ -317,7 +371,7 @@ watch(() => page.url, () => {
   inset: 0;
   z-index: 2;
   overflow: hidden;
-  box-shadow: 
+  box-shadow:
     inset 1.5px 1.5px 3px rgba(255, 255, 255, 0.221),
     inset -1.5px -1.5px 3px rgba(0, 0, 0, 0.15),
     0 0 0 1px rgba(255, 255, 255, 0.05);
@@ -328,18 +382,18 @@ watch(() => page.url, () => {
   content: "";
   position: absolute;
   inset: -1px;
-  border-radius: inherit; /* S'adapte au container */
-  padding: 1.2px; /* Largeur de la micro-bordure dynamique */
-  background: radial-gradient(
-    100px circle at var(--mouse-x) var(--mouse-y), 
-    rgba(255, 255, 255, 0.9), 
-    transparent 100%
-  );
-  -webkit-mask: 
-    linear-gradient(#fff 0 0) content-box, 
+  border-radius: inherit;
+  /* S'adapte au container */
+  padding: 1.2px;
+  /* Largeur de la micro-bordure dynamique */
+  background: radial-gradient(100px circle at var(--mouse-x) var(--mouse-y),
+      rgba(255, 255, 255, 0.9),
+      transparent 100%);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
-  mask: 
-    linear-gradient(#fff 0 0) content-box, 
+  mask:
+    linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -468,11 +522,30 @@ watch(() => page.url, () => {
   font-family: inherit;
 }
 
+.user-name-btn {
+  font-weight: 500;
+}
+
 @keyframes letter-fall {
-  0% { transform: translateY(0); opacity: 1; }
-  49% { transform: translateY(100%); opacity: 0; }
-  50% { transform: translateY(-100%); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  49% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  50% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .action-button .char {
@@ -530,6 +603,7 @@ watch(() => page.url, () => {
 .top-icon-wrapper:hover {
   background-color: #1A888D;
 }
+
 .user-display {
   display: flex;
   align-items: center;
@@ -554,6 +628,41 @@ watch(() => page.url, () => {
   justify-content: center;
   font-size: 0.9rem;
   color: #333;
+}
+
+.robot-container {
+  width: 120px;
+  height: 120px;
+  position: fixed;
+  bottom: 0px;
+  right: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  opacity: 0;
+  transform: translateY(50px) scale(0.8);
+  transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  /* Capture only if needed, but here it's decorative */
+}
+
+.robot-container.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.robot-container:hover {
+  transform: scale(1.05) translateY(-5px);
+}
+
+spline-viewer {
+  width: 100%;
+  height: 100%;
+  clip-path: inset(0 0 15px 0);
+  /* Crop the bottom 15px where the logo lives */
 }
 
 .action-buttons {

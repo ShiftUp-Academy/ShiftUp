@@ -1,0 +1,26 @@
+
+   INFO  Running migrations.  
+
+  2026_01_20_102000_fix_timestamps_formation_tables  40.04ms FAIL
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[42703]: Undefined column: 7 ERREUR:  la colonne ┬½ Created_at ┬╗ n'existe pas (Connection: pgsql, SQL: alter table "Themes" rename column "Created_at" to "DateCreation")
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:824
+    820Ôûò                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    821Ôûò                 );
+    822Ôûò             }
+    823Ôûò 
+  Ô×£ 824Ôûò             throw new QueryException(
+    825Ôûò                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826Ôûò             );
+    827Ôûò         }
+    828Ôûò     }
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:570
+      PDOException::("SQLSTATE[42703]: Undefined column: 7 ERREUR:  la colonne ┬½ Created_at ┬╗ n'existe pas")
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:570
+      PDOStatement::execute()
+

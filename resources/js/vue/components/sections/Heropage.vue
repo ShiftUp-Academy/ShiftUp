@@ -269,7 +269,7 @@ function onWindowResize() { /* Laisser vide ou gérer la responsivité si néces
     top: 20%;
     /* La transformation initiale sert de base au mouvement de parallaxe */
     transform: translateX(-50%);
-    font-weight: 350;
+    font-weight: 400;
     font-size: 4em;
     line-height: 85%;
     color: #FFFFFF;
@@ -288,7 +288,6 @@ function onWindowResize() { /* Laisser vide ou gérer la responsivité si néces
     display: inline-block;
 }
 
-/* Styles pour la police Bogart/Italique (si vous avez les polices chargées) */
 .gt-alpina-font {
     font-family: 'GT Alpina Fine Trial', serif;
     font-weight: 300;

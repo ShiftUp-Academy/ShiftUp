@@ -45,7 +45,7 @@
         <div class="cards-grid" ref="cardsGridRef">
           <div v-for="(training, index) in trainings" :key="index" class="card-wrapper">
             <CategoryCard v-bind="training" />
-            
+
             <div class="card-meta">
               <span class="card-number">{{ String(index + 1).padStart(2, '0') }}</span>
             </div>
@@ -57,7 +57,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import CategoryCard from '../ui/CategoryCard.vue';
@@ -68,40 +68,26 @@ const sectionRef = ref(null);
 const titleRef = ref(null);
 const cardsGridRef = ref(null);
 
-const trainings = [
-  {
-    title: 'Pack journée international du..',
-    date: '15 Oct 2025',
-    location: 'Paris, FR',
-    image: '/images/Bibliothèque/aesthetics graphic designer.jpg',
-    description: 'Une immersion totale dans les principes du design moderne et de l\'UX/UI.',
-    price: '190K Ar'
-  },
-  {
-    title: 'Pack multimédia',
-    date: '02 Nov 2025',
-    location: 'Lyon, FR',
-    image: '/images/Bibliothèque/Zoom.jpg',
-    description: 'Développez votre leadership et apprenez à gérer des équipes performantes.',
-    price: '200K Ar'
-  },
-  {
-    title: 'Tech Innovators',
-    date: '20 Nov 2025',
-    location: 'Bordeaux, FR',
-    image: '/images/Bibliothèque/image-cours.webp',
-    description: 'Les dernières tendances technologiques décryptées par des experts du secteur.',
-    price: '190K Ar'
-  },
-  {
-    title: 'Masterclass Design',
-    date: '15 Dec 2025',
-    location: 'Nice, FR',
-    image: '/images/Bibliothèque/aesthetics graphic designer.jpg',
-    description: 'Une immersion totale dans les principes du design moderne et de l\'UX/UI.',
-    price: '200K Ar'
-  },
-];
+const props = defineProps({
+  programs: {
+    type: Array,
+    default: () => []
+  }
+});
+
+const trainings = computed(() => {
+  if (!props.programs || props.programs.length === 0) {
+    // Return dummy data if empty to keep layout, or just empty array
+    return [];
+  }
+  return props.programs.map(p => ({
+    id: p.id,
+    title: p.title,
+    image: p.image,
+    description: p.description || 'Formation complète proposée par ShiftUp.',
+    price: p.price
+  }));
+});
 
 const scrollCarrousel = (direction) => {
   if (!cardsGridRef.value) return;
@@ -150,7 +136,8 @@ onMounted(() => {
 <style scoped>
 /* SECTION PRINCIPALE */
 .category-section {
-  background-color: transparent; /* Changed from white to allow body transition */
+  background-color: transparent;
+  /* Changed from white to allow body transition */
   padding: 2rem 0 0 0;
   position: relative;
   z-index: 10;
@@ -310,10 +297,10 @@ onMounted(() => {
   .container {
     padding-top: 2rem;
   }
-  
+
   .section-header {
-      padding-left: 20px;
-      padding-right: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
   }
 }
 

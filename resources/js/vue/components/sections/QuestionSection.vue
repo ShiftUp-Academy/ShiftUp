@@ -1,0 +1,427 @@
+<template>
+  <section class="question-section">
+    <div class="container">
+      <div class="filters-panel-wrapper">
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label>Contenu de la question</label>
+            <input type="text" v-model="filters.search" placeholder="Recherchez par mot clé"
+              class="filter-input-simple" />
+          </div>
+
+          <div class="filter-group">
+            <label>Catégories</label>
+            <Select v-model="filters.category" :options="categories" optionLabel="Nom" placeholder="Catégories..."
+              class="filter-prime-simple" />
+          </div>
+
+          <div class="filter-actions-inline">
+            <button class="minimal-reset-btn" @click="resetFilters">
+              <i class="fas fa-redo-alt"></i> Réinitialiser
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="isSearching" class="questions-list">
+        <div v-for="(item, index) in filteredQuestions" :key="index" class="session-item full-page-item">
+          <div class="item-header">LES QUESTIONS</div>
+          <div class="author-row">
+            <img :src="getAuthorAvatar(item)" :alt="getAuthorName(item)" class="avatar" />
+            <div class="author-info">
+              <span class="author-name">{{ getAuthorName(item) }}</span>
+              <span v-if="item.questions && item.questions[0]?.utilisateur?.Role === 'Admin'"
+                class="admin-badge">Coach</span>
+              <span v-if="getStatusLabel(item)" class="status-badge">{{ getStatusLabel(item) }}</span>
+            </div>
+          </div>
+          <p class="question-text">{{ getQuestionShort(item) }}</p>
+          <div class="item-footer">
+            <div class="meta-info">
+              <span class="category-tag">catégorie : <span class="category-name">{{ item.categorie?.Nom || 'Général'
+                  }}</span></span>
+            </div>
+            <a href="#" class="consultation-link" @click.prevent="$emit('view-detail', item)">VOIR LA CONSULTATION <span
+                class="arrow">↗</span></a>
+          </div>
+        </div>
+
+        <div v-if="filteredQuestions.length === 0" class="no-results">
+          <p>Aucune question ne correspond à votre recherche.</p>
+        </div>
+      </div>
+
+      <div v-else class="initial-state">
+        <p class="initial-text">Entrez un mot-clé ou sélectionnez une catégorie pour voir les questions correspondantes.
+        </p>
+      </div>
+    </div>
+  </section>
+</template>
+
+<script setup>
+import { ref, reactive, computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+import AutoComplete from 'primevue/autocomplete';
+import Select from 'primevue/select';
+
+const props = defineProps({
+  categories: {
+    type: Array,
+    default: () => []
+  },
+  questions: {
+    type: Array,
+    default: () => []
+  }
+});
+
+const emit = defineEmits(['view-detail']);
+
+const filters = reactive({
+  search: '',
+  category: null
+});
+
+const isSearching = computed(() => {
+  return filters.search.trim() !== '' || filters.category !== null;
+});
+
+const filteredQuestions = computed(() => {
+  if (!isSearching.value) return [];
+
+  const searchLower = filters.search.toLowerCase();
+
+  return props.questions.filter(item => {
+    const matchesMain = !filters.search ||
+      item.Titre.toLowerCase().includes(searchLower) ||
+      (item.Descriptions && item.Descriptions.toLowerCase().includes(searchLower));
+
+    const matchesQuestions = !filters.search || (item.questions && item.questions.some(q =>
+      q.Question.toLowerCase().includes(searchLower)
+    ));
+
+    const matchesCategory = !filters.category || item.IdCategorie === filters.category.IdCategorie;
+
+    return (matchesMain || matchesQuestions) && matchesCategory;
+  });
+});
+
+const resetFilters = () => {
+  filters.search = '';
+  filters.category = null;
+};
+
+const getAuthorName = (item) => {
+  if (!item.questions || item.questions.length === 0) return 'Archivé';
+  const u = item.questions[0].utilisateur;
+  if (!u || !u.profil) return 'Utilisateur';
+  return `${u.profil.Prenom} ${u.profil.Nom}`;
+};
+
+const getAuthorAvatar = (item) => {
+  if (!item.questions || item.questions.length === 0) return '/images/Bibliothèque/Nantenaina.jpg';
+  const u = item.questions[0].utilisateur;
+  return u?.profil?.PhotoProfil || '/images/Bibliothèque/Nantenaina.jpg';
+};
+
+const getQuestionShort = (item) => {
+  if (!item.questions || item.questions.length === 0) return item.Titre;
+  // If searching, try to return the specific question that matched
+  if (filters.search) {
+    const match = item.questions.find(q => q.Question.toLowerCase().includes(filters.search.toLowerCase()));
+    if (match) return match.Question;
+  }
+  return item.questions[0].Question;
+};
+
+const getStatusLabel = (item) => {
+  return item.Statut === 'Publié' ? null : 'Non publié';
+};
+</script>
+
+<style scoped>
+.question-section {
+  background-color: #050505;
+  padding: 80px 0;
+  color: white;
+}
+
+.container {
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+.filters-panel-wrapper {
+  background: #ffffff;
+  border-radius: 25px;
+  padding: 0 5vw;
+  margin-bottom: 50px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.panel-header {
+  padding-top: 1.5rem;
+}
+
+.filter-group label {
+  font-size: 1.5rem !important;
+  font-weight: 500 !important;
+}
+
+.panel-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0;
+}
+
+.filters-grid {
+  padding: 30px 0;
+  /* Retrait du padding horizontal car géré par le wrapper */
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 25px;
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filter-group label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.filter-input-simple,
+:deep(.filter-input-simple-inner) {
+  width: 100%;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid #afafaf !important;
+  padding: 10px 0 !important;
+  font-size: 1.2rem !important;
+  color: #111 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  transition: all 0.3s;
+  border-radius: 0 !important;
+}
+
+.filter-input-simple:focus,
+:deep(.filter-input-simple-inner:focus) {
+  border-bottom-color: #111 !important;
+}
+
+:deep(.filter-prime-simple) {
+  width: 100% !important;
+}
+
+:deep(.filter-prime-simple.p-select) {
+  background: transparent !important;
+  border-radius: 0 !important;
+  border: none !important;
+  border-bottom: 2px solid #afafaf !important;
+}
+
+:deep(.filter-prime-simple.p-select .p-select-label) {
+  padding: 10px 0 !important;
+  font-size: 1.2rem !important;
+  color: #111 !important;
+}
+
+:deep(.filter-prime-simple:not(.p-disabled).p-focus),
+:deep(.filter-prime-simple.p-select:not(.p-disabled).p-focus) {
+  border-bottom-color: #111 !important;
+  box-shadow: none !important;
+}
+
+.filter-actions-inline {
+  display: flex;
+  align-items: center;
+  padding-bottom: 10px;
+}
+
+.minimal-reset-btn {
+  background: transparent;
+  border: none;
+  color: #202020;
+  font-size: 1.1rem;
+  font-weight: 400;
+  cursor: pointer;
+  display: flex;
+  font-style: uppercase;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.3s;
+}
+
+.minimal-reset-btn:hover {
+  color: #111;
+}
+
+/* List Style */
+.questions-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.session-item.full-page-item {
+  padding: 50px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.session-item:last-child {
+  border-bottom: none;
+}
+
+.item-header {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.author-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.author-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.author-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.admin-badge {
+  font-size: 1rem;
+  color: #A16EFF;
+  font-weight: 500;
+}
+
+.status-badge {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.question-text {
+  font-size: 1.8rem;
+  line-height: 1.25;
+  color: #fff;
+  font-weight: 600;
+  margin-bottom: 30px;
+  letter-spacing: -0.01em;
+}
+
+.item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.meta-info {
+  display: flex;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.95rem;
+}
+
+.category-name {
+  color: #fff;
+  font-weight: 700;
+  margin-left: 5px;
+}
+
+.tags-list {
+  color: #F7B455;
+  font-weight: 700;
+  margin-left: 5px;
+}
+
+.consultation-link {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #fff;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s;
+}
+
+.consultation-link:hover {
+  color: #8A38F5;
+}
+
+.consultation-link:hover .arrow {
+  transform: translate(3px, -3px);
+}
+
+.initial-state,
+.no-results {
+  text-align: center;
+  padding: 80px 0;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.initial-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+  max-width: 400px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+@media (max-width: 1100px) {
+  .filters-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .question-text {
+    font-size: 1.4rem;
+  }
+
+  .item-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 25px;
+  }
+}
+</style>

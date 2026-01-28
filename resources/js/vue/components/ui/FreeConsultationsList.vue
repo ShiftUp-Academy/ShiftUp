@@ -4,18 +4,20 @@
       <div class="sidebar">
         <h2 class="sidebar-title">LISTES DES REDIFFUSIONS DE CONSULTATIONS GRATUITES</h2>
       </div>
-      
+
       <div class="main-content scrollable" data-lenis-prevent>
-        <div v-for="(item, index) in rediffusions" :key="index" class="replay-item">
+        <div v-for="(item, index) in consultations" :key="index" class="replay-item">
           <div class="item-header">LES QUESTIONS</div>
           <div class="author-row">
-            <img :src="item.authorAvatar" :alt="item.authorName" class="avatar" />
-            <span class="author-name">{{ item.authorName }}</span>
+            <img :src="getAuthorAvatar(item.questions)" :alt="getAuthorName(item.questions)" class="avatar" />
+            <span class="author-name">{{ getAuthorName(item.questions) }}</span>
           </div>
-          <p class="question-text">{{ item.question }}</p>
+          <p class="question-text">{{ getQuestionText(item.questions) }}</p>
           <div class="item-footer">
-            <span class="category-tag">catégorie : <span class="category-name">{{ item.category }}</span></span>
-            <a href="#" class="consultation-link">VOIR LA CONSULTATION <span class="arrow">↗</span></a>
+            <span class="category-tag">catégorie : <span class="category-name">{{ item.categorie?.Nom || 'Général'
+            }}</span></span>
+            <a href="#" class="consultation-link" @click.prevent="$emit('view-detail', item)">VOIR LA CONSULTATION <span
+                class="arrow">↗</span></a>
           </div>
         </div>
       </div>
@@ -24,26 +26,32 @@
 </template>
 
 <script setup>
-const rediffusions = [
-  {
-    authorName: 'Rabemanaba Gars',
-    authorAvatar: '/images/Bibliothèque/Nantenaina.jpg',
-    question: 'Comment je fais pour les démarches administratives si je veux créé mon entreprise, et est ce que c’est nécessaire si je ne gagne pas encore beaucoup alors qu’en plus je dois encore payé des impôts?',
-    category: 'Catégorie de question 1'
-  },
-  {
-    authorName: 'Randria Zafifara',
-    authorAvatar: '/images/Bibliothèque/Nantenaina.jpg',
-    question: 'Quelles sont les priorités pour les 3 prochains mois pour lancer mon activité sans me perdre dans l’administratif ?',
-    category: 'Catégorie de question 1'
-  },
-  {
-    authorName: 'Andry Rabearisoa',
-    authorAvatar: '/images/Bibliothèque/Nantenaina.jpg',
-    question: 'Comment trouver ses premiers clients quand on lance une agence de marketing digital ?',
-    category: 'Marketing'
-  },
-];
+const props = defineProps({
+  consultations: {
+    type: Array,
+    default: () => []
+  }
+});
+
+const emit = defineEmits(['view-detail']);
+
+const getAuthorName = (questions) => {
+  if (!questions || questions.length === 0) return 'Anonyme';
+  const user = questions[0].utilisateur;
+  if (!user || !user.profil) return 'Utilisateur';
+  return `${user.profil.Prenom} ${user.profil.Nom}`;
+};
+
+const getAuthorAvatar = (questions) => {
+  if (!questions || questions.length === 0) return '/images/Bibliothèque/Nantenaina.jpg';
+  const user = questions[0].utilisateur;
+  return user?.profil?.PhotoProfil || '/images/Bibliothèque/Nantenaina.jpg';
+};
+
+const getQuestionText = (questions) => {
+  if (!questions || questions.length === 0) return 'Question non disponible';
+  return questions[0].Question;
+};
 </script>
 
 <style scoped>
@@ -68,17 +76,18 @@ const rediffusions = [
 
 .sidebar-title {
   font-size: 3.5rem;
-    margin-left: 2vw;
-    margin-top: 0;
-    font-weight: 300;
-    line-height: 1.1;
-    color: #fff;
-    text-transform: uppercase;
+  margin-left: 2vw;
+  margin-top: 0;
+  font-weight: 300;
+  line-height: 1.1;
+  color: #fff;
+  text-transform: uppercase;
 }
 
 .main-content {
   flex: 1;
-  padding: 40px 60px 100px 60px; /* Added bottom padding */
+  padding: 40px 60px 100px 60px;
+  /* Added bottom padding */
   overflow-y: auto;
   overscroll-behavior: auto;
 }
@@ -180,15 +189,15 @@ const rediffusions = [
     flex-direction: column;
     height: auto;
   }
-  
+
   .sidebar {
     padding: 40px;
   }
-  
+
   .sidebar-title {
     font-size: 2.5rem;
   }
-  
+
   .main-content {
     padding: 40px;
     height: 500px;

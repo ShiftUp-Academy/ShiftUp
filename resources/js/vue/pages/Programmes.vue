@@ -1,145 +1,160 @@
 <template>
-  <div class="programmes-page">
-    <div class="content-wrapper">
-      <!-- LEFT COLUMN -->
-      <div class="info-col left">
-        <!-- Top Half: Title (Above Line) -->
-        <div class="col-split top">
-            <div class="title-mask">
-              <h1 class="program-title" ref="titleRef">
-                {{ currentProgram.title }}
-              </h1>
-            </div>
-        </div>
-        
-        <!-- Bottom Half: Price (Below Line) -->
-        <div class="col-split bottom">
-            <div class="price-mask">
-               <div class="program-price" ref="priceRef">
-                 {{ currentProgram.price }}
-               </div>
-            </div>
-        </div>
-      </div>
+    <div class="programmes-page">
+        <div class="content-wrapper">
+            <div class="info-col left">
+                <div class="col-split top">
+                    <div class="title-mask">
+                        <h1 class="program-title" ref="titleRef">
+                            {{ currentProgram?.title }}
+                        </h1>
+                    </div>
+                </div>
 
-      <!-- CENTER COLUMN: Scrollable Images -->
-      <div class="scroll-col">
-        <div 
-          v-for="(program, index) in programs" 
-          :key="index"
-          class="program-image-wrapper"
-          :ref="el => imageRefs[index] = el"
-        >
-          <img :src="program.image" :alt="program.title" class="program-img" />
-        </div>
-      </div>
+                <div class="col-split bottom">
+                    <div class="price-mask">
+                        <div class="program-price" ref="priceRef">
+                            {{ currentProgram?.price }}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-      <!-- RIGHT COLUMN -->
-      <div class="info-col right">
-        <!-- Top Half: Filters (Above Line) -->
-        <div class="col-split top">
-            <div class="filter-wrapper">
-            <SectionFilters 
-                v-model:searchValue="searchValue"
-                v-model:selectedCategory="selectedCategory"
-                :categories="categories"
-                :suggestions="suggestions"
-                :vertical="true"
-                @reset="resetFilters"
-            />
+            <div class="scroll-col">
+                <div v-for="(program, index) in displayPrograms" :key="index" class="program-image-wrapper"
+                    :ref="el => imageRefs[index] = el" @click="goToDetail(program.id)">
+                    <img :src="program.image" :alt="program.title" class="program-img" />
+                </div>
+            </div>
+
+            <div class="info-col right">
+                <div class="col-split top">
+                    <div class="filter-wrapper">
+                        <SectionFilters v-model:searchValue="searchValue" v-model:selectedCategory="selectedCategory"
+                            :categories="categories" :suggestions="filteredSuggestions" :vertical="true"
+                            :show-view-all="false" @reset="resetFilters" @complete="filterSuggestions"
+                            @select-suggestion="handleSelectSuggestion" />
+                    </div>
+                </div>
+
+                <div class="col-split bottom">
+                    <div class="number-mask">
+                        <div class="digit-wrapper" v-for="(digit, i) in digits" :key="i">
+                            <span class="program-number" :ref="el => { if (el) digitRefs[i] = el }">
+                                {{ digit }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Bottom Half: Number (Below Line) -->
-        <div class="col-split bottom">
-            <div class="number-mask">
-               <!-- Render digits individually for animation -->
-              <div class="digit-wrapper" v-for="(digit, i) in digits" :key="i">
-                  <span class="program-number" :ref="el => { if(el) digitRefs[i] = el }">
-                    {{ digit }}
-                  </span>
-              </div>
-            </div>
+        <div class="separator-line" ref="separatorRef"></div>
+
+        <div class="scroll-indicator" ref="indicatorRef">
+            FAITES DEFILER
         </div>
-      </div>
+
+        <div class="bottom-label" ref="labelRef">
+            NOS PROGRAMMES DE FORMATION
+        </div>
     </div>
-    
-    <!-- Thin Center Line -->
-    <div class="separator-line" ref="separatorRef"></div>
-
-    <div class="scroll-indicator">
-        FAITES DEFILER
-    </div>
-
-    <div class="bottom-label">
-        NOS PROGRAMMES DE FORMATION
-    </div>
-  </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, reactive } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, reactive, watch, nextTick } from 'vue';
+import { router } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import SectionFilters from '../components/ui/SectionFilters.vue';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const programs = [
-  {
-    title: 'Formation montage vidéo',
-    image: '/images/Programmes/Plan de travail1.png',
-    price: '190k Ar'
-  },
-  {
-    title: 'Formation stratégie marketing',
-    image: '/images/Programmes/Plan de travail2.png',
-    price: '100k Ar'
-  },
-  {
-    title: 'Etude de marché express',
-    image: '/images/Programmes/Plan de travail3.png',
-    price: '150k Ar'
-  },
-  {
-    title: 'Formation montage vidéo',
-    image: '/images/Programmes/Plan de travail4.png',
-    price: '190k Ar'
-  },
-  {
-    title: 'Formation stratégie marketing',
-    image: '/images/Programmes/Plan de travail5.png',
-    price: '190k Ar'
-  },
-  {
-    title: 'Etude de marché express',
-    image: '/images/Programmes/Plan de travail6.png',
-    price: '190k Ar'
-  }
-];
+const props = defineProps({
+    programmes: {
+        type: Array,
+        default: () => []
+    },
+    categories: {
+        type: Array,
+        default: () => []
+    }
+});
+
+const programs = computed(() => {
+    if (!props.programmes || props.programmes.length === 0) return [];
+    return props.programmes.map(p => ({
+        id: p.IdProgrammeFormation,
+        title: p.Titre,
+        image: p.LienPhoto || '/images/Programmes/Plan de travail1.png',
+        price: Number(p.Prix) > 0 ? Number(p.Prix).toLocaleString() + ' Ar' : 'Gratuit',
+        progression: p.progression,
+        categoryId: p.IdCategorie
+    }));
+});
+
+const displayPrograms = computed(() => {
+    return programs.value.filter(program => {
+        const matchesSearch = program.title.toLowerCase().includes(searchValue.value.toLowerCase());
+        const matchesCategory = !selectedCategory.value || program.categoryId === selectedCategory.value.code;
+        return matchesSearch && matchesCategory;
+    });
+});
 
 const imageRefs = ref([]);
 const titleRef = ref(null);
 const priceRef = ref(null);
 const separatorRef = ref(null);
-const digitRefs = ref([]); 
+const indicatorRef = ref(null);
+const labelRef = ref(null);
+const digitRefs = ref([]);
 const activeIndex = ref(0);
 
-// Filter State
 const searchValue = ref('');
 const selectedCategory = ref(null);
-const categories = [
-  { name: 'Marketing', code: 'MKT' },
-  { name: 'Design', code: 'DSG' },
-  { name: 'Développement', code: 'DEV' }
-];
-const suggestions = [
-  'Formation Montage', 'Vidéographie', 'Design Expert'
-];
+
+const categories = computed(() => {
+    return props.categories.map(c => ({
+        name: c.NomCategorie,
+        code: c.IdCategorie
+    }));
+});
+
+const allSuggestions = computed(() => {
+    return [
+        ...displayPrograms.value.map(p => p.title)
+    ];
+});
+
+const filteredSuggestions = ref([]);
+
+const filterSuggestions = (event) => {
+    const query = event.query.toLowerCase();
+    filteredSuggestions.value = allSuggestions.value.filter(s =>
+        s.toLowerCase().includes(query)
+    );
+};
+
+const handleSelectSuggestion = (title) => {
+    const index = displayPrograms.value.findIndex(p => p.title === title);
+    if (index !== -1 && imageRefs.value[index]) {
+        const target = imageRefs.value[index];
+        if (window.lenis) {
+            window.lenis.scrollTo(target, { offset: -window.innerHeight / 4 });
+        } else {
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+};
 
 const resetFilters = () => {
-  searchValue.value = '';
-  selectedCategory.value = null;
+    searchValue.value = '';
+    selectedCategory.value = null;
+};
+
+const goToDetail = (id) => {
+    if (id) {
+        router.visit(`/programmes/${id}`);
+    }
 };
 
 const getFormattedString = (index) => {
@@ -147,41 +162,88 @@ const getFormattedString = (index) => {
     return num < 10 ? `0${num}` : `${num}`;
 };
 
-const currentProgram = computed(() => programs[activeIndex.value]);
+const currentProgram = computed(() => displayPrograms.value[activeIndex.value] || { title: '', price: '' });
 const digits = computed(() => getFormattedString(activeIndex.value).split(''));
+
+const initScrollTriggers = () => {
+    ScrollTrigger.getAll().forEach(t => t.kill());
+    imageRefs.value = []; // Reset refs before re-render
+
+    nextTick(() => {
+        imageRefs.value.forEach((img, i) => {
+            if (!img) return;
+            ScrollTrigger.create({
+                trigger: img,
+                start: "top center",
+                end: "bottom center",
+                onEnter: () => animateTransition(i),
+                onEnterBack: () => animateTransition(i),
+            });
+        });
+
+        // Speed-based scaling effect
+        ScrollTrigger.create({
+            onUpdate: (self) => {
+                const velocity = Math.abs(self.getVelocity());
+                const targetScale = 1 - Math.min(velocity / 12000, 0.15);
+                const inverseScale = 1 / targetScale;
+
+                gsap.to(imageRefs.value, {
+                    scale: targetScale,
+                    duration: 0.8,
+                    ease: "power2.out",
+                    overwrite: "auto"
+                });
+
+                const images = imageRefs.value.filter(Boolean).map(ref => ref.querySelector('.program-img'));
+                gsap.to(images, {
+                    scale: inverseScale,
+                    duration: 0.8,
+                    ease: "power2.out",
+                    overwrite: "auto"
+                });
+            }
+        });
+    });
+};
+
+watch(displayPrograms, () => {
+    activeIndex.value = 0;
+    initScrollTriggers();
+}, { deep: true });
 
 const animateTransition = (newIndex) => {
     if (newIndex === activeIndex.value) return;
 
     const direction = newIndex > activeIndex.value ? 1 : -1;
-    const yExit = direction * -100; 
-    const yEnter = direction * 100; 
+    const yExit = direction * -100;
+    const yEnter = direction * 100;
 
     // TITLE & PRICE ANIM
     const tl = gsap.timeline();
     tl.to([titleRef.value, priceRef.value], {
-        y: yExit, 
+        y: yExit,
         opacity: 0,
         duration: 0.4,
         ease: "power2.in",
         stagger: 0.05,
         onComplete: () => {
             activeIndex.value = newIndex;
-            gsap.set([titleRef.value, priceRef.value], { y: yEnter }); 
+            gsap.set([titleRef.value, priceRef.value], { y: yEnter });
         }
     })
-    .to([titleRef.value, priceRef.value], {
-        y: 0,
-        opacity: 1,
-        duration: 0.5,
-        ease: "power3.out",
-        stagger: 0.1
-    });
+        .to([titleRef.value, priceRef.value], {
+            y: 0,
+            opacity: 1,
+            duration: 0.5,
+            ease: "power3.out",
+            stagger: 0.1
+        });
 
     // DIGITS ANIM
     const oldStr = getFormattedString(activeIndex.value);
     const newStr = getFormattedString(newIndex);
-    
+
     for (let i = 0; i < 2; i++) {
         if (oldStr[i] !== newStr[i]) {
             const el = digitRefs.value[i];
@@ -194,34 +256,52 @@ const animateTransition = (newIndex) => {
                 duration: 0.4,
                 ease: "power2.in",
                 onComplete: () => {
-                   gsap.set(el, { y: yEnter });
+                    gsap.set(el, { y: yEnter });
                 }
             })
-            .to(el, {
-                y: 0,
-                opacity: 1,
-                duration: 0.5,
-                ease: "power3.out",
-                delay: 0.05
-            });
+                .to(el, {
+                    y: 0,
+                    opacity: 1,
+                    duration: 0.5,
+                    ease: "power3.out",
+                    delay: 0.05
+                });
         }
     }
 };
 
 onMounted(() => {
-    imageRefs.value.forEach((img, i) => {
-        ScrollTrigger.create({
-            trigger: img,
-            start: "top center",
-            end: "bottom center",
-            onEnter: () => animateTransition(i),
-            onEnterBack: () => animateTransition(i),
-        });
+    const entranceTl = gsap.timeline({
+        defaults: { ease: "power3.out", duration: 1.2 }
     });
 
-    if (separatorRef.value && imageRefs.value.length > 0) {
-        const lastImg = imageRefs.value[imageRefs.value.length - 1];
-        gsap.to(separatorRef.value, {
+    gsap.set([".info-col", ".separator-line", ".scroll-indicator", ".bottom-label", ".program-image-wrapper"], {
+        opacity: 0
+    });
+    gsap.set(".info-col.left", { x: -50 });
+    gsap.set(".info-col.right", { x: 50 });
+    gsap.set(".separator-line", { scaleX: 0 });
+    gsap.set([".scroll-indicator", ".bottom-label"], { y: 20 });
+    gsap.set(".program-image-wrapper", { y: 40 });
+
+    entranceTl
+        .to(".separator-line", { scaleX: 1, opacity: 1, duration: 1.5 })
+        .to(".info-col", { x: 0, opacity: 1, stagger: 0.2 }, "-=1")
+        .to(".program-image-wrapper", { y: 0, opacity: 1, stagger: 0.1, duration: 1 }, "-=0.8")
+        .to([".scroll-indicator", ".bottom-label"], { y: 0, opacity: 1, stagger: 0.1 }, "-=1");
+
+    initScrollTriggers();
+
+    if (displayPrograms.value.length > 0) {
+        const lastImg = imageRefs.value[displayPrograms.value.length - 1];
+        const elementsToAnimate = [
+            separatorRef.value,
+            indicatorRef.value,
+            labelRef.value,
+            document.querySelectorAll('.info-col')
+        ];
+
+        gsap.to(elementsToAnimate, {
             y: "-100vh",
             ease: "none",
             scrollTrigger: {
@@ -252,19 +332,20 @@ onBeforeUnmount(() => {
 .content-wrapper {
     position: relative;
     width: 100%;
+    display: flex;
+    justify-content: space-between;
 }
 
-/* --- FIXED SIDE COLUMNS --- */
-/* Fixed ensures elements don't scroll with the page, avoiding layout fade effects */
 .info-col {
-    position: fixed;
+    position: sticky;
     top: 0;
     height: 100vh;
     display: flex;
     flex-direction: column;
     padding: 2vh 4vw;
     width: 25vw;
-    z-index: 9999; /* Always on top */
+    z-index: 10;
+    /* Lowered from 9999 */
     pointer-events: none;
 }
 
@@ -273,27 +354,18 @@ onBeforeUnmount(() => {
     pointer-events: auto;
 }
 
-/* Left Column Styling */
-.info-col.left {
-    left: 0;
-}
-
 .info-col.left .col-split {
-    align-items: flex-start; /* Title & Price align Left */
+    align-items: flex-start;
+    /* Title & Price align Left */
     text-align: left;
 }
 
-/* Right Column Styling */
-.info-col.right {
-    right: 0;
-}
-
 .info-col.right .col-split {
-    align-items: flex-end; /* Filters & Numbers align Right */
+    align-items: flex-end;
+    /* Filters & Numbers align Right */
     text-align: right;
 }
 
-/* --- VERTICAL SPLITS --- */
 .col-split {
     height: 50vh;
     display: flex;
@@ -308,41 +380,49 @@ onBeforeUnmount(() => {
 
 .col-split.bottom {
     justify-content: flex-start;
-    padding-top: 20px;
+    padding-top: 0;
 }
 
 /* Top-Right Specific: Align relative to header */
 .info-col.right .col-split.top {
     justify-content: flex-start;
-    padding-top: 40px; 
+    padding-top: 20vh;
     align-items: flex-end;
 }
 
-/* --- FILTERS --- */
 .filter-wrapper {
     width: 100%;
     z-index: 60;
     display: flex;
     flex-direction: column;
-    align-items: flex-end; /* Push filter content to right */
+    align-items: flex-end;
     pointer-events: auto;
 }
 
-/* Force internal filter elements to align right */
-.filter-wrapper :deep(.filters-container),
-.filter-wrapper :deep(.is-vertical),
-.filter-wrapper :deep(.filter-inputs),
-.filter-wrapper :deep(.actions-wrapper) {
+.filter-wrapper :deep(.filters-container) {
+    padding: 0 !important;
     align-items: flex-end !important;
-    text-align: right;
 }
 
-/* --- CENTER SCROLL COLUMN --- */
+.filter-wrapper :deep(.actions-wrapper) {
+    justify-content: flex-end !important;
+    padding: 0 !important;
+    gap: 0 !important;
+}
+
+.filter-wrapper :deep(.text-reset-button) {
+    padding-right: 0 !important;
+    padding-left: 10px !important;
+}
+
+.filter-wrapper :deep(.filter-inputs) {
+    align-items: flex-end !important;
+}
+
 .scroll-col {
-    width: 50vw; 
-    margin: 0 auto; /* Centers the column relative to viewport */
+    width: 50vw;
+    margin: 0;
     padding-top: 20vh;
-    padding-bottom: 60vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -353,33 +433,28 @@ onBeforeUnmount(() => {
 .program-image-wrapper {
     width: 100%;
     height: 60vh;
-    margin-bottom: 15vh; 
-    z-index: 5; /* Higher than separator line (z:2) */
+    margin-bottom: 15vh;
+    z-index: 5;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 30px;
     overflow: hidden;
     background: #111;
-    
-    /* Radius preservation fixes */
+    cursor: pointer;
+
     -webkit-mask-image: -webkit-radial-gradient(white, black);
     mask-image: radial-gradient(white, black);
-    transform: translateZ(0); 
+    transform: translateZ(0);
 }
 
 .program-img {
     width: 100%;
     height: 100%;
-    object-fit: cover; 
+    object-fit: cover;
     transition: transform 0.5s ease;
 }
 
-.program-image-wrapper:hover .program-img {
-    transform: scale(1.05);
-}
-
-/* --- DECORATIVE ELEMENTS --- */
 .separator-line {
     position: fixed;
     top: 50%;
@@ -387,11 +462,12 @@ onBeforeUnmount(() => {
     width: 100%;
     height: 1px;
     background-color: rgba(255, 255, 255, 0.279);
-    z-index: 2; /* Low z-index: Behind images (z:5), above bg */
+    z-index: 0;
     pointer-events: none;
 }
 
-.title-mask, .price-mask {
+.title-mask,
+.price-mask {
     overflow: hidden;
     width: 100%;
 }
@@ -401,13 +477,14 @@ onBeforeUnmount(() => {
     font-weight: 400;
     line-height: 1;
     margin: 0;
-    width: 100%; 
-    max-width: 100%; 
+    width: 100%;
+    max-width: 100%;
 }
 
 .program-price {
     font-size: 2rem;
     font-weight: 400;
+    margin-top: 1.5vh;
     color: #888;
 }
 
@@ -427,12 +504,12 @@ onBeforeUnmount(() => {
     display: inline-block;
 }
 
-/* --- ABSOLUTE LABELS (Scroll with section) --- */
 .scroll-indicator {
-    position: absolute; /* Changes from fixed to absolute */
+    position: fixed;
     bottom: 40px;
     left: 40px;
-    font-size: 0.8rem;
+    margin-left: 1.5vw;
+    font-size: 1.1rem;
     font-weight: 800;
     text-transform: uppercase;
     color: white;
@@ -440,13 +517,20 @@ onBeforeUnmount(() => {
 }
 
 .bottom-label {
-    position: absolute; /* Changes from fixed to absolute */
+    position: fixed;
     bottom: 40px;
     right: 40px;
-    font-size: 0.8rem;
-    font-weight: 800;
+    margin-right: 1.5vw;
+    font-size: 1.1rem;
+    font-weight: 600;
     color: #666;
     text-transform: uppercase;
     z-index: 20;
+}
+
+/* Empêcher les menus déroulants de suivre le scroll (rester en place) */
+:deep(.p-autocomplete-panel),
+:deep(.p-select-panel) {
+    position: fixed !important;
 }
 </style>

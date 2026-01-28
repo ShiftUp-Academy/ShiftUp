@@ -10,11 +10,11 @@
           <div class="cube-container">
             <Link href="#" class="cube-face face-front">
               <span class="small-text">Mes</span>
-              <span class="rotate-text">OFFRES</span>
+              <span class="rotate-text">ACHATS</span>
             </Link>
             <Link href="#" class="cube-face face-right">
               <span class="small-text">Mes</span>
-              <span class="rotate-text bold-italic">OFFRES</span>
+              <span class="rotate-text bold-italic">ACHATS</span>
             </Link>
           </div>
         </div>
@@ -24,10 +24,10 @@
         <div class="vertical-title full-center cube-scene">
           <div class="cube-container">
             <Link href="#" class="cube-face face-front">
-              <span class="rotate-text">CONSULTATIONS</span>
+              <span class="rotate-text">PANIERS</span>
             </Link>
             <Link href="#" class="cube-face face-right">
-              <span class="rotate-text bold-italic">CONSULTATIONS</span>
+              <span class="rotate-text bold-italic">PANIERS</span>
             </Link>
           </div>
         </div>
@@ -37,10 +37,10 @@
         <div class="vertical-title full-center cube-scene">
           <div class="cube-container">
             <Link href="#" class="cube-face face-front">
-              <span class="rotate-text">COACHINGS</span>
+              <span class="rotate-text">REUSSITES</span>
             </Link>
             <Link href="#" class="cube-face face-right">
-              <span class="rotate-text bold-italic">COACHINGS</span>
+              <span class="rotate-text bold-italic">REUSSITES</span>
             </Link>
           </div>
         </div>
@@ -65,8 +65,13 @@
           <div v-else class="large-avatar-placeholder">
             <i class="fa-solid fa-user fa-3x"></i>
           </div>
-          <div class="disconnect-btn" @click="logout">
-            SE DECONNECTER <i class="fa-solid fa-arrow-right"></i>
+          <div class="profile-actions">
+            <div class="action-link" @click="logout">
+              SE DÉCONNECTER <span class="arrow">&rarr;</span>
+            </div>
+            <Link href="/admin/programmes" v-if="user.Role === 'admin'" class="action-link dashboard-link">
+              DASHBOARD <span class="arrow">&rarr;</span>
+            </Link>
           </div>
         </div>
 
@@ -79,7 +84,7 @@
               {{ user.profil?.Metier || 'Pas encore de métier enregistré' }}
             </span>
             <i class="fa-solid fa-pencil edit-icon"
-              @click="openEdit('profiles', 'Metier', 'Métier', user.profil?.Metier)"></i>
+              @click="openEdit('profiles', 'Metier', 'Métier', user.profil?.Metier, $event)"></i>
           </div>
 
           <div class="editable-field mt-2">
@@ -87,7 +92,7 @@
               {{ user.profil?.Biographie || 'Ajouter votre biographie ici' }}
             </p>
             <i class="fa-solid fa-pencil edit-icon"
-              @click="openEdit('profiles', 'Biographie', 'Biographie', user.profil?.Biographie)"></i>
+              @click="openEdit('profiles', 'Biographie', 'Biographie', user.profil?.Biographie, $event)"></i>
           </div>
 
           <div class="separator-line"></div>
@@ -102,7 +107,7 @@
                 {{ user.profil?.NumeroTelephone || 'Ajouter un numéro de téléphone' }}
               </span>
               <i class="fa-solid fa-pencil edit-icon"
-                @click="openEdit('profiles', 'NumeroTelephone', 'Numéro de téléphone', user.profil?.NumeroTelephone)"></i>
+                @click="openEdit('profiles', 'NumeroTelephone', 'Numéro de téléphone', user.profil?.NumeroTelephone, $event)"></i>
             </div>
 
             <div class="editable-field">
@@ -110,32 +115,59 @@
                 {{ user.profil?.Adresse || 'Ajouter une adresse' }}
               </span>
               <i class="fa-solid fa-pencil edit-icon"
-                @click="openEdit('profiles', 'Adresse', 'Adresse', user.profil?.Adresse)"></i>
+                @click="openEdit('profiles', 'Adresse', 'Adresse', user.profil?.Adresse, $event)"></i>
+            </div>
+            <div class="editable-field">
+              <span class="field-value" :class="{ 'placeholder': !user.profil?.EmailContact }">
+                {{ user.profil?.EmailContact || 'Ajouter un email de contact' }}
+              </span>
+              <i class="fa-solid fa-pencil edit-icon"
+                @click="openEdit('profiles', 'EmailContact', 'Email de contact', user.profil?.EmailContact, $event)"></i>
             </div>
           </div>
 
           <div class="social-icons">
-            <div class="social-circle"><i class="fa-brands fa-facebook-f"></i></div>
-            <div class="social-circle"><i class="fa-brands fa-whatsapp"></i></div>
-            <div class="social-circle"><i class="fa-brands fa-linkedin-in"></i></div>
-            <div class="social-circle"><i class="fa-brands fa-youtube"></i></div>
-            <div class="social-circle"><i class="fa-brands fa-instagram"></i></div>
+            <div class="social-circle"
+              @click="openEdit('social', 'Facebook', 'Lien Facebook', getSocialLink('Facebook'), $event)">
+              <i class="fa-brands fa-facebook-f"></i>
+            </div>
+            <div class="social-circle"
+              @click="openEdit('social', 'WhatsApp', 'Numéro WhatsApp', getSocialLink('WhatsApp'), $event)">
+              <i class="fa-brands fa-whatsapp"></i>
+            </div>
+            <div class="social-circle"
+              @click="openEdit('social', 'LinkedIn', 'Lien LinkedIn', getSocialLink('LinkedIn'), $event)">
+              <i class="fa-brands fa-linkedin-in"></i>
+            </div>
+            <div class="social-circle"
+              @click="openEdit('social', 'YouTube', 'Lien YouTube', getSocialLink('YouTube'), $event)">
+              <i class="fa-brands fa-youtube"></i>
+            </div>
+            <div class="social-circle"
+              @click="openEdit('social', 'Instagram', 'Lien Instagram', getSocialLink('Instagram'), $event)">
+              <i class="fa-brands fa-instagram"></i>
+            </div>
+            <div class="social-circle"
+              @click="openEdit('social', 'GitHub', 'Lien GitHub', getSocialLink('GitHub'), $event)">
+              <i class="fa-brands fa-github"></i>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <Dialog v-model:visible="isEditModalOpen" modal :header="'Modifier ' + editingField.label" :style="{ width: '30rem' }"
-    :pt="{ root: { class: 'custom-dialog' }, content: { style: 'overflow: visible' } }">
+  <PremiumModal :isOpen="isEditModalOpen" :header="'Modifier ' + editingField.label" width="30rem" :origin="modalOrigin"
+    @close="isEditModalOpen = false">
     <div class="p-field">
-      <div v-if="editingField.attribute === 'NumeroTelephone'" class="w-full">
-        <vue-tel-input v-model="editingField.value" mode="international" class="minimal-tel-input mb-3" :dropdownOptions="{
-          showSearchBox: true,
-          showFlags: true,
-          showDialCodeInList: true,
-          searchPlaceholder: 'recherchez votre pays'
-        }" :inputOptions="{ placeholder: 'Exemple: +261 34 00 000 00' }">
+      <div v-if="editingField.attribute === 'NumeroTelephone' || editingField.attribute === 'WhatsApp'" class="w-full">
+        <vue-tel-input v-model="editingField.value" mode="international" class="minimal-tel-input mb-3"
+          :dropdownOptions="{
+            showSearchBox: true,
+            showFlags: true,
+            showDialCodeInList: true,
+            searchPlaceholder: 'recherchez votre pays'
+          }" :inputOptions="{ placeholder: 'Exemple: 34 00 000 00' }">
         </vue-tel-input>
       </div>
       <div v-else-if="editingField.attribute === 'Biographie'">
@@ -148,11 +180,11 @@
           :placeholder="'Entrez votre ' + editingField.label.toLowerCase()" />
       </div>
     </div>
-    <div class="flex justify-end gap-2 mt-4">
+    <div class="modal-actions">
       <Button label="Annuler" text severity="secondary" @click="isEditModalOpen = false" />
-      <Button label="Enregistrer" @click="saveField" autofocus />
+      <PremiumButton text="Enregistrer" @click="saveField" width="10vw" />
     </div>
-  </Dialog>
+  </PremiumModal>
 
   <Toast />
 </template>
@@ -160,7 +192,7 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
-import Dialog from 'primevue/dialog';
+import PremiumModal from '../ui/PremiumModal.vue';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import Button from 'primevue/button';
@@ -169,6 +201,7 @@ import { useToast } from 'primevue/usetoast';
 import gsap from 'gsap';
 import { VueTelInput } from 'vue-tel-input';
 import 'vue-tel-input/vue-tel-input.css';
+import PremiumButton from '../ui/PremiumButton.vue';
 
 const props = defineProps({
   isOpen: Boolean,
@@ -176,20 +209,29 @@ const props = defineProps({
 });
 
 const toast = useToast();
-const logoSrc = ref('images/logo-site-blanc.png');
+const logoSrc = ref('/images/logo-site-blanc.png');
 const emit = defineEmits(['close']);
 
 const isEditModalOpen = ref(false);
 const editingField = ref({ table: '', attribute: '', label: '', value: '' });
+const modalOrigin = ref({ x: 0, y: 0 });
 
-// Fonction pour fermer le menu
 const closeMenu = () => {
   emit('close');
 };
 
-const openEdit = (table, attribute, label, currentValue) => {
+const openEdit = (table, attribute, label, currentValue, event) => {
+  if (event) {
+    modalOrigin.value = { x: event.clientX, y: event.clientY };
+  }
   editingField.value = { table, attribute, label, value: currentValue || '' };
   isEditModalOpen.value = true;
+};
+
+const getSocialLink = (networkName) => {
+  if (!props.user?.profil?.reseaux_sociaux) return '';
+  const social = props.user.profil.reseaux_sociaux.find(s => s.Nom === networkName);
+  return social ? social.Lien : '';
 };
 
 const saveField = () => {
@@ -211,6 +253,7 @@ const saveField = () => {
 };
 
 const logout = () => {
+  closeMenu();
   router.post('/logout', {}, {
     onError: () => {
       toast.add({ severity: 'error', summary: 'Erreur', detail: 'Échec de la déconnexion', life: 3000 });
@@ -421,8 +464,7 @@ onUnmounted(() => window.removeEventListener('mousedown', handleOutsideClick));
   justify-content: center;
 }
 
-.text-bold
-{
+.text-bold {
   font-weight: 500;
   font-size: large;
 }
@@ -449,21 +491,45 @@ onUnmounted(() => window.removeEventListener('mousedown', handleOutsideClick));
   margin-bottom: 1rem;
 }
 
-.disconnect-btn {
-  font-size: 0.8rem;
+.profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+  margin-right: 3vw;
+}
+
+.action-link {
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   text-transform: uppercase;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   color: #000;
-  margin-right: 3vw;
-  transition: opacity 0.3s;
+  text-decoration: none !important;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
 }
 
-.disconnect-btn:hover {
-  opacity: 0.7;
+.action-link:hover {
+  opacity: 0.6;
+  transform: translateX(5px);
+}
+
+.dashboard-link {
+  color: #8A38F5 !important;
+}
+
+.arrow {
+  font-size: 1.2rem;
+  line-height: 1;
+  transition: transform 0.3s ease;
+}
+
+.action-link:hover .arrow {
+  transform: translateX(3px);
 }
 
 .user-nom {
@@ -477,7 +543,7 @@ onUnmounted(() => window.removeEventListener('mousedown', handleOutsideClick));
 .user-prenom {
   font-size: 2.2rem;
   font-weight: 400;
-  margin: 0 0 10px 0;
+  margin: 0 0 0 0;
   line-height: 1.1;
 }
 
@@ -526,14 +592,14 @@ onUnmounted(() => window.removeEventListener('mousedown', handleOutsideClick));
 .separator-line {
   height: 1px;
   background-color: #212121;
-  margin: 20px 0;
+  margin: 1rem 0;
   width: 80%;
 }
 
 .social-icons {
   display: flex;
   gap: 12px;
-  margin-top: 25px;
+  margin-top: 1rem;
 }
 
 .social-circle {
@@ -584,6 +650,16 @@ onUnmounted(() => window.removeEventListener('mousedown', handleOutsideClick));
 
 :deep(.p-dialog) {
   z-index: 10001 !important;
+  border-radius: 20px;
+  background-color: #fff;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
 }
 
 .menu-brand-logo {

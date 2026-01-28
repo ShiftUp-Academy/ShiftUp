@@ -14,9 +14,10 @@
                 </div>
                 <div class="card-body body-testimonials">
                     <h2 class="card-title-temoignage">Témoignages</h2>
-                    <p class="card-desc-temoignage">Êtes-vous satisfait de notre accompagnement ? Témoignez votre avancée.
+                    <p class="card-desc-temoignage">Êtes-vous satisfait de notre accompagnement ? Témoignez votre
+                        avancée.
                     </p>
-                    <Link href="/temoignages" class="btn-pill-temoignage">Témoigner</Link>
+                    <PremiumButton style="width: 10vw; margin-top: -2vh;" href="/temoignages" text="Témoigner" />
                 </div>
             </div>
 
@@ -32,9 +33,10 @@
                         <p class="cat-desc">Naviguez pour voir tous les programmes que ShiftUp propose</p>
                     </div>
                     <div class="cat-list">
-                        <Link v-for="link in categoryLinks" :key="link.href" :href="link.href" class="cat-link item-cat">
-                        <span>{{ link.label }}</span>
-                        <img :src="ArrowIcon" class="btn-icon">
+                        <Link v-for="link in categoryLinks" :key="link.href" :href="link.href"
+                            class="cat-link item-cat">
+                            <span>{{ link.label }}</span>
+                            <img :src="ArrowIcon" class="btn-icon">
                         </Link>
                     </div>
                 </div>
@@ -42,54 +44,54 @@
 
             <Link href="/blog" class="card card-articles" @mousemove="moveCursor" @mouseenter="showCursor('#f7b455')"
                 @mouseleave="hideCursor">
-            <div class="card-bg-container">
-                <img :src="imgArticles" class="card-img" />
-                <div class="overlay-base"></div>
-                <div class="overlay-hover"></div>
-            </div>
-            <div class="card-body center-all">
-                <h2 class="card-title">Articles et conseils</h2>
-            </div>
+                <div class="card-bg-container">
+                    <img :src="imgArticles" class="card-img" />
+                    <div class="overlay-base"></div>
+                    <div class="overlay-hover"></div>
+                </div>
+                <div class="card-body center-all">
+                    <h2 class="card-title">Articles et conseils</h2>
+                </div>
             </Link>
 
-            <Link href="/coaching" class="card card-coaching" @mousemove="moveCursor" @mouseenter="showCursor('#a71543')"
-                @mouseleave="hideCursor">
-            <div class="card-bg-container">
-                <img :src="imgCoaching" class="card-img" />
-                <div class="overlay-base"></div>
-                <div class="overlay-hover"></div>
-            </div>
-            <div class="card-body center-all">
-                <h2 class="card-title">Coaching</h2>
-            </div>
+            <Link href="/coaching" class="card card-coaching" @mousemove="moveCursor"
+                @mouseenter="showCursor('#a71543')" @mouseleave="hideCursor">
+                <div class="card-bg-container">
+                    <img :src="imgCoaching" class="card-img" />
+                    <div class="overlay-base"></div>
+                    <div class="overlay-hover"></div>
+                </div>
+                <div class="card-body center-all">
+                    <h2 class="card-title">Coaching</h2>
+                </div>
             </Link>
 
             <Link href="/live" class="card card-live" @mousemove="moveCursor" @mouseenter="onLiveHoverCustom"
                 @mouseleave="onLiveLeaveCustom">
-            <div class="card-bg-container">
-                <img :src="imgLive" class="card-img" />
-                <div class="overlay-base"></div>
-                <div class="overlay-hover"></div>
-            </div>
-            <div class="card-body center-all row">
-                <div class="live-indicator">
-                    <span class="dot" ref="liveDot"></span>
+                <div class="card-bg-container">
+                    <img :src="imgLive" class="card-img" />
+                    <div class="overlay-base"></div>
+                    <div class="overlay-hover"></div>
                 </div>
-                <h2 class="card-title">Live</h2>
-            </div>
+                <div class="card-body center-all row">
+                    <div class="live-indicator">
+                        <span class="dot" ref="liveDot"></span>
+                    </div>
+                    <h2 class="card-title">Live</h2>
+                </div>
             </Link>
 
-            <Link href="/organisme" class="card card-organisme" @mousemove="moveCursor" @mouseenter="showCursor('#1A888D')"
-                @mouseleave="hideCursor">
-            <div class="card-bg-container">
-                <img :src="imgOrganisme" class="card-img" />
-                <div class="overlay-base"></div>
-                <div class="overlay-hover"></div>
-            </div>
-            <div class="card-body body-organisme">
-                <h2 class="card-title-organisme">L'organisme</h2>
-                <p class="card-desc-organisme">L'organisme ShiftUp aide les cadres en reconversion.</p>
-            </div>
+            <Link href="/organisme" class="card card-organisme" @mousemove="moveCursor"
+                @mouseenter="showCursor('#1A888D')" @mouseleave="hideCursor">
+                <div class="card-bg-container">
+                    <img :src="imgOrganisme" class="card-img" />
+                    <div class="overlay-base"></div>
+                    <div class="overlay-hover"></div>
+                </div>
+                <div class="card-body body-organisme">
+                    <h2 class="card-title-organisme">L'organisme</h2>
+                    <p class="card-desc-organisme">L'organisme ShiftUp aide les cadres en reconversion.</p>
+                </div>
             </Link>
 
         </div>
@@ -101,6 +103,7 @@ import { ref, onMounted, computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import ArrowIcon from '../../assets/images/fleche-lien.svg';
+import PremiumButton from '../components/ui/PremiumButton.vue';
 
 
 const imgTestimonials = '/images/Role Models - Kinfolk.jpg';
@@ -114,7 +117,7 @@ const categoryLinks = [
     { label: 'Toutes les catégories', href: '/toutcategorie' },
     { label: 'Formations', href: '/programmes' },
     { label: 'Offres', href: '/programmes' },
-    { label: 'Consultations', href: '/programmes' },
+    { label: 'Consultations', href: '/consultations' },
 ];
 
 const liveDot = ref(null);
@@ -129,7 +132,6 @@ const cursorTextColor = computed(() => {
 onMounted(() => {
     gsap.set(liveDot.value, { scale: 1.3, boxShadow: "0 0 0 0px rgba(255,0,0,0)" });
 
-    /* --- ANIMATION D'APPARITION --- */
     const cards = bentoGrid.value.querySelectorAll('.card');
     gsap.from(cards, {
         y: 30,
@@ -381,38 +383,7 @@ const onLiveLeaveCustom = () => {
 .card-desc-temoignage {
     font-size: 1.2em;
     margin-top: 10px;
-}
-
-.btn-pill-temoignage {
-    position: relative;
-    z-index: 1;
-    padding: 12px 22px;
-    background: #202020;
-    color: white;
-    border-radius: 10px;
-    font-size: 1.3em;
-    width: fit-content;
-    text-decoration: none;
-    display: inline-block;
-    overflow: hidden;
-    transition: color 0.3s ease;
-}
-
-.btn-pill-temoignage::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to right, #0E7EC3, #8A38F5);
-    opacity: 0;
-    z-index: -1;
-    transition: opacity 0.5s ease;
-}
-
-.btn-pill-temoignage:hover::before {
-    opacity: 1;
+    margin-bottom: 2rem;
 }
 
 .body-organisme {

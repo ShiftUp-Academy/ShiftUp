@@ -1,10 +1,6 @@
 <template>
-  <div 
-    class="program-card"
-    :style="{ '--mouse-x': flash.x, '--mouse-y': flash.y, '--flash-opacity': flash.opacity }"
-    @mousemove="handleFlashMove"
-    @mouseleave="handleFlashLeave"
-  >
+  <div class="program-card" :style="{ '--mouse-x': flash.x, '--mouse-y': flash.y, '--flash-opacity': flash.opacity }"
+    @mousemove="handleFlashMove" @mouseleave="handleFlashLeave" @click="goToDetail">
     <div class="image-container">
       <div class="parallax-target">
         <img :src="image" class="program-image" />
@@ -13,13 +9,20 @@
       <div class="image-overlay"></div>
       <div class="image-border-glow"></div>
     </div>
-    
+
     <div class="program-content">
       <div class="card-footer">
-        <button class="view-more">
+        <div v-if="progression > 0" class="mini-progression">
+          <div class="prog-bar">
+            <div class="prog-fill" :style="{ width: progression + '%' }"></div>
+          </div>
+          <span class="prog-text">{{ progression }}%</span>
+        </div>
+        <button class="view-more" @click.stop="goToDetail">
           <span class="btn-text">VOIR PLUS</span>
           <svg viewBox="0 0 24 24" fill="none" class="arrow-icon">
-            <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
           </svg>
         </button>
       </div>
@@ -29,11 +32,20 @@
 
 <script setup>
 import { reactive } from 'vue';
+import { router } from '@inertiajs/vue3';
 
-defineProps({
+const props = defineProps({
+  id: {
+    type: [Number, String],
+    required: true
+  },
   image: {
     type: String,
     required: true
+  },
+  progression: {
+    type: Number,
+    default: 0
   }
 });
 
@@ -48,6 +60,12 @@ function handleFlashMove(event) {
 
 function handleFlashLeave() {
   flash.opacity = 0;
+}
+
+function goToDetail() {
+  if (props.id !== undefined && props.id !== null) {
+    router.visit(`/programmes/${props.id}`);
+  }
 }
 </script>
 
@@ -70,9 +88,9 @@ function handleFlashLeave() {
   position: relative;
   width: 100%;
   aspect-ratio: 18 / 9;
-  overflow: hidden; 
+  overflow: hidden;
   border-radius: 20px;
-  transform: translateZ(0); 
+  transform: translateZ(0);
 }
 
 .program-image {
@@ -83,20 +101,17 @@ function handleFlashLeave() {
 }
 
 .program-card:hover .program-image {
-  transform: scale(1); 
+  transform: scale(1);
 }
-
 
 .flashlight-overlay {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 5;
-  background: radial-gradient(
-    400px circle at var(--mouse-x) var(--mouse-y), 
-    rgba(255, 255, 255, 0.23), 
-    transparent 80%
-  );
+  background: radial-gradient(400px circle at var(--mouse-x) var(--mouse-y),
+      rgba(255, 255, 255, 0.23),
+      transparent 80%);
   opacity: var(--flash-opacity, 0);
   transition: opacity 0.3s ease;
 }
@@ -108,11 +123,9 @@ function handleFlashLeave() {
   z-index: 6;
   border-radius: inherit;
   padding: 1.5px;
-  background: radial-gradient(
-    300px circle at var(--mouse-x) var(--mouse-y), 
-    rgba(255, 255, 255, 0.5), 
-    transparent 60%
-  );
+  background: radial-gradient(300px circle at var(--mouse-x) var(--mouse-y),
+      rgba(255, 255, 255, 0.5),
+      transparent 60%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -144,20 +157,34 @@ function handleFlashLeave() {
   gap: 12px;
 }
 
-.resource-title {
-  font-size: 1.2rem;
-  font-weight: 500;
-  color: #fff;
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
+.mini-progression {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  margin-right: 15px;
 }
 
-.card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.prog-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
 }
+
+.prog-fill {
+  height: 100%;
+  background: #8A38F5;
+  transition: width 0.6s ease;
+}
+
+.prog-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #8A38F5;
+}
+
 .view-more {
   background: none;
   border: none;
@@ -183,7 +210,7 @@ function handleFlashLeave() {
 }
 
 .view-more:hover {
-  transform: translateY(-5px); 
+  transform: translateY(-5px);
 }
 
 .view-more:hover .btn-text {

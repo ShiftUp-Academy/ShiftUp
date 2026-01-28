@@ -19,10 +19,20 @@ class UtilisateurController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials)) {
+        $email = trim($credentials['email']);
+        $password = $credentials['password'];
+
+        $user = Utilisateur::where('Email', $email)->first();
+
+        if ($user && Hash::check($password, $user->MotDePasseHash)) {
+            Auth::login($user, $request->has('remember'));
             $request->session()->regenerate();
 
-            return redirect()->intended('/');
+            if ($email === 'monsieuradmin@gmail.com') {
+                return redirect()->intended('/admin/programmes')->with('Bonjour', 'Bienvenue Monsieur l\'Administrateur !');
+            }
+
+            return redirect()->intended('/')->with('Bonjour', 'Connexion réussie. Ravi de vous revoir!');
         }
 
         return back()->withErrors([
@@ -39,10 +49,12 @@ class UtilisateurController extends Controller
             'password' => ['required', 'string', 'min:8'],
         ]);
 
+        $role = $validated['email'] === 'monsieuradmin@gmail.com' ? 'admin' : 'utilisateur';
+
         $utilisateur = Utilisateur::create([
             'Email' => $validated['email'],
             'MotDePasseHash' => Hash::make($validated['password']),
-            'Role' => 'utilisateur',
+            'Role' => $role,
         ]);
 
         $utilisateur->profil()->create([
@@ -52,7 +64,7 @@ class UtilisateurController extends Controller
 
         Auth::login($utilisateur);
 
-        return redirect('/');
+        return redirect('/')->with('Bonjour', 'Bienvenue ! Votre compte a été créé avec succès.');
     }
 
     public function logout(Request $request)
@@ -63,12 +75,14 @@ class UtilisateurController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('/')->with('Au revoir', 'Vous avez été déconnecté avec succès. À bientôt !');
     }
 
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->redirect();
+        return Socialite::driver('google')
+            ->with(['prompt' => 'select_account'])
+            ->redirect();
     }
 
     public function handleGoogleCallback()
@@ -107,7 +121,7 @@ class UtilisateurController extends Controller
         }
 
         Auth::login($utilisateur);
-        return redirect('/');
+        return redirect('/')->with('success', 'Connexion via Google réussie !');
     }
 
     public function updateAttribute(Request $request)
@@ -117,7 +131,7 @@ class UtilisateurController extends Controller
         }
 
         $validated = $request->validate([
-            'table' => ['required', 'string', 'in:users,profiles'],
+            'table' => ['required', 'string', 'in:users,profiles,social'],
             'attribute' => ['required', 'string'],
             'value' => ['nullable', 'string', 'max:2000'],
         ]);
@@ -135,8 +149,7 @@ class UtilisateurController extends Controller
                 $user->save();
             } 
             else if ($validated['table'] === 'profiles') {
-                // Whitelist for ProfilsUtilisateurs table columns
-                $allowedProfileColumns = ['Prenom', 'Nom', 'Metier', 'NumeroTelephone', 'Adresse', 'Biographie', 'PhotoProfil'];
+                $allowedProfileColumns = ['Prenom', 'Nom', 'Metier', 'NumeroTelephone', 'Adresse', 'Biographie', 'PhotoProfil', 'EmailContact'];
                 if (!in_array($validated['attribute'], $allowedProfileColumns)) {
                     return response()->json(['message' => 'Interdit'], 403);
                 }
@@ -144,6 +157,17 @@ class UtilisateurController extends Controller
                 ProfilUtilisateur::updateOrCreate(
                     ['IdUtilisateur' => $user->IdUtilisateur],
                     [$validated['attribute'] => $validated['value']]
+                );
+            }
+            else if ($validated['table'] === 'social') {
+                $profil = $user->profil;
+                if (!$profil) {
+                    $profil = ProfilUtilisateur::create(['IdUtilisateur' => $user->IdUtilisateur]);
+                }
+    
+                $profil->reseauxSociaux()->updateOrCreate(
+                    ['Nom' => $validated['attribute']],
+                    ['Lien' => $validated['value']]
                 );
             }
 

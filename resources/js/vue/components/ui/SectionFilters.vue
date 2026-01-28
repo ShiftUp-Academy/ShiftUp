@@ -3,7 +3,7 @@
     <div class="filter-inputs">
       <div class="filter-item search-wrapper">
         <AutoComplete :modelValue="searchValue" @update:modelValue="$emit('update:searchValue', $event)"
-          :suggestions="suggestions" @complete="$emit('complete', $event)" placeholder="recherchez par mot clé"
+          :suggestions="suggestions" @complete="$emit('complete', $event)" @item-select="$emit('select-suggestion', $event.value)" placeholder="recherchez par mot clé"
           class="search-autocomplete full-width-prime" />
       </div>
 
@@ -29,7 +29,7 @@
         ACTUALISER
       </button>
 
-      <button class="view-all-button" @click="$emit('view-all')">
+      <button v-if="showViewAll" class="view-all-button" @click="$emit('view-all')">
         <span class="btn-text">TOUT VOIR</span>
         <svg viewBox="0 0 24 24" fill="none" class="arrow-icon">
           <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -53,10 +53,14 @@ defineProps({
   vertical: {
     type: Boolean,
     default: false
+  },
+  showViewAll: {
+    type: Boolean,
+    default: true
   }
 });
 
-defineEmits(['update:searchValue', 'update:selectedCategory', 'complete', 'reset', 'view-all']);
+defineEmits(['update:searchValue', 'update:selectedCategory', 'complete', 'reset', 'view-all', 'select-suggestion']);
 </script>
 
 <style scoped>
@@ -227,7 +231,8 @@ defineEmits(['update:searchValue', 'update:selectedCategory', 'complete', 'reset
 }
 
 .view-all-button:hover {
-  transform: translateY(-5px);
+  /* Removed translateY animation */
+  opacity: 0.8;
 }
 
 .view-all-button:hover .btn-text {

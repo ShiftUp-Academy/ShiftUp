@@ -9,6 +9,7 @@ import { definePreset } from '@primevue/themes';
 import ToastService from 'primevue/toastservice';
 
 import AppLayout from './vue/layout/AppLayout.vue';
+import AdminLayout from './vue/layout/AdminLayout.vue';
 
 const Noir = definePreset(Aura, {
     semantic: {
@@ -32,7 +33,11 @@ createInertiaApp({
     resolve: (name) => {
         return resolvePageComponent(`./vue/pages/${name}.vue`, import.meta.glob('./vue/pages/**/*.vue'))
             .then((module) => {
-                module.default.layout = module.default.layout || AppLayout;
+                if (name.startsWith('PagesAdmin/')) {
+                    module.default.layout = module.default.layout || AdminLayout;
+                } else {
+                    module.default.layout = module.default.layout || AppLayout;
+                }
                 return module;
             });
     },
