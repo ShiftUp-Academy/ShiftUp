@@ -164,6 +164,17 @@ class ProgrammeController extends Controller
         ]);
     }
 
+    public function showSeminaire($id)
+    {
+        $seminaire = ProgrammeFormation::where('Statut', 'Publié')
+            ->where('Type', 'Seminaire')
+            ->findOrFail($id);
+
+        return Inertia::render('SeminaireDetail', [
+            'seminaire' => $seminaire
+        ]);
+    }
+
     public function showLessonContent($id, Request $request)
     {
         $lesson = \App\Models\Lecon::findOrFail($id);

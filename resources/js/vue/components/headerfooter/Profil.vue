@@ -50,10 +50,10 @@
         <div class="vertical-title full-center cube-scene">
           <div class="cube-container">
             <Link href="#" class="cube-face face-front">
-              <span class="rotate-text">TEMOIGNAGES</span>
+              <span class="rotate-text">COACHINGS</span>
             </Link>
             <Link href="#" class="cube-face face-right">
-              <span class="rotate-text bold-italic">TEMOIGNAGES</span>
+              <span class="rotate-text bold-italic">COACHINGS</span>
             </Link>
           </div>
         </div>

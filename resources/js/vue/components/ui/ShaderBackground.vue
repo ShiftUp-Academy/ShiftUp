@@ -77,10 +77,10 @@ onMounted(() => {
     const rect = container.value.getBoundingClientRect()
     const x = (e.clientX - rect.left) / rect.width
     const y = 1.0 - (e.clientY - rect.top) / rect.height
-    
+
     // Smooth transition for mouse movement
     if (x >= 0 && x <= 1 && y >= 0 && y <= 1) {
-       gsap.to(uniforms.uMouse.value, {
+      gsap.to(uniforms.uMouse.value, {
         x: x, y: y, duration: 1.5, ease: 'expo.out', overwrite: 'auto'
       })
     }

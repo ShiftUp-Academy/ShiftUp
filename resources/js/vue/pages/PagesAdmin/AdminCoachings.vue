@@ -21,29 +21,32 @@
       { label: 'Les replays', value: 'replays' }
     ]" />
 
+    <div class="filters-container" v-if="mainTab === 'reservations' || mainTab === 'replays'">
+      <AdminFilters v-model="filters" @refresh="onRefresh" />
+    </div>
+
     <div class="tab-content">
       <transition mode="out-in">
         <div v-if="mainTab === 'reservations'" class="reservations-list-container">
           <div class="admin-table">
             <div class="table-header-row">
-              <div class="col-user">Utilisateur</div>
+              <div class="col-user">Nom de l'utilisateur</div>
               <div class="col-type">Coaching</div>
               <div class="col-date">Date & Heure</div>
               <div class="col-status-res">Statut</div>
-              <div class="col-meet">Lien Meet</div>
               <div class="col-actions"></div>
             </div>
 
-            <div v-for="res in reservations" :key="res.IdReservation" class="table-row">
+            <div v-for="res in filteredReservations" :key="res.IdReservation" class="table-row">
               <div class="col-user">
-                <div class="user-info">
-                  <span class="user-name font-bold">{{ res.utilisateur?.Nom }}</span>
-                  <span class="user-email text-xs text-gray-500">{{ res.utilisateur?.Email }}</span>
-                </div>
+                <span class="user-name font-bold">
+                  {{ res.utilisateur?.profil ? (res.utilisateur.profil.Nom + ' ' + res.utilisateur.profil.Prenom) :
+                    'Utilisateur Inconnu' }}
+                </span>
               </div>
               <div class="col-type">{{ res.type?.NomDeType }}</div>
               <div class="col-date">
-                {{ res.disponibilite?.DateDisponible }} à {{ res.HeureDebutReservation ?
+                {{ formatDate(res.disponibilite?.DateDisponible) }} à {{ res.HeureDebutReservation ?
                   res.HeureDebutReservation.substring(0, 5) : (res.disponibilite?.HeureDebut ?
                     res.disponibilite.HeureDebut.substring(0, 5) : 'N/A') }}
               </div>
@@ -52,12 +55,6 @@
                   {{ res.StatutReservation }}
                 </span>
               </div>
-              <div class="col-meet">
-                <a v-if="googleMeetLink" :href="googleMeetLink" target="_blank" class="meet-link">
-                  <i class="fas fa-video"></i> Rejoindre
-                </a>
-                <span v-else class="text-gray-400">Non défini</span>
-              </div>
               <div class="col-actions">
                 <button class="edit-btn small" @click="editReservation(res)">
                   <i class="fas fa-pen"></i>
@@ -65,8 +62,8 @@
               </div>
             </div>
 
-            <div v-if="reservations.length === 0" class="empty-state">
-              <p>Aucune réservation pour le moment.</p>
+            <div v-if="filteredReservations.length === 0" class="empty-state">
+              <p>Aucune réservation trouvée.</p>
             </div>
           </div>
         </div>
@@ -80,7 +77,7 @@
               <div class="col-actions"></div>
             </div>
 
-            <div v-for="type in coachingTypes" :key="type.IdTypeCoaching" class="table-row">
+            <div v-for="type in filteredCoachingTypes" :key="type.IdTypeCoaching" class="table-row">
               <div class="col-name font-bold">{{ type.NomDeType }}</div>
               <div class="col-count">
                 <span class="reservation-pill">{{ type.reservations_count || 0 }}</span>
@@ -96,20 +93,53 @@
               </div>
             </div>
 
-            <div v-if="coachingTypes.length === 0" class="empty-state">
-              Aucun type de coaching configuré pour le moment.
+            <div v-if="filteredCoachingTypes.length === 0" class="empty-state">
+              Aucun type de coaching trouvé.
             </div>
           </div>
         </div>
-        <div v-else-if="mainTab === 'replays'" class="replays-grid">
-          <div class="empty-state">
-            <p>Aucun replay disponible pour le moment.</p>
+
+        <div v-else-if="mainTab === 'replays'" class="replays-list-container">
+          <div class="admin-table">
+            <div class="table-header-row">
+              <div class="col-user">Utilisateur</div>
+              <div class="col-type">Coaching</div>
+              <div class="col-date">Date</div>
+              <div class="col-status">Statut</div>
+              <div class="col-actions"></div>
+            </div>
+
+            <div v-for="res in filteredReplays" :key="res.IdReservation" class="table-row">
+              <div class="col-user">
+                <span class="user-name font-bold">
+                  {{ res.utilisateur?.profil ? (res.utilisateur.profil.Nom + ' ' + res.utilisateur.profil.Prenom) :
+                    'Utilisateur Inconnu' }}
+                </span>
+              </div>
+              <div class="col-type">{{ res.type?.NomDeType }}</div>
+              <div class="col-date">{{ formatDate(res.disponibilite?.DateDisponible) }}</div>
+              <div class="col-status">
+                <PremiumSlideToggle v-model="res.StatutReplay" checkedValue="Publié" uncheckedValue="Dépublié"
+                  activeColor="#22c55e" @update:modelValue="updateReplayStatus(res)" />
+              </div>
+              <div class="col-actions">
+                <button class="edit-btn" @click="editReservation(res)">
+                  <i class="fas fa-video"></i> Replay
+                </button>
+              </div>
+            </div>
+
+            <div v-if="filteredReplays.length === 0" class="empty-state">
+              <p>Aucun coaching terminé trouvé pour le moment.</p>
+            </div>
           </div>
         </div>
       </transition>
     </div>
 
     <!-- MODALS -->
+    <ModalEditReservation :isOpen="showEditReservationModal" :reservation="editingReservation"
+      @close="closeEditReservationModal" @success="onRefresh" />
     <ModalCoachingType :isOpen="showTypeModal" :typeToEdit="editingType" @close="closeTypeModal" />
 
     <ModalCoachingAvailability :isOpen="showAvailModal" :existingAvailabilities="availabilities"
@@ -135,7 +165,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import PremiumButton from '../../components/ui/PremiumButton.vue';
 import PremiumSlideToggle from '../../components/ui/PremiumSlideToggle.vue';
@@ -146,100 +176,119 @@ import PremiumModal from '../../components/ui/PremiumModal.vue';
 import InputText from 'primevue/inputtext';
 import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
+import AdminFilters from '../../components/admin/AdminFilters.vue';
+import ModalEditReservation from '../../components/admin/ModalEditReservation.vue';
 
 const props = defineProps({
-  coachingTypes: {
-    type: Array,
-    default: () => []
-  },
-  reservations: {
-    type: Array,
-    default: () => []
-  },
-  availabilities: {
-    type: Array,
-    default: () => []
-  },
-  googleMeetLink: {
-    type: String,
-    default: ''
-  },
-  replays: {
-    type: Array,
-    default: () => []
-  }
+  coachingTypes: { type: Array, default: () => [] },
+  reservations: { type: Array, default: () => [] },
+  availabilities: { type: Array, default: () => [] },
+  googleMeetLink: { type: String, default: '' },
+  replays: { type: Array, default: () => [] }
 });
 
 const mainTab = ref('reservations');
+const filters = ref({ search: '', dateStart: null, dateEnd: null });
 const toast = useToast();
+
+const filteredReservations = computed(() => {
+  let list = props.reservations;
+  if (filters.value.search) {
+    const query = filters.value.search.toLowerCase();
+    list = list.filter(res => {
+      const userName = res.utilisateur?.profil ? `${res.utilisateur.profil.Nom || ''} ${res.utilisateur.profil.Prenom || ''}`.toLowerCase() : '';
+      const typeName = res.type ? res.type.NomDeType.toLowerCase() : '';
+      const status = res.StatutReservation.toLowerCase();
+      return userName.includes(query) || typeName.includes(query) || status.includes(query);
+    });
+  }
+  if (filters.value.dateStart) {
+    const start = new Date(filters.value.dateStart);
+    start.setHours(0, 0, 0, 0);
+    list = list.filter(res => res.disponibilite && new Date(res.disponibilite.DateDisponible) >= start);
+  }
+  if (filters.value.dateEnd) {
+    const end = new Date(filters.value.dateEnd);
+    end.setHours(23, 59, 59, 999);
+    list = list.filter(res => res.disponibilite && new Date(res.disponibilite.DateDisponible) <= end);
+  }
+  return list;
+});
+
+const filteredReplays = computed(() => {
+  let list = props.reservations.filter(res => res.StatutReservation === 'Terminé');
+  if (filters.value.search) {
+    const query = filters.value.search.toLowerCase();
+    list = list.filter(res => {
+      const userName = res.utilisateur?.profil ? `${res.utilisateur.profil.Nom || ''} ${res.utilisateur.profil.Prenom || ''}`.toLowerCase() : '';
+      const typeName = res.type ? res.type.NomDeType.toLowerCase() : '';
+      return userName.includes(query) || typeName.includes(query);
+    });
+  }
+  return list;
+});
+
+const filteredCoachingTypes = computed(() => {
+  if (!filters.value.search) return props.coachingTypes;
+  const query = filters.value.search.toLowerCase();
+  return props.coachingTypes.filter(type => type.NomDeType.toLowerCase().includes(query));
+});
 
 const showTypeModal = ref(false);
 const showAvailModal = ref(false);
 const showMeetModal = ref(false);
+const showEditReservationModal = ref(false);
 const editingType = ref(null);
+const editingReservation = ref(null);
 
-const meetForm = useForm({
-  LienGoogleMeet: props.googleMeetLink
-});
+const meetForm = useForm({ LienGoogleMeet: props.googleMeetLink });
 
-const openCreateTypeModal = () => {
-  editingType.value = null;
-  showTypeModal.value = true;
-};
-
-const openAvailabilityModal = () => {
-  showAvailModal.value = true;
-};
-
-const editCoachingType = (type) => {
-  editingType.value = type;
-  showTypeModal.value = true;
-};
-
-const closeTypeModal = () => {
-  showTypeModal.value = false;
-  editingType.value = null;
-};
-
-const editReservation = (res) => {
-  console.log('Edit reservation', res);
-  // TODO: Implement ModalReservation if needed
-};
+const openCreateTypeModal = () => { editingType.value = null; showTypeModal.value = true; };
+const openAvailabilityModal = () => { showAvailModal.value = true; };
+const editCoachingType = (type) => { editingType.value = type; showTypeModal.value = true; };
+const closeTypeModal = () => { showTypeModal.value = false; editingType.value = null; };
+const editReservation = (res) => { editingReservation.value = res; showEditReservationModal.value = true; };
+const closeEditReservationModal = () => { showEditReservationModal.value = false; editingReservation.value = null; };
+const onRefresh = () => { router.reload(); };
 
 const submitMeetLink = () => {
   meetForm.post('/admin/coachings/google-meet', {
     onSuccess: () => {
       showMeetModal.value = false;
-      toast.add({
-        severity: 'success',
-        summary: 'Succès',
-        detail: 'Lien Meet mis à jour',
-        life: 3000
-      });
+      toast.add({ severity: 'success', summary: 'Succès', detail: 'Lien Meet mis à jour', life: 3000 });
     }
   });
 };
 
 const updateStatus = (type) => {
-  router.post(`/admin/coachings/types/${type.IdTypeCoaching}/status`, {
-    Statut: type.Statut
+  router.post(`/admin/coachings/types/${type.IdTypeCoaching}/status`, { Statut: type.Statut }, {
+    preserveScroll: true,
+    onSuccess: () => { toast.add({ severity: 'success', summary: 'Succès', detail: 'Le statut a été mis à jour', life: 3000 }); }
+  });
+};
+
+const updateReplayStatus = (res) => {
+  router.post(`/admin/coachings/reservations/${res.IdReservation}/update`, {
+    StatutReservation: res.StatutReservation,
+    StatutReplay: res.StatutReplay,
+    LienVideoReplay: res.LienVideoReplay
   }, {
     preserveScroll: true,
-    onSuccess: () => {
-      toast.add({
-        severity: 'success',
-        summary: 'Succès',
-        detail: 'Le statut a été mis à jour',
-        life: 3000
-      });
-    }
+    onSuccess: () => { toast.add({ severity: 'success', summary: 'Succès', detail: 'Le statut du replay a été mis à jour', life: 3000 }); }
   });
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  return new Date(dateString).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
 };
 </script>
 
 <style scoped>
 .admin-content {
   padding: 40px;
+  background-color: #fcfcfc;
+  min-height: 100vh;
 }
 
 .page-header {
@@ -283,6 +332,16 @@ const updateStatus = (type) => {
   font-weight: 600;
 }
 
+.reservations-list-container,
+.coaching-list-container,
+.replays-list-container {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+  margin-top: 20px;
+}
+
 .table-header-row {
   display: flex;
   padding: 15px 25px;
@@ -302,11 +361,12 @@ const updateStatus = (type) => {
   background: #fff;
 }
 
-.coaching-list-container {
-  background: white;
-  border-radius: 16px;
-  border: 1px solid #e0e0e0;
-  overflow: hidden;
+.table-row:hover {
+  background: #f9f9f9;
+}
+
+.table-row:last-child {
+  border-bottom: none;
 }
 
 .col-name {
@@ -317,6 +377,7 @@ const updateStatus = (type) => {
 
 .col-user {
   flex: 2;
+  color: #111;
 }
 
 .col-type {
@@ -330,16 +391,6 @@ const updateStatus = (type) => {
 .col-status-res {
   flex: 1;
   text-align: center;
-}
-
-.col-meet {
-  flex: 1;
-  text-align: center;
-}
-
-.user-info {
-  display: flex;
-  flex-direction: column;
 }
 
 .status-badge {
@@ -365,18 +416,9 @@ const updateStatus = (type) => {
   color: #991b1b;
 }
 
-.meet-link {
-  color: #0E7EC3;
-  font-weight: 600;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.meet-link:hover {
-  text-decoration: underline;
+.status-badge.remboursé {
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
 .edit-btn.small {
@@ -442,5 +484,11 @@ const updateStatus = (type) => {
   color: #d0d0d0;
   background: #111;
   border-radius: 20px;
+}
+
+.filters-container {
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: center;
 }
 </style>

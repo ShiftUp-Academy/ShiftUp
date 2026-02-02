@@ -47,6 +47,7 @@ Route::get('/contact', function () {
 Route::get('/programmes', [ProgrammeController::class, 'programmesPublic']);
 
 Route::get('/programmes/{id}', [ProgrammeController::class, 'show'])->name('programmes.show');
+Route::get('/seminaires/{id}', [ProgrammeController::class, 'showSeminaire'])->name('seminaires.show');
 Route::get('/lecons/{id}/content', [ProgrammeController::class, 'showLessonContent'])->name('lecons.content');
 Route::post('/progress/mark', [ProgrammeController::class, 'markProgress'])->name('progress.mark');
 Route::post('/lecons/record-opening', [ProgrammeController::class, 'recordOpening'])->name('lecons.record-opening');
@@ -96,6 +97,7 @@ Route::prefix('admin')->group(function () {
     Route::post('/coachings/types', [\App\Http\Controllers\CoachingController::class, 'storeType'])->name('admin.coachings.types.store');
     Route::post('/coachings/types/{id}', [\App\Http\Controllers\CoachingController::class, 'updateType'])->name('admin.coachings.types.update');
     Route::post('/coachings/types/{id}/status', [\App\Http\Controllers\CoachingController::class, 'updateStatus'])->name('admin.coachings.types.status');
+    Route::post('/coachings/reservations/{id}/update', [\App\Http\Controllers\CoachingController::class, 'updateReservation'])->name('admin.coachings.reservations.update');
     Route::post('/coachings/availabilities', [\App\Http\Controllers\CoachingController::class, 'storeAvailabilities'])->name('admin.coachings.availabilities.store');
     Route::post('/coachings/google-meet', [\App\Http\Controllers\CoachingController::class, 'storeLienGoogle'])->name('admin.coachings.google-meet.store');
     Route::get('/offres', function () { return Inertia::render('PagesAdmin/AdminOffres'); })->name('admin.offres');
@@ -106,13 +108,3 @@ Route::prefix('admin')->group(function () {
     Route::post('/categories/{id}', [\App\Http\Controllers\CategorieController::class, 'update'])->name('admin.categories.update');
     Route::delete('/categories/{id}', [\App\Http\Controllers\CategorieController::class, 'destroy'])->name('admin.categories.delete');
 });
-
-
-
-/*
-est ce que tu peux implémenter un dans l'onglet Type de coaching dans AdminCoachings.vue, un bouton Nouveau type de coaching.
-et en bas les listes des type des listes des types de coaching sous forme de tableau ( un tableau comme dans Catrgories.vue) les colonnes sont Nom(du type), Nombre de reservation, statut, et le bouton modifié. 
-Pour reserver un coaching on à le droit de choisir le type de coaching disponible et choisir une date et une heure.
-Pour les choix des dates et heures on doit faire une table pour programmer les dates et heures ou l'admin est disponible sur le mois actuel.(on peut en ajouter autant qu'on veut)
-Quand l'utilisateur choisit une date et une heure on doit voir sur la date la disponibilité de l'admin.
-*/

@@ -16,17 +16,36 @@
             <form @submit.prevent="submitReservation" class="reservation-form">
                 <div class="selection-section">
                     <h4 class="section-title">1. Choisir une date</h4>
-                    <div class="date-picker-wrapper">
-                        <DatePicker v-model="selectedDate" inline :minDate="new Date()" class="custom-datepicker"
-                            @date-select="onDateSelect">
-                            <template #date="slotProps">
-                                <div class="datepicker-day-cell"
-                                    :class="{ 'has-availability': isDateAvailable(slotProps.date) }">
-                                    {{ slotProps.date.day }}
-                                    <div v-if="isDateAvailable(slotProps.date)" class="availability-dot"></div>
-                                </div>
-                            </template>
-                        </DatePicker>
+
+                    <div class="custom-calendar">
+                        <!-- Calendar Header -->
+                        <div class="calendar-header">
+                            <button type="button" class="nav-btn" @click="changeMonth(-1)">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            <h3 class="current-month">{{ currentMonthName }}</h3>
+                            <button type="button" class="nav-btn" @click="changeMonth(1)">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+
+                        <div class="calendar-grid">
+                            <div class="weekday" v-for="day in ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']"
+                                :key="day">
+                                {{ day }}
+                            </div>
+
+                            <div v-for="empty in emptyCells" :key="'empty-' + empty" class="day-cell empty"></div>
+                            <div v-for="day in daysInMonth" :key="day.dateStr" class="day-cell" :class="{
+                                'available': isDateAvailable(day.dateStr),
+                                'selected': selectedDateStr === day.dateStr,
+                                'today': day.isToday,
+                                'disabled': day.isPast
+                            }" @click="handleDateSelect(day)">
+                                <span class="day-number">{{ day.dayNumber }}</span>
+                                <div v-if="isDateAvailable(day.dateStr)" class="availability-indicator"></div>
+                            </div>
+                        </div>
                     </div>
 
                     <div v-if="selectedDate" class="time-selection fade-in">
@@ -46,7 +65,7 @@
                 </div>
 
                 <div class="note-section">
-                    <h4 class="section-title">Note ou message (Optionnel)</h4>
+                    <h4 class="section-title mt-4">Note ou message (Optionnel)</h4>
                     <textarea v-model="form.NoteUtilisateur"
                         placeholder="Décrivez brièvement vos attentes pour cette séance..." rows="3"></textarea>
                 </div>
@@ -67,8 +86,7 @@
 import { useForm } from '@inertiajs/vue3';
 import PremiumModal from '../ui/PremiumModal.vue';
 import PremiumButton from '../ui/PremiumButton.vue';
-import DatePicker from 'primevue/datepicker';
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 
 const props = defineProps({
     isOpen: Boolean,
@@ -88,66 +106,114 @@ const form = useForm({
     NoteUtilisateur: ''
 });
 
-// Watch for coaching change to update form
+const selectedDate = ref(null);
+const selectedDateStr = ref(null);
+const currentViewDate = ref(new Date());
+
+// Calendar Logic
+const currentMonthName = computed(() => {
+    return currentViewDate.value.toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+});
+
+const daysInMonth = computed(() => {
+    const year = currentViewDate.value.getFullYear();
+    const month = currentViewDate.value.getMonth();
+    const lastDay = new Date(year, month + 1, 0).getDate();
+
+    const days = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const _ = availableDates.value;
+
+    for (let i = 1; i <= lastDay; i++) {
+        const date = new Date(year, month, i);
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        days.push({
+            dayNumber: i,
+            dateStr: dateStr,
+            dateObj: date,
+            isToday: date.getTime() === today.getTime(),
+            isPast: date < today
+        });
+    }
+
+    return days;
+});
+
+const emptyCells = computed(() => {
+    const year = currentViewDate.value.getFullYear();
+    const month = currentViewDate.value.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    return firstDay === 0 ? 6 : firstDay - 1;
+});
+
+function changeMonth(delta) {
+    const newDate = new Date(currentViewDate.value);
+    newDate.setMonth(newDate.getMonth() + delta);
+    currentViewDate.value = newDate;
+}
+
+function handleDateSelect(day) {
+    if (day.isPast || !isDateAvailable(day.dateStr)) return;
+
+    selectedDate.value = day.dateObj;
+    selectedDateStr.value = day.dateStr;
+    form.IdDisponibilite = null;
+    form.HeureChoisie = null;
+}
+
 watch(() => props.coaching, (newVal) => {
     if (newVal) {
         form.IdTypeCoaching = newVal.IdTypeCoaching;
         form.IdDisponibilite = null;
         form.HeureChoisie = null;
-        selectedDate.value = null; // Reset selection
+        selectedDate.value = null;
+        selectedDateStr.value = null;
     }
 });
 
-const formatDate = (dateStr) => {
-    return new Date(dateStr).toLocaleDateString('fr-FR', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long'
-    });
-};
+const availableDates = computed(() => {
+    if (!props.availabilities || props.availabilities.length === 0) {
+        console.log('⚠️ Aucune disponibilité trouvée');
+        return new Set();
+    }
+
+    console.log('📅 Disponibilités reçues:', props.availabilities);
+    const dates = new Set(props.availabilities.map(a => a.DateDisponible));
+    console.log('📅 Dates extraites:', Array.from(dates));
+    return dates;
+});
 
 const formatPrice = (price) => {
     return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MGA', minimumFractionDigits: 0 }).format(price);
 };
 
-const selectedDate = ref(null);
-
-const availableDates = computed(() => {
-    const dates = new Set(props.availabilities.map(a => a.DateDisponible));
-    return Array.from(dates);
-});
-
-const isDateAvailable = (date) => {
-    if (!date) return false;
-
-    let y, m, d;
-    if (date.year !== undefined && date.month !== undefined && date.day !== undefined) {
-        y = date.year;
-        m = date.month;
-        d = date.day;
-    } else {
-        const dateObj = new Date(date);
-        y = dateObj.getFullYear();
-        m = dateObj.getMonth();
-        d = dateObj.getDate();
+const isDateAvailable = (dateStr) => {
+    const available = availableDates.value.has(dateStr);
+    if (available) {
+        console.log(`✅ Date ${dateStr} disponible`);
     }
-
-    const dateStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    return availableDates.value.includes(dateStr);
+    return available;
 };
+
+onMounted(() => {
+    console.log('🔍 Modal montée - Props coaching:', props.coaching);
+    console.log('🔍 Nombre de disponibilités:', props.availabilities?.length || 0);
+});
 
 const selectableIntervals = computed(() => {
     if (!selectedDate.value) return [];
-    const selDate = new Date(selectedDate.value);
 
-    const relevantSlots = props.availabilities.filter(slot => {
-        const slotDate = new Date(slot.DateDisponible);
-        return slotDate.getDate() === selDate.getDate() &&
-            slotDate.getMonth() === selDate.getMonth() &&
-            slotDate.getFullYear() === selDate.getFullYear();
-    });
+    const relevantSlots = props.availabilities
+        .filter(slot => slot.DateDisponible === selectedDateStr.value)
+        .sort((a, b) => a.HeureDebut.localeCompare(b.HeureDebut));
 
     const intervals = [];
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const isToday = selectedDateStr.value === todayStr;
+
     relevantSlots.forEach(slot => {
         const [startH, startM] = slot.HeureDebut.split(':').map(Number);
         const [endH, endM] = slot.HeureFin.split(':').map(Number);
@@ -156,11 +222,18 @@ const selectableIntervals = computed(() => {
         let currentM = startM;
 
         while (currentH < endH || (currentH === endH && currentM < endM)) {
-            const timeStr = `${String(currentH).padStart(2, '0')}:${String(currentM).padStart(2, '0')}`;
-            intervals.push({
-                time: timeStr,
-                id: slot.IdDisponibilite
-            });
+            const isPast = isToday && (currentH < now.getHours() || (currentH === now.getHours() && currentM <= now.getMinutes() + 15));
+
+            if (!isPast) {
+                const timeStr = `${String(currentH).padStart(2, '0')}:${String(currentM).padStart(2, '0')}`;
+
+                if (!intervals.some(i => i.time === timeStr)) {
+                    intervals.push({
+                        time: timeStr,
+                        id: slot.IdDisponibilite
+                    });
+                }
+            }
 
             currentM += 30;
             if (currentM >= 60) {
@@ -170,23 +243,12 @@ const selectableIntervals = computed(() => {
         }
     });
 
-    return intervals;
+    return intervals.sort((a, b) => a.time.localeCompare(b.time));
 });
 
 const selectTime = (slot) => {
     form.IdDisponibilite = slot.id;
     form.HeureChoisie = slot.time;
-};
-
-const onDateSelect = (date) => {
-    if (!isDateAvailable(date)) {
-        selectedDate.value = null;
-        form.IdDisponibilite = null;
-        form.HeureChoisie = null;
-    } else {
-        form.IdDisponibilite = null;
-        form.HeureChoisie = null;
-    }
 };
 
 const submitReservation = () => {
@@ -196,6 +258,7 @@ const submitReservation = () => {
             emit('close');
             form.reset();
             selectedDate.value = null;
+            selectedDateStr.value = null;
         }
     });
 };
@@ -204,14 +267,18 @@ const submitReservation = () => {
 <style scoped>
 .reservation-modal-body {
     padding: 10px 0;
+    background-color: #0b0b0b;
+    color: #ffffff;
 }
 
 .coaching-summary {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding-bottom: 30px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 25px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
     margin-bottom: 30px;
     gap: 30px;
 }
@@ -224,131 +291,246 @@ const submitReservation = () => {
 }
 
 .description {
-    color: #aaa;
+    color: rgba(255, 255, 255, 0.6);
     line-height: 1.4;
     font-size: 1rem;
 }
 
 .price-badge {
-    background: rgb(238 238 238 / 16%);
+    background: rgba(138, 56, 245, 0.15);
     padding: 15px 25px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     min-width: 150px;
+    border-radius: 12px;
+    border: 1px solid rgba(138, 56, 245, 0.2);
 }
 
 .price-badge .label {
-    font-size: 0.6rem;
-    color: #ffffff;
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.5);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
 }
 
 .price-badge .amount {
     font-size: 1.4rem;
-    font-weight: 500;
+    font-weight: 600;
     color: #fff;
 }
 
 .section-title {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 20px;
+    color: rgba(255, 255, 255, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* --- Global Custom Calendar Design --- */
+.custom-calendar {
+    background: #080808;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 25px;
+    width: 100%;
+    user-select: none;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.current-month {
     font-size: 1.1rem;
     font-weight: 600;
-    margin-bottom: 15px;
-    color: #fff;
+    text-transform: capitalize;
+    letter-spacing: 1px;
 }
 
-.slots-grid {
+.nav-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+    background: #8A38F5;
+    border-color: #8A38F5;
+    transform: scale(1.1);
+}
+
+.calendar-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 30px;
-    max-height: 250px;
-    overflow-y: auto;
-    padding-right: 5px;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
 }
 
-.slot-card {
-    background: #1a1a1a;
-    border: 1px solid #333;
-    padding: 15px;
-    border-radius: 12px;
+.weekday {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding-bottom: 10px;
+}
+
+.day-cell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 400;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: rgba(255, 255, 255, 0.8);
+    background: transparent;
+}
+
+.day-cell:hover:not(.disabled):not(.empty) {
+    background: rgba(138, 56, 245, 0.1);
+    color: #8A38F5;
+    transform: scale(1.05);
+}
+
+.day-cell.available {
+    color: #8A38F5;
+    font-weight: 700;
+    background: rgba(138, 56, 245, 0.05);
+}
+
+.day-cell.selected {
+    background: #8A38F5 !important;
+    color: white !important;
+    box-shadow: 0 10px 20px rgba(138, 56, 245, 0.3);
+}
+
+.day-cell.today {
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.day-cell.disabled {
+    opacity: 0.1;
+    cursor: not-allowed;
+}
+
+.day-cell.empty {
+    cursor: default;
+}
+
+.availability-indicator {
+    position: absolute;
+    bottom: 6px;
+    width: 4px;
+    height: 4px;
+    background: currentColor;
+    border-radius: 50%;
+}
+
+/* --- Time Selection Styles --- */
+.time-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.time-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 16px;
+    border-radius: 16px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
-    transition: all 0.2s;
+    gap: 8px;
+    transition: all 0.3s ease;
 }
 
-.slot-card:hover {
+.time-card:hover {
+    background: rgba(138, 56, 245, 0.08);
     border-color: #8A38F5;
-    background: rgba(138, 56, 245, 0.05);
+    transform: translateY(-3px);
 }
 
-.slot-card.active {
+.time-card.active {
+    background: #8A38F5;
     border-color: #8A38F5;
-    background: rgba(138, 56, 245, 0.15);
-    box-shadow: 0 0 15px rgba(138, 56, 245, 0.2);
+    color: white;
+    box-shadow: 0 10px 20px rgba(138, 56, 245, 0.2);
 }
 
-.slot-card i {
-    font-size: 1.2rem;
-    margin-bottom: 5px;
-    color: #8A38F5;
+.time-card i {
+    font-size: 0.8rem;
+    opacity: 0.6;
 }
 
-.slot-date {
-    font-size: 0.9rem;
-    font-weight: 600;
-    text-transform: capitalize;
+.time-card.active i {
+    opacity: 1;
 }
 
 .slot-time {
     font-size: 1rem;
     font-weight: 600;
-    color: #ffffff;
 }
 
-.no-slots {
-    padding: 40px;
-    background: #1a1a1a;
-    border-radius: 12px;
-    text-align: center;
-    color: #666;
-}
-
+/* --- Note Section --- */
 .note-section textarea {
     width: 100%;
-    background: #1a1a1a;
-    border: 1px solid #333;
-    border-radius: 12px;
-    padding: 15px;
-    color: #fff;
+    background: #0f0f0f;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 18px;
+    color: #ffffff;
     font-family: inherit;
     resize: none;
-    transition: border-color 0.2s;
+    transition: all 0.3s ease;
 }
 
 .note-section textarea:focus {
     outline: none;
     border-color: #8A38F5;
+    background: #151515;
 }
 
 .modal-footer {
     margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 20px;
+    gap: 25px;
 }
 
 .cancel-btn {
     background: none;
     border: none;
-    color: #888;
+    color: #666;
     cursor: pointer;
     font-weight: 600;
+    transition: color 0.3s;
 }
 
 .cancel-btn:hover {
@@ -356,102 +538,11 @@ const submitReservation = () => {
 }
 
 .confirm-btn {
-    padding: 12px 30px !important;
-}
-
-@media (max-width: 768px) {
-    .slots-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .coaching-summary {
-        flex-direction: column;
-    }
-}
-
-.date-picker-wrapper {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-    width: 100%;
-}
-
-.custom-datepicker {
-    width: 100% !important;
-}
-
-:deep(.p-datepicker) {
-    background: #000;
-    border: 1px solid #333;
-    color: white;
-    width: 100% !important;
-}
-
-:deep(.p-datepicker-header) {
-    background: #000;
-    color: white;
-    font-size: 1.2rem !important;
-    font-weight: 600 !important;
-    border-bottom: 1px solid #333;
-}
-
-:deep(.p-datepicker-title),
-:deep(.p-datepicker-calendar th),
-:deep(.p-datepicker-calendar td) {
-    color: white;
-    font-size: 1.2rem !important;
-    font-weight: 600 !important;
-}
-
-:deep(.p-datepicker-calendar td.p-datepicker-today > span) {
-    background: rgba(255, 255, 255, 0.1);
-    font-size: 1.2rem !important;
-    font-weight: 600 !important;
-}
-
-:deep(.p-datepicker-calendar td > span:hover) {
-    background: rgba(255, 255, 255, 0.3) !important;
-    font-size: 1.2rem !important;
-    font-weight: 600 !important;
-}
-
-:deep(.p-datepicker-calendar td.p-datepicker-selected > span) {
-    background: #8A38F5 !important;
-    color: white !important;
-}
-
-.time-slots-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-}
-
-.time-card {
-    background: #1a1a1a;
-    border: 1px solid #333;
-    padding: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s;
-}
-
-.time-card:hover {
-    border-color: #8A38F5;
-}
-
-.time-card.active {
-    background: #8A38F5;
-    border-color: #8A38F5;
-    color: white;
+    padding: 14px 40px !important;
 }
 
 .fade-in {
-    animation: fadeIn 0.4s ease;
+    animation: fadeIn 0.5s ease;
 }
 
 @keyframes fadeIn {
@@ -467,30 +558,29 @@ const submitReservation = () => {
 }
 
 .mt-4 {
-    margin-top: 20px;
+    margin-top: 35px;
 }
 
-.datepicker-day-cell {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
+.no-slots-small {
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    text-align: center;
+    color: #444;
 }
 
-.availability-dot {
-    position: absolute;
-    bottom: 2px;
-    width: 4px;
-    height: 4px;
-    background: #8A38F5;
-    border-radius: 50%;
-}
+@media (max-width: 768px) {
+    .time-slots-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 
-.has-availability {
-    color: #8A38F5 !important;
-    font-weight: 700;
+    .price-badge {
+        min-width: 100%;
+    }
+
+    .coaching-summary {
+        flex-direction: column;
+    }
 }
 </style>

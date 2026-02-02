@@ -11,7 +11,6 @@
     </div>
 
     <div class="program-content">
-      <h3 class="program-title">{{ title }}</h3>
       <div class="card-footer">
         <div class="price-tag">{{ price }}</div>
         <div v-if="progression > 0" class="mini-progression">
@@ -39,10 +38,6 @@ import { router } from '@inertiajs/vue3';
 const props = defineProps({
   id: {
     type: [Number, String],
-    required: true
-  },
-  title: {
-    type: String,
     required: true
   },
   image: {

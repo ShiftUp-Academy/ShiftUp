@@ -59,8 +59,31 @@ class CoachingController extends Controller
 
     public function adminIndex()
     {
+        // 1. Mise à jour automatique des statuts expirés
+        $today = now()->toDateString();
+        
+        // Les confirmés deviennent terminés
+        ReservationCoaching::whereHas('disponibilite', function($q) use ($today) {
+            $q->where('DateDisponible', '<', $today);
+        })->where('StatutReservation', 'Confirmé')
+          ->update(['StatutReservation' => 'Terminé']);
+
+        // Les en attente deviennent annulés
+        ReservationCoaching::whereHas('disponibilite', function($q) use ($today) {
+            $q->where('DateDisponible', '<', $today);
+        })->where('StatutReservation', 'En attente')
+          ->update(['StatutReservation' => 'Annulé']);
+
         $coachingTypes = TypeDeCoaching::withCount('reservations')->get();
-        $reservations = ReservationCoaching::with(['utilisateur', 'type', 'disponibilite'])->get();
+        
+        // 2. Récupération triée par date la plus proche
+        $reservations = ReservationCoaching::with(['utilisateur.profil', 'type', 'disponibilite'])
+            ->join('DisponibiliteCoaching', 'ReservationCoaching.IdDisponibilite', '=', 'DisponibiliteCoaching.IdDisponibilite')
+            ->orderBy('DisponibiliteCoaching.DateDisponible', 'asc') // Le plus proche d'abord
+            ->orderBy('DisponibiliteCoaching.HeureDebut', 'asc')
+            ->select('ReservationCoaching.*') // Important pour éviter les conflits d'ID
+            ->get();
+
         $availabilities = DisponibiliteCoaching::orderBy('DateDisponible', 'desc')->get();
         $googleMeetLink = LienGoogle::first();
         
@@ -155,5 +178,31 @@ class CoachingController extends Controller
         $type->save();
 
         return back()->with('success', 'Statut mis à jour.');
+    }
+    public function updateReservation(Request $request, $id)
+    {
+        $reservation = ReservationCoaching::findOrFail($id);
+        
+        $validated = $request->validate([
+            'StatutReservation' => 'required|string|in:En attente,Confirmé,Terminé,Annulé,Remboursé',
+            'LienVideoReplay' => 'nullable|string',
+            'StatutReplay' => 'nullable|string|in:Publié,Dépublié',
+        ]);
+
+        $reservation->update($validated);
+
+        // Optional: If cancelled, free up validity?
+        // Logic: If status becomes 'Annulé' and was not 'Annulé', should we free the availability?
+        // Currently availability has EstReserve=true.
+        // If we cancel, maybe set EstReserve=false?
+        // Let's keep it simple for now, user might want to keep the slot blocked or not. 
+        // Usually if cancelled, slot should open up.
+        if ($validated['StatutReservation'] === 'Annulé') {
+            $reservation->disponibilite()->update(['EstReserve' => false]);
+            // Also need to dissociate? Or just keep record?
+            // Keep record is fine.
+        }
+
+        return back()->with('success', 'Réservation mise à jour avec succès.');
     }
 }

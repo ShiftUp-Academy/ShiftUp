@@ -110,7 +110,7 @@ const imgTestimonials = '/images/Role Models - Kinfolk.jpg';
 const imgCoaching = '/images/téléchargement.jpg';
 const imgLive = '/images/Zoom созво.jpg';
 const imgArticles = '/images/téléchargement (5).jpg';
-const imgOrganisme = '/images/image-coaching.webp';
+const imgOrganisme = '/images/Organisme.jpg';
 const imgCategoriesBg = '/images/catégorie.jpg';
 
 const categoryLinks = [

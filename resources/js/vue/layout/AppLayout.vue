@@ -11,6 +11,9 @@ import { useToast } from 'primevue/usetoast';
 
 gsap.registerPlugin(ScrollTrigger);
 
+import IntroLoader from '../components/ui/IntroLoader.vue';
+import PageTransitionOverlay from '../components/ui/PageTransitionOverlay.vue';
+
 const toast = useToast();
 const page = usePage();
 
@@ -74,14 +77,20 @@ onUnmounted(() => {
   if (mutationObserver) mutationObserver.disconnect();
   if (resizeObserver) resizeObserver.disconnect();
   if (unbindRouter) unbindRouter();
+  if (unbindTransitionStart) unbindTransitionStart();
+  if (unbindTransitionFinish) unbindTransitionFinish();
 });
 
 const mainRef = ref(null);
 const cursorRef = ref(null);
 const footerRef = ref(null);
+const transitionRef = ref(null);
+const showIntro = ref(false);
 let mutationObserver;
 let resizeObserver;
 let unbindRouter;
+let unbindTransitionStart;
+let unbindTransitionFinish;
 
 const setupScrollAnimations = () => {
   if (!mainRef.value) return;
@@ -90,7 +99,7 @@ const setupScrollAnimations = () => {
     if (node.nodeType !== 1) return; // Ensure element node
 
     if (node.dataset.hasScrollAnim) return;
-    if (node.closest('[data-lenis-prevent]') || node.closest('.consultation-lists') || node.closest('.no-global-reveal') || node.closest('.infinite-photo-scroll') || node.closest('.video-grid') || node.closest('.founder-section') || node.closest('.programmes-page') || node.closest('.how-it-works-page')) {
+    if (node.closest('[data-lenis-prevent]') || node.closest('.consultation-lists') || node.closest('.no-global-reveal') || node.closest('.infinite-photo-scroll') || node.closest('.video-grid') || node.closest('.founder-section') || node.closest('.programmes-page') || node.closest('.how-it-works-page') || node.closest('.seminaire-detail-page') || node.closest('.program-detail-page')) {
       return;
     }
 
@@ -188,11 +197,9 @@ const setupScrollAnimations = () => {
 
   unbindRouter = router.on('finish', () => {
     debouncedRefresh();
-    // Un deuxième refresh un peu plus tard pour les contenus asynchrones type images
     setTimeout(debouncedRefresh, 800);
   });
 
-  // --- Custom Cursor Logic ---
   const cursor = cursorRef.value;
   if (cursor) {
     const xTo = gsap.quickSetter(cursor, "x", "px");
@@ -229,11 +236,58 @@ const setupScrollAnimations = () => {
       }
     });
   }
+
+  // --- Intro Loader Logic ---
+  const hasSeenIntro = sessionStorage.getItem('hasSeenIntro');
+  if (!hasSeenIntro) {
+    showIntro.value = true;
+    // Disable scrolling while loading
+    document.body.style.overflow = 'hidden';
+  }
 };
+
+const onIntroComplete = () => {
+  showIntro.value = false;
+  sessionStorage.setItem('hasSeenIntro', 'true');
+  document.body.style.overflow = '';
+}
+
+// --- Page Transition Logic ---
+let transitionPromise = null;
+let activeRequests = 0;
+
+unbindTransitionStart = router.on('start', (event) => {
+  activeRequests++;
+  if (transitionRef.value) {
+    // Always start/restart transition on new request
+    transitionPromise = transitionRef.value.startTransition();
+  }
+});
+
+unbindTransitionFinish = router.on('finish', (event) => {
+  activeRequests--;
+  // Only end transition if no more pending requests
+  if (activeRequests <= 0) {
+    activeRequests = 0;
+    if (transitionRef.value && transitionPromise) {
+      transitionPromise.then(() => {
+        // Ensure we don't uncover if a new request started while we were waiting
+        if (activeRequests === 0) {
+          setTimeout(() => {
+            transitionRef.value.endTransition();
+          }, 50);
+        }
+      });
+    }
+  }
+});
+
 </script>
 
 <template>
   <div class="min-h-screen relative bg-[#FDFDFC] dark:bg-[#0a0a0a]">
+    <IntroLoader v-if="showIntro" @complete="onIntroComplete" />
+    <PageTransitionOverlay ref="transitionRef" />
     <Toast />
 
     <div class="custom-scroll-cursor" ref="cursorRef">

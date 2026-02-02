@@ -124,7 +124,9 @@ const dynamicHomeLabel = computed(() => {
   if (currentPath === '/contact') return 'Contactez-moi !';
   if (currentPath === '/consultations') return 'Consultations';
   if (currentPath === '/programmes') return 'Les programmes de formation';
+  if (currentPath.includes('/programmes/')) return 'Programme détaillé';
   if (currentPath === '/coaching') return 'Coachings';
+  if (currentPath.includes('/seminaires')) return 'Séminaire détaillé';
   return 'Accueil';
 });
 

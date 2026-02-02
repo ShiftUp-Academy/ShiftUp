@@ -1,6 +1,6 @@
 <template>
     <div class="coaching-page">
-        <div class="intro-section">
+        <ShaderBackground :colors="themeColors" class="intro-section">
             <div class="intro-content">
                 <h1 class="impact-title">Coaching</h1>
                 <p class="subtitle">
@@ -8,7 +8,7 @@
                     choisissez entre nos programmes ci-dessous et reservez votre apprentissages
                 </p>
             </div>
-        </div>
+        </ShaderBackground>
 
         <section class="coaching-grid-section">
             <div class="grid-container">
@@ -29,6 +29,7 @@
 <script setup>
 import CoachingCard from '../components/ui/CoachingCard.vue';
 import ModalReservationCoaching from '../components/ui/ModalReservationCoaching.vue';
+import ShaderBackground from '../components/ui/ShaderBackground.vue';
 import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
@@ -49,6 +50,13 @@ const props = defineProps({
 const toast = useToast();
 const selectedCoaching = ref(null);
 const showModal = ref(false);
+
+const themeColors = {
+    primary: '#1A888D', 
+    secondary: '#202020', 
+    accent: '#F7B455',  
+    dark: '#010101'   
+};
 
 const handleReserve = (type) => {
     if (!props.auth.user) {
@@ -90,8 +98,15 @@ const onReservationSuccess = () => {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 0 5vw 0;
+    padding: 0 5vw;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.intro-content {
+    position: relative;
+    z-index: 2;
 }
 
 .impact-title {

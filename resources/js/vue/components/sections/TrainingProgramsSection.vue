@@ -1,10 +1,8 @@
 <template>
   <section class="training-programs-section" ref="sectionRef" @mousemove="handleFlashMove"
     @mouseleave="handleFlashLeave">
-    <!-- Dynamic Spreading Fog Overlay -->
     <div class="spreading-fog" ref="fogRef"></div>
 
-    <!-- Global Section Flashlight -->
     <div class="section-flashlight"></div>
 
     <div class="container">
@@ -69,9 +67,10 @@ const filteredSuggestions = ref([]);
 
 const displayPrograms = computed(() => {
   return props.programs.filter(program => {
+    const isNotSeminaire = program.type !== 'Seminaire';
     const matchesSearch = program.title.toLowerCase().includes(searchValue.value.toLowerCase());
     const matchesCategory = !selectedCategory.value || program.categoryId === selectedCategory.value.code;
-    return matchesSearch && matchesCategory;
+    return isNotSeminaire && matchesSearch && matchesCategory;
   });
 });
 

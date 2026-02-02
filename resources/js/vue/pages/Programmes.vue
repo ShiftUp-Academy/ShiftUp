@@ -82,14 +82,17 @@ const props = defineProps({
 
 const programs = computed(() => {
     if (!props.programmes || props.programmes.length === 0) return [];
-    return props.programmes.map(p => ({
-        id: p.IdProgrammeFormation,
-        title: p.Titre,
-        image: p.LienPhoto || '/images/Programmes/Plan de travail1.png',
-        price: Number(p.Prix) > 0 ? Number(p.Prix).toLocaleString() + ' Ar' : 'Gratuit',
-        progression: p.progression,
-        categoryId: p.IdCategorie
-    }));
+    return props.programmes
+        .filter(p => p.Type !== 'Seminaire')
+        .map(p => ({
+            id: p.IdProgrammeFormation,
+            title: p.Titre,
+            image: p.LienPhoto || '/images/Programmes/Plan de travail1.png',
+            price: Number(p.Prix) > 0 ? Number(p.Prix).toLocaleString() + ' Ar' : 'Gratuit',
+            progression: p.progression,
+            categoryId: p.IdCategorie,
+            type: p.Type
+        }));
 });
 
 const displayPrograms = computed(() => {

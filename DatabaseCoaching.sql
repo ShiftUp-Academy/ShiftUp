@@ -45,3 +45,120 @@ CREATE TABLE lienGoogle
 {
     LienGoogleMeet TEXT,
 }
+
+
+-- Supprimer l'ancienne contrainte unique
+ALTER TABLE "DisponibiliteCoaching" 
+DROP CONSTRAINT IF EXISTS "disponibilitecoaching_datedisponible_heuredebut_unique";
+
+-- Créer un index unique composite qui permet plusieurs créneaux le même jour
+-- mais empêche les doublons exactes (même date + même début + même fin)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_disponibilite_unique 
+ON "DisponibiliteCoaching" ("DateDisponible", "HeureDebut", "HeureFin");
+
+-- OU si vous voulez juste permettre plusieurs créneaux sans contrainte :
+-- Ne pas recréer de contrainte unique, juste un index pour les performances
+CREATE INDEX IF NOT EXISTS idx_disponibilite_date 
+ON "DisponibiliteCoaching" ("DateDisponible");
+
+
+-- Fonction pour nettoyer les disponibilités expirées
+CREATE OR REPLACE FUNCTION clean_expired_availabilities()
+RETURNS TABLE(deleted_count BIGINT, message TEXT) AS $$
+DECLARE
+    deleted BIGINT;
+BEGIN
+    -- Supprime les disponibilités dont la date est passée
+    DELETE FROM "DisponibiliteCoaching" 
+    WHERE "DateDisponible" < CURRENT_DATE;
+    
+    -- Récupère le nombre de lignes supprimées
+    GET DIAGNOSTICS deleted = ROW_COUNT;
+    
+    -- Retourne le résultat
+    RETURN QUERY SELECT deleted, 
+        CASE 
+            WHEN deleted = 0 THEN 'Aucune disponibilité expirée trouvée'
+            WHEN deleted = 1 THEN '1 disponibilité expirée supprimée'
+            ELSE deleted || ' disponibilités expirées supprimées'
+        END;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Pour l'utiliser :
+SELECT * FROM clean_expired_availabilities();
+
+
+-- Fonction pour mettre à jour les statuts des réservations passées
+-- Confirmé -> Terminé, En attente -> Annulé
+CREATE OR REPLACE FUNCTION update_reservation_statuses() RETURNS text AS $$
+DECLARE
+    termines_count INT;
+    annules_count INT;
+BEGIN
+    -- Mettre à jour les réservations confirmées en 'Terminé'
+    WITH updated_confirmed AS (
+        UPDATE "ReservationCoaching" RC
+        SET "StatutReservation" = 'Terminé'
+        FROM "DisponibiliteCoaching" DC
+        WHERE RC."IdDisponibilite" = DC."IdDisponibilite"
+        AND DC."DateDisponible" < CURRENT_DATE
+        AND RC."StatutReservation" = 'Confirmé'
+        RETURNING 1
+    )
+    SELECT COUNT(*) INTO termines_count FROM updated_confirmed;
+
+    -- Mettre à jour les réservations en attente en 'Annulé'
+    WITH updated_pending AS (
+        UPDATE "ReservationCoaching" RC
+        SET "StatutReservation" = 'Annulé'
+        FROM "DisponibiliteCoaching" DC
+        WHERE RC."IdDisponibilite" = DC."IdDisponibilite"
+        AND DC."DateDisponible" < CURRENT_DATE
+        AND RC."StatutReservation" = 'En attente'
+        RETURNING 1
+    )
+    SELECT COUNT(*) INTO annules_count FROM updated_pending;
+
+    RETURN 'Mise à jour effectuée : ' || termines_count || ' terminés, ' || annules_count || ' annulés.';
+END;
+$$ LANGUAGE plpgsql;
+
+-- Exemple d'utilisation :
+SELECT update_reservation_statuses();
+
+
+
+
+CREATE OR REPLACE FUNCTION update_expired_reservation_status() RETURNS text AS $$
+DECLARE
+    terminated_count INT;
+    cancelled_count INT;
+BEGIN
+    -- Update Confirmed -> Terminé
+    WITH rows AS (
+        UPDATE "ReservationCoaching" rc
+        SET "StatutReservation" = 'Terminé'
+        FROM "DisponibiliteCoaching" dc
+        WHERE rc."IdDisponibilite" = dc."IdDisponibilite"
+        AND dc."DateDisponible" < CURRENT_DATE
+        AND rc."StatutReservation" = 'Confirmé'
+        RETURNING 1
+    )
+    SELECT count(*) INTO terminated_count FROM rows;
+
+    -- Update En attente -> Annulé
+    WITH rows AS (
+        UPDATE "ReservationCoaching" rc
+        SET "StatutReservation" = 'Annulé'
+        FROM "DisponibiliteCoaching" dc
+        WHERE rc."IdDisponibilite" = dc."IdDisponibilite"
+        AND dc."DateDisponible" < CURRENT_DATE
+        AND rc."StatutReservation" = 'En attente'
+        RETURNING 1
+    )
+    SELECT count(*) INTO cancelled_count FROM rows;
+    
+    RETURN 'Mise à jour: ' || terminated_count || ' terminés, ' || cancelled_count || ' annulés.';
+END;
+$$ LANGUAGE plpgsql;

@@ -18,7 +18,9 @@ class ReservationCoaching extends Model
         'IdDisponibilite',
         'HeureDebutReservation',
         'StatutReservation',
-        'NoteUtilisateur'
+        'NoteUtilisateur',
+        'LienVideoReplay',
+        'StatutReplay'
     ];
 
     const CREATED_AT = 'DateCreation';
