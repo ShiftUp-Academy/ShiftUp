@@ -15,6 +15,10 @@
                     {{ seminaire.Titre }}
                 </h1>
 
+                <p class="seminaire-description" v-if="seminaire.Descriptions">
+                    {{ seminaire.Descriptions }}
+                </p>
+
                 <div class="date-time-block">
                     <p class="date-text">{{ formattedDate }}</p>
                     <p class="time-text" v-if="seminaire.HeureSeminaire">
@@ -224,8 +228,16 @@ const reserveSeat = () => {
     margin-top: 0;
     line-height: 1.1;
     text-transform: uppercase;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     color: #fff;
+}
+
+.seminaire-description {
+    font-size: 1.2rem;
+    line-height: 1.1;
+    color: rgb(255, 255, 255);
+    margin-bottom: 2rem;
+    max-width: 45vw;
 }
 
 .date-time-block {
@@ -304,6 +316,12 @@ const reserveSeat = () => {
     .content-left {
         text-align: center;
         margin: 0 auto;
+        max-width: 90vw;
+    }
+
+    .seminaire-description {
+        max-width: 100%;
+        margin: 1rem auto 2rem;
     }
 
     .starts-in-label {

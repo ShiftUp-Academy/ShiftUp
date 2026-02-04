@@ -7,7 +7,7 @@
       accent: '#A71543',
       dark: '#000000'
     }" />
-  <CategorySection :programs="availablePrograms" />
+  <AvailableOffersSection :offres="offres" />
   <TrainingProgramsSection :programs="availablePrograms" :categories="categories" />
 
   <div class="consultation-section">
@@ -50,7 +50,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import ChildHeropage from '../components/ui/ChildHeropage.vue';
-import CategorySection from '../components/sections/CategorySection.vue';
+import AvailableOffersSection from '../components/sections/OffreSection.vue';
 import TrainingProgramsSection from '../components/sections/TrainingProgramsSection.vue';
 import ConsultationSessionsList from '../components/ui/ConsultationSessionsList.vue';
 import FreeConsultationsList from '../components/ui/FreeConsultationsList.vue';
@@ -58,6 +58,10 @@ import PremiumModal from '../components/ui/PremiumModal.vue';
 
 const props = defineProps({
   programmes: {
+    type: Array,
+    default: () => []
+  },
+  offres: {
     type: Array,
     default: () => []
   },

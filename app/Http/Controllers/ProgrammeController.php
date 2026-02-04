@@ -106,9 +106,15 @@ class ProgrammeController extends Controller
         $publishedConsultations = $responsesQuery->orderBy('DateCreation', 'desc')->get();
 
         $categories = \App\Models\Categorie::where('Statut', 'Publié')->get();
+        
+        $offres = \App\Models\Offre::where('Statut', 'Publié')
+            ->with(['programmes.programme', 'coachings.coaching'])
+            ->orderBy('DateCreation', 'desc')
+            ->get();
 
         return Inertia::render('TouteCategorie', [
             'programmes' => $programmes,
+            'offres' => $offres,
             'myConsultations' => $myConsultations,
             'publishedConsultations' => $publishedConsultations,
             'categories' => $categories

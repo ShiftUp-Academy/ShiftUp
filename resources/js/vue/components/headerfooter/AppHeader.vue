@@ -92,9 +92,19 @@
       </div>
     </div>
 
-    <div class="robot-container" :class="{ 'is-visible': showFooter }">
+    <div class="robot-container" :class="{ 'is-visible': showFooter }" @click.stop="showNotif = !showNotif">
+      <div class="robot-messages-area">
+        <ModalNotif :is-open="showNotif" :notifications="dummyNotifications" @close.stop="showNotif = false" />
+
+        <div class="robot-bubble" v-if="!showNotif">
+          Je suis votre assistante pour vous aider à vous notifier de toutes activité dans ShiftUp
+        </div>
+      </div>
+
+      <div v-if="!isRobotReady" class="robot-loader"></div>
       <spline-viewer url="https://prod.spline.design/1NFsNvYihV-D5oUI/scene.splinecode" loading-anim-type="none"
-        events-target="global" style="pointer-events: none"></spline-viewer>
+        events-target="global" @load="() => { isRobotReady = true; sessionStorage.setItem('robot_loaded', 'true'); }"
+        :class="{ 'is-ready': isRobotReady }" style="pointer-events: none"></spline-viewer>
     </div>
 
     <Profil :is-open="isProfilOpen" :user="user" @close="isProfilOpen = false" />
@@ -107,9 +117,26 @@ import { ref, onMounted, onBeforeUnmount, computed, nextTick, reactive, watch } 
 import { Link, usePage } from '@inertiajs/vue3';
 import Profil from './Profil.vue';
 import LoginModal from '../auth/LoginModal.vue';
+import ModalNotif from '../ui/ModalNotif.vue';
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
+const isRobotReady = ref(typeof window !== 'undefined' && sessionStorage.getItem('robot_loaded') === 'true');
+const showNotif = ref(false);
+
+const dummyNotifications = [
+  { message: "Bienvenue sur ShiftUp ! Explorez nos nouveaux séminaires.", time: "À l'instant", icon: "fas fa-star" },
+  { message: "Votre profil a été mis à jour avec succès.", time: "Il y a 2 heures", icon: "fas fa-user-check" },
+  { message: "Nouvelle offre exclusive : Pack Booster de Chiffre disponible.", time: "Il y a 1 jour", icon: "fas fa-rocket" }
+];
+
+if (typeof window !== 'undefined' && !window.customElements.get('spline-viewer')) {
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/@splinetool/viewer@1.0.28/build/spline-viewer.js';
+  script.type = 'module';
+  script.async = true;
+  document.head.appendChild(script);
+}
 
 const menuItemsData = [
   { label: 'Accueil', route: '/' },
@@ -127,6 +154,11 @@ const dynamicHomeLabel = computed(() => {
   if (currentPath.includes('/programmes/')) return 'Programme détaillé';
   if (currentPath === '/coaching') return 'Coachings';
   if (currentPath.includes('/seminaires')) return 'Séminaire détaillé';
+  if (currentPath === '/temoignages') return 'Témoignages';
+  if (currentPath === '/offres') return 'Offres';
+  if (currentPath === '/live') return 'Live';
+
+
   return 'Accueil';
 });
 
@@ -238,6 +270,12 @@ function updateBackground() {
   });
 }
 
+const closeNotifOutside = (e) => {
+  if (showNotif.value && !e.target.closest('.robot-container')) {
+    showNotif.value = false;
+  }
+};
+
 const initScrollLogic = async () => {
   const { ScrollTrigger } = await import("gsap/ScrollTrigger");
 
@@ -262,14 +300,6 @@ const initScrollLogic = async () => {
 let resizeObserver = null;
 
 onMounted(async () => {
-  // Load Spline Viewer script
-  if (!window.SplineViewer) {
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js';
-    script.type = 'module';
-    document.head.appendChild(script);
-  }
-
   const menuItems = document.querySelector('.menu-items');
   if (menuItems) {
     resizeObserver = new ResizeObserver(() => {
@@ -283,10 +313,15 @@ onMounted(async () => {
   }, 50);
 
   window.addEventListener('resize', updateBackground);
+  window.addEventListener('click', closeNotifOutside);
+
+  // Fallback: If Spline hasn't loaded after 6s, show it anyway or handle it
+  setTimeout(() => {
+    isRobotReady.value = true;
+  }, 6000);
 
   await initScrollLogic();
 
-  // Force hide Spline logo - intense version
   const forceRemoveSplineLogo = () => {
     const viewer = document.querySelector('spline-viewer');
     if (viewer && viewer.shadowRoot) {
@@ -301,12 +336,12 @@ onMounted(async () => {
     return false;
   };
 
-  const logoCheckInterval = setInterval(forceRemoveSplineLogo, 50);
+  const logoCheckInterval = setInterval(forceRemoveSplineLogo, 200);
 
   setTimeout(() => {
     clearInterval(logoCheckInterval);
-    setInterval(forceRemoveSplineLogo, 1000);
-  }, 5000);
+    setInterval(forceRemoveSplineLogo, 2000);
+  }, 10000);
 
   setTimeout(() => {
     import("gsap/ScrollTrigger").then(({ ScrollTrigger }) => {
@@ -318,6 +353,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   if (resizeObserver) resizeObserver.disconnect();
   window.removeEventListener('resize', updateBackground);
+  window.removeEventListener('click', closeNotifOutside);
 
   import("gsap/ScrollTrigger").then(({ ScrollTrigger }) => {
     ScrollTrigger.getAll().forEach(t => {
@@ -632,23 +668,33 @@ watch(() => page.url, () => {
   color: #333;
 }
 
+.modal-notif-wrapper {
+  width: 320px;
+  margin-right: 4vw;
+  position: relative;
+  z-index: 200;
+  margin-bottom: 10px;
+  will-change: transform, opacity, filter;
+}
+
 .robot-container {
-  width: 120px;
-  height: 120px;
+  width: auto;
+  height: auto;
   position: fixed;
-  bottom: 0px;
+  bottom: 10px;
   right: 30px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
   cursor: pointer;
-  z-index: 100;
+  z-index: 1000;
   opacity: 0;
   transform: translateY(50px) scale(0.8);
   transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
   pointer-events: none;
-  /* Capture only if needed, but here it's decorative */
 }
+
 
 .robot-container.is-visible {
   opacity: 1;
@@ -657,14 +703,85 @@ watch(() => page.url, () => {
 }
 
 .robot-container:hover {
-  transform: scale(1.05) translateY(-5px);
+  transform: scale(1.02) translateY(-5px);
+}
+
+.robot-container:hover .robot-bubble {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.robot-messages-area {
+  display: grid;
+  grid-template-areas: "msg";
+  align-items: end;
+  justify-items: end;
+  width: auto;
+}
+
+.robot-messages-area>* {
+  grid-area: msg;
+}
+
+.robot-bubble {
+  background: #8A38F5;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 18px;
+  border-radius: 18px 18px 0 18px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 400;
+  width: 220px;
+  text-align: center;
+  margin-right: 4vw;
+  line-height: 1.2;
+  box-shadow: 0 10px 25px rgba(138, 56, 245, 0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: translateY(10px);
+  position: relative;
+  z-index: 10;
+}
+
+.robot-bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 0;
+  border-left: 12px solid transparent;
+  border-right: 0px solid transparent;
+  border-top: 12px solid #8A38F5;
 }
 
 spline-viewer {
-  width: 100%;
-  height: 100%;
+  width: 120px;
+  height: 120px;
   clip-path: inset(0 0 15px 0);
-  /* Crop the bottom 15px where the logo lives */
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+spline-viewer.is-ready {
+  opacity: 1;
+}
+
+.robot-loader {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(138, 56, 245, 0.2);
+  border-top-color: #8A38F5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 10;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .action-buttons {

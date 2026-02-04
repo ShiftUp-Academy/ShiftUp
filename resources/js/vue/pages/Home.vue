@@ -38,7 +38,7 @@ const freeResources = computed(() => {
 
 <template>
   <Heropage2 />
-  <SeminaireSection :seminaires="seminaires" />
+  <SeminaireSection v-if="seminaires.length > 0" :seminaires="seminaires" />
   <RessourceGratuites :resources="freeResources" />
   <NosEvenements />
   <TestimonialSection :temoignages="props.temoignages" />

@@ -69,9 +69,17 @@ const props = defineProps({
     type: String,
     default: '190k Ar'
   },
+  isOffer: {
+    type: Boolean,
+    default: false
+  }
 });
 
 const goToDetail = () => {
+  if (props.isOffer) {
+    router.visit(`/offres`);
+    return;
+  }
   if (props.id) {
     router.visit(`/programmes/${props.id}`);
   }
