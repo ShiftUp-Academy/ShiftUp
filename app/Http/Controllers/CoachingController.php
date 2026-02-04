@@ -7,6 +7,7 @@ use App\Models\ReservationCoaching;
 use App\Models\DisponibiliteCoaching;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 use App\Models\LienGoogle;
 
@@ -53,6 +54,20 @@ class CoachingController extends Controller
 
         // Mark slot as reserved
         $availability->update(['EstReserve' => true]);
+
+        // --- RÈGLE DES 3 HEURES ---
+        // On bloque les créneaux qui débutent dans les 3 heures après la fin de ce coaching
+        $heureFinCoaching = Carbon::createFromFormat('H:i:s', $availability->HeureFin);
+        $limiteGap = $heureFinCoaching->copy()->addHours(3)->format('H:i:s');
+
+        DisponibiliteCoaching::where('DateDisponible', $availability->DateDisponible)
+            ->where('HeureDebut', '>=', $availability->HeureFin)
+            ->where('HeureDebut', '<', $limiteGap)
+            ->where('EstReserve', false)
+            ->update([
+                'EstReserve' => true,
+                'BlockedByReservationId' => $reservation->IdReservation
+            ]);
 
         return back()->with('success', 'Votre demande de coaching a été envoyée avec succès.');
     }
@@ -199,8 +214,13 @@ class CoachingController extends Controller
         // Usually if cancelled, slot should open up.
         if ($validated['StatutReservation'] === 'Annulé') {
             $reservation->disponibilite()->update(['EstReserve' => false]);
-            // Also need to dissociate? Or just keep record?
-            // Keep record is fine.
+            
+            // On débloque aussi les créneaux qui étaient bloqués par la règle des 3h
+            DisponibiliteCoaching::where('BlockedByReservationId', $reservation->IdReservation)
+                ->update([
+                    'EstReserve' => false,
+                    'BlockedByReservationId' => null
+                ]);
         }
 
         return back()->with('success', 'Réservation mise à jour avec succès.');

@@ -18,7 +18,7 @@
                 <div class="date-time-block">
                     <p class="date-text">{{ formattedDate }}</p>
                     <p class="time-text" v-if="seminaire.HeureSeminaire">
-                        à {{ seminaire.HeureSeminaire }}
+                        à {{ seminaire.HeureSeminaire.replace(':', 'h') }}
                     </p>
                 </div>
 
@@ -292,8 +292,8 @@ const reserveSeat = () => {
 }
 
 .reserve-btn {
-        opacity: 1 !important;
-    }
+    opacity: 1 !important;
+}
 
 @media (max-width: 900px) {
     .main-content {

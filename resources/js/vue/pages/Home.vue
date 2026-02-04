@@ -12,6 +12,10 @@ const props = defineProps({
   programmes: {
     type: Array,
     default: () => []
+  },
+  temoignages: {
+    type: Array,
+    default: () => []
   }
 });
 
@@ -37,7 +41,7 @@ const freeResources = computed(() => {
   <SeminaireSection :seminaires="seminaires" />
   <RessourceGratuites :resources="freeResources" />
   <NosEvenements />
-  <TestimonialSection />
+  <TestimonialSection :temoignages="props.temoignages" />
   <VideoGrid />
   <FounderSection />
 </template>

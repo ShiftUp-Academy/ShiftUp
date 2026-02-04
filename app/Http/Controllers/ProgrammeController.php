@@ -317,8 +317,15 @@ class ProgrammeController extends Controller
             unset($p->lecons);
         });
             
+        $temoignages = \App\Models\Temoignage::where('Type', 'Texte')
+            ->where('Statut', 'Publié')
+            ->with(['utilisateur.profil'])
+            ->orderBy('DateCreation', 'desc')
+            ->get();
+
         return Inertia::render('Home', [
-            'programmes' => $programmes
+            'programmes' => $programmes,
+            'temoignages' => $temoignages
         ]);
     }
 

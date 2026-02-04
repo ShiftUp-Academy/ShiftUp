@@ -1,11 +1,6 @@
 <template>
-  <div 
-    class="testimonial-card"
-    ref="cardRef"
-    @mousemove="handleFlashMove"
-    @mouseleave="handleFlashLeave"
-    :style="{ '--mouse-x': flash.x, '--mouse-y': flash.y, '--flash-opacity': flash.opacity }"
-  >
+  <div class="testimonial-card" ref="cardRef" @mousemove="handleFlashMove" @mouseleave="handleFlashLeave"
+    :style="{ '--mouse-x': flash.x, '--mouse-y': flash.y, '--flash-opacity': flash.opacity }">
     <!-- Contenu Principal -->
     <div class="card-content">
       <div class="author-info">
@@ -18,7 +13,7 @@
           <span class="author-role">{{ role }}</span>
         </div>
       </div>
-      
+
       <p class="testimonial-text">
         "{{ text }}"
       </p>
@@ -26,7 +21,7 @@
 
     <div class="liquidGlass-effect"></div>
     <div class="flashlight-overlay"></div>
-    
+
     <div class="border-glow"></div>
   </div>
 </template>
@@ -66,7 +61,9 @@ function handleFlashLeave() {
   height: 100%;
   display: flex;
   flex-direction: column;
-  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  will-change: transform;
+  contain: layout paint;
+  transform: translateZ(0);
 }
 
 .card-content {
@@ -115,6 +112,14 @@ function handleFlashLeave() {
   line-height: 1.4;
   color: #9c9c9c;
   margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.testimonial-text::-webkit-scrollbar {
+  display: none;
 }
 
 .flashlight-overlay {
@@ -122,11 +127,9 @@ function handleFlashLeave() {
   inset: 0;
   pointer-events: none;
   z-index: 2;
-  background: radial-gradient(
-    600px circle at var(--mouse-x) var(--mouse-y), 
-    rgba(255, 255, 255, 0.116), 
-    transparent 80%
-  );
+  background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y),
+      rgba(255, 255, 255, 0.116),
+      transparent 80%);
   opacity: var(--flash-opacity, 0);
   transition: opacity 0.3s ease;
 }
@@ -138,11 +141,9 @@ function handleFlashLeave() {
   z-index: 3;
   border-radius: inherit;
   padding: 1px;
-  background: radial-gradient(
-    400px circle at var(--mouse-x) var(--mouse-y), 
-    rgba(255, 255, 255, 0.3), 
-    transparent 60%
-  );
+  background: radial-gradient(400px circle at var(--mouse-x) var(--mouse-y),
+      rgba(255, 255, 255, 0.3),
+      transparent 60%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;

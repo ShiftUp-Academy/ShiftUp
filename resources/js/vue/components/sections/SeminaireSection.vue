@@ -135,7 +135,7 @@ function formatDate(dateString) {
 }
 
 .seminaire-card {
-    background: linear-gradient(135deg, #8A38F5, #0E7EC3, #8A38F5);
+    background: linear-gradient(135deg, #8A38F5, #A71543);
     width: 100%;
     border-radius: 2px;
     overflow: hidden;

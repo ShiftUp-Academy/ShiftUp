@@ -16,9 +16,12 @@ CREATE TABLE DisponibiliteCoaching
     HeureDebut TIME NOT NULL,
     HeureFin TIME NOT NULL,
     EstReserve BOOLEAN DEFAULT FALSE,
+    BlockedByReservationId BIGINT,
     DateCreation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT unique_slot UNIQUE (DateDisponible, HeureDebut)
 );
+
+CREATE INDEX idx_dispo_heure_debut ON DisponibiliteCoaching(HeureDebut);
 
 CREATE TABLE ReservationCoaching
 (

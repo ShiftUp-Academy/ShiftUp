@@ -34,32 +34,9 @@
             <div v-if="activeTab === tab" class="tab-pane">
               <div v-if="(tab === 'left' ? publishedProgrammes : unpublishedProgrammes).length > 0"
                 class="programmes-grid">
-                <div v-for="prog in (tab === 'left' ? publishedProgrammes : unpublishedProgrammes)"
-                  :key="prog.IdProgrammeFormation" class="programme-card" @click="openProgramDetails(prog)">
-
-                  <div class="bg-image"
-                    :style="{ backgroundImage: 'url(\'' + (prog.LienPhoto || '/images/placeholder.jpg') + '\')' }">
-                  </div>
-
-                  <div class="card-gradient-overlay"></div>
-
-                  <div class="card-admin-tools" @click.stop>
-                    <button class="tool-btn" title="Dupliquer" @click="duplicateProgram(prog)"><i
-                        class="far fa-copy"></i></button>
-                    <button class="tool-btn" title="Modifier" @click="editProgram(prog)"><i
-                        class="fas fa-pen"></i></button>
-                    <button class="tool-btn delete" title="Supprimer" @click="deleteProgram(prog)"><i
-                        class="fas fa-trash-alt"></i></button>
-                  </div>
-
-                  <div class="card-bottom-info">
-                    <h3 class="card-title-overlay">{{ prog.Titre }}</h3>
-                    <div class="card-metrics-row">
-                      <p class="metric-price">{{ prog.Prix }} Ar</p>
-                      <div class="metric-points"><i class="fas fa-bolt"></i> {{ prog.PointsOfferts }} PTS</div>
-                    </div>
-                  </div>
-                </div>
+                <ProgrammeCard v-for="prog in (tab === 'left' ? publishedProgrammes : unpublishedProgrammes)"
+                  :key="prog.IdProgrammeFormation" :programme="prog" @click="openProgramDetails"
+                  @duplicate="duplicateProgram" @edit="editProgram" @delete="deleteProgram" />
               </div>
               <div v-else class="empty-state">
                 <p>Aucun programme {{ tab === 'left' ? 'publié' : 'dépublié' }} pour le moment.</p>
@@ -111,6 +88,7 @@ import ModalProgramDetails from '../../components/admin/ComposantModalProgramme/
 import ModalTheme from '../../components/admin/ComposantModalProgramme/ModalTheme.vue';
 import ModalLesson from '../../components/admin/ComposantModalProgramme/ModalLesson.vue';
 import ModalStep from '../../components/admin/ComposantModalProgramme/ModalStep.vue';
+import ProgrammeCard from '../../components/admin/ProgrammeCard.vue';
 
 const props = defineProps({
   programmes: Array,
@@ -401,98 +379,6 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: 30px;
-}
-
-.programme-card {
-  position: relative;
-  height: 320px;
-  width: 100%;
-  overflow: hidden;
-  cursor: pointer;
-  background-color: #1a1a1a;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.programme-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-}
-
-.card-image-section {
-  position: relative;
-  height: 60%;
-  overflow: hidden;
-}
-
-.bg-image {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  transition: transform 0.8s ease;
-}
-
-.programme-card:hover .bg-image {
-  transform: scale(1.05);
-}
-
-
-.card-gradient-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.95) 100%);
-  pointer-events: none;
-}
-
-
-.card-admin-tools {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  gap: 8px;
-  z-index: 10;
-}
-
-.tool-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  transition: all 0.2s ease;
-  color: white;
-  font-size: 0.8rem;
-  background: rgba(0, 0, 0, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.tool-btn.delete {
-  background: rgba(239, 68, 68, 0.8);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.tool-btn:hover {
-  transform: scale(1.1);
-  border-color: white;
-  background: #000;
-}
-
-.tool-btn.delete:hover {
-  background: #ef4444;
 }
 
 .program-details-container {

@@ -132,10 +132,10 @@
                                             </h4>
                                             <div class="lesson-meta-info">
                                                 <span><i class="fas fa-layer-group"></i> {{ (lesson.etapes?.length || 0)
-                                                }} étape(s)</span>
+                                                    }} étape(s)</span>
                                                 <span><i class="fas fa-history"></i> {{ lesson.DelaiDrop ?
                                                     lesson.DelaiDrop + 'h' : '0h'
-                                                }}</span>
+                                                    }}</span>
                                             </div>
                                         </div>
                                         <div class="lesson-action-icon">
@@ -802,7 +802,7 @@ const toggleTheme = (index) => {
 };
 
 const formatPrice = (price) => {
-    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MGA', minimumFractionDigits: 0 }).format(price);
+    return Math.round(price).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + 'Ar';
 };
 
 const goBack = () => {

@@ -22,9 +22,14 @@
                     </div>
                 </div>
 
-                <PremiumButton class="reserve-btn" @click="$emit('reserve')">
-                    Réserver
-                </PremiumButton>
+                <div class="footer-actions">
+                    <div v-if="reduction" class="reduction-badge">
+                        -{{ Number(reduction) }}%
+                    </div>
+                    <PremiumButton class="reserve-btn" @click="$emit('reserve')">
+                        Réserver
+                    </PremiumButton>
+                </div>
             </div>
         </div>
 
@@ -48,6 +53,10 @@ defineProps({
     trainerAvatar: {
         type: String,
         default: '/images/Bibliothèque/Nantenaina.jpg'
+    },
+    reduction: {
+        type: [Number, String],
+        default: null
     },
 });
 
@@ -105,6 +114,7 @@ function handleFlashLeave() {
     margin: 0;
     background: linear-gradient(90deg, #fff, #888);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     line-height: 1.2;
 }
@@ -130,6 +140,7 @@ function handleFlashLeave() {
     margin: 10px 0 30px 0 !important;
     display: -webkit-box;
     -webkit-line-clamp: 4;
+    line-clamp: 4;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -209,5 +220,73 @@ function handleFlashLeave() {
     mask-composite: exclude;
     opacity: var(--flash-opacity, 0);
     transition: opacity 0.3s ease;
+}
+
+.footer-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    width: 100%;
+}
+
+.reduction-badge {
+    position: relative;
+    background: linear-gradient(90deg, #dc2626, #f7b455, #dc2626);
+    background-size: 200% 100%;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 1rem;
+    flex-shrink: 0;
+    animation: gradient-move 3s linear infinite, pulse 2s infinite;
+    overflow: hidden;
+}
+
+.reduction-badge::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: skewX(-20deg);
+    animation: shine-move 2.5s infinite;
+}
+
+@keyframes gradient-move {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 200% 50%;
+    }
+}
+
+@keyframes shine-move {
+    0% {
+        left: -100%;
+    }
+
+    100% {
+        left: 150%;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 </style>

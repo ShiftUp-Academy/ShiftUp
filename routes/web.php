@@ -6,8 +6,11 @@ use App\Http\Controllers\UtilisateurController;
 use App\Http\Controllers\ProgrammeController;
 use App\Http\Controllers\CoachingController;
 use App\Http\Controllers\ConsultationController;
+use App\Http\Controllers\LiveController;
+use App\Http\Controllers\TemoignageController;
 
 Route::get('/', [ProgrammeController::class, 'home']);
+Route::get('/live', [LiveController::class, 'index'])->name('live.index');
 
 Route::get('/menu', function () {
     return Inertia::render('Menus');
@@ -45,6 +48,9 @@ Route::get('/contact', function () {
 });
 
 Route::get('/programmes', [ProgrammeController::class, 'programmesPublic']);
+Route::get('/offres', [\App\Http\Controllers\OffreController::class, 'publicIndex'])->name('offres.public');
+Route::get('/temoignages', [TemoignageController::class, 'index'])->name('temoignages.index');
+Route::post('/temoignages', [TemoignageController::class, 'store'])->name('temoignages.store')->middleware('auth');
 
 Route::get('/programmes/{id}', [ProgrammeController::class, 'show'])->name('programmes.show');
 Route::get('/seminaires/{id}', [ProgrammeController::class, 'showSeminaire'])->name('seminaires.show');
@@ -92,7 +98,9 @@ Route::prefix('admin')->group(function () {
     })->name('admin.consultations');
     Route::post('/consultations/store-response', [ConsultationController::class, 'storeResponse'])->name('admin.consultations.storeResponse');
     Route::post('/consultations/update-response/{id}', [ConsultationController::class, 'updateResponse'])->name('admin.consultations.updateResponse');
-    Route::get('/lives', function () { return Inertia::render('PagesAdmin/AdminLives'); })->name('admin.lives');
+    Route::get('/lives', [\App\Http\Controllers\LiveController::class, 'adminIndex'])->name('admin.lives');
+    Route::post('/lives', [\App\Http\Controllers\LiveController::class, 'store'])->name('admin.lives.store');
+    Route::post('/lives/{id}', [\App\Http\Controllers\LiveController::class, 'update'])->name('admin.lives.update');
     Route::get('/coachings', [\App\Http\Controllers\CoachingController::class, 'adminIndex'])->name('admin.coachings');
     Route::post('/coachings/types', [\App\Http\Controllers\CoachingController::class, 'storeType'])->name('admin.coachings.types.store');
     Route::post('/coachings/types/{id}', [\App\Http\Controllers\CoachingController::class, 'updateType'])->name('admin.coachings.types.update');
@@ -100,9 +108,24 @@ Route::prefix('admin')->group(function () {
     Route::post('/coachings/reservations/{id}/update', [\App\Http\Controllers\CoachingController::class, 'updateReservation'])->name('admin.coachings.reservations.update');
     Route::post('/coachings/availabilities', [\App\Http\Controllers\CoachingController::class, 'storeAvailabilities'])->name('admin.coachings.availabilities.store');
     Route::post('/coachings/google-meet', [\App\Http\Controllers\CoachingController::class, 'storeLienGoogle'])->name('admin.coachings.google-meet.store');
-    Route::get('/offres', function () { return Inertia::render('PagesAdmin/AdminOffres'); })->name('admin.offres');
+    Route::get('/offres', [\App\Http\Controllers\OffreController::class, 'index'])->name('admin.offres');
+    Route::post('/offres', [\App\Http\Controllers\OffreController::class, 'store'])->name('admin.offres.store');
+    Route::post('/offres/{id}/update', [\App\Http\Controllers\OffreController::class, 'update'])->name('admin.offres.update');
+    Route::post('/offres/{id}/status', [\App\Http\Controllers\OffreController::class, 'toggleStatus'])->name('admin.offres.status');
+    Route::delete('/offres/{id}', [\App\Http\Controllers\OffreController::class, 'destroy'])->name('admin.offres.delete');
     Route::get('/utilisateurs', function () { return Inertia::render('PagesAdmin/AdminUtilisateurs'); })->name('admin.utilisateurs');
-    Route::get('/temoignages', function () { return Inertia::render('PagesAdmin/AdminTemoignages'); })->name('admin.temoignages');
+    Route::get('/temoignages', function () {
+        $temoignages = \App\Models\Temoignage::with(['utilisateur.profil'])
+            ->orderBy('DateCreation', 'desc')
+            ->get();
+        $users = \App\Models\Utilisateur::with('profil')->get();
+        return Inertia::render('PagesAdmin/AdminTemoignages', [
+            'temoignages' => $temoignages,
+            'users' => $users
+        ]);
+    })->name('admin.temoignages');
+    Route::post('/temoignages/{id}/update', [TemoignageController::class, 'update'])->name('admin.temoignages.update');
+    Route::delete('/temoignages/{id}', [TemoignageController::class, 'destroy'])->name('admin.temoignages.delete');
     Route::get('/categories', [\App\Http\Controllers\CategorieController::class, 'index'])->name('admin.categories');
     Route::post('/categories', [\App\Http\Controllers\CategorieController::class, 'store'])->name('admin.categories.store');
     Route::post('/categories/{id}', [\App\Http\Controllers\CategorieController::class, 'update'])->name('admin.categories.update');

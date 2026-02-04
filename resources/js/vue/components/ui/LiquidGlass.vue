@@ -1,19 +1,14 @@
 <template>
-  <div 
-    class="liquid-glass-wrapper"
-    :style="{ 
-      '--mouse-x': flash.x, 
-      '--mouse-y': flash.y, 
-      '--flash-opacity': flash.opacity,
-       borderRadius: borderRadius 
-    }"
-    @mousemove="handleFlashMove" 
-    @mouseleave="handleFlashLeave"
-  >
+  <div class="liquid-glass-wrapper" :style="{
+    '--mouse-x': flash.x,
+    '--mouse-y': flash.y,
+    '--flash-opacity': flash.opacity,
+    borderRadius: borderRadius
+  }" @mousemove="handleFlashMove" @mouseleave="handleFlashLeave">
     <div class="liquidGlass-effect" :style="{ filter: `url(#${filterId})` }"></div>
     <div class="liquidGlass-tint"></div>
     <div class="liquidGlass-shine"></div>
-    
+
     <div class="content-slot">
       <slot></slot>
     </div>
@@ -21,18 +16,19 @@
     <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" aria-hidden="true">
       <defs>
         <filter :id="filterId" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox">
-            <feTurbulence type="fractalNoise" baseFrequency="0.01 0.01" numOctaves="1" seed="5" result="turbulence" />
-            <feComponentTransfer in="turbulence" result="mapped">
-                <feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5" />
-                <feFuncG type="gamma" amplitude="0" exponent="1" offset="0" />
-                <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5" />
-            </feComponentTransfer>
-            <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap" />
-            <feSpecularLighting in="softMap" surfaceScale="5" specularConstant="1" specularExponent="100" lighting-color="white" result="specLight">
-                <fePointLight x="-200" y="-200" z="300" />
-            </feSpecularLighting>
-            <feComposite in="specLight" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage" />
-            <feDisplacementMap in="SourceGraphic" in2="softMap" scale="200" xChannelSelector="R" yChannelSelector="G" />
+          <feTurbulence type="fractalNoise" baseFrequency="0.01 0.01" numOctaves="1" seed="5" result="turbulence" />
+          <feComponentTransfer in="turbulence" result="mapped">
+            <feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5" />
+            <feFuncG type="gamma" amplitude="0" exponent="1" offset="0" />
+            <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5" />
+          </feComponentTransfer>
+          <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap" />
+          <feSpecularLighting in="softMap" surfaceScale="5" specularConstant="1" specularExponent="100"
+            lighting-color="white" result="specLight">
+            <fePointLight x="-200" y="-200" z="300" />
+          </feSpecularLighting>
+          <feComposite in="specLight" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage" />
+          <feDisplacementMap in="SourceGraphic" in2="softMap" scale="200" xChannelSelector="R" yChannelSelector="G" />
         </filter>
       </defs>
     </svg>
@@ -72,18 +68,20 @@ function handleFlashLeave() {
   align-items: center;
   justify-content: center;
   background: transparent;
-  overflow: hidden; /* Ensures radius clipping work */
-  cursor: pointer; /* Pointer as requested */
+  overflow: hidden;
+  /* Ensures radius clipping work */
+  cursor: pointer;
+  /* Pointer as requested */
   /* Replicate AppHeader Shadow */
-  box-shadow: 
-    0.5px 0.5px 1px rgba(255, 255, 255, 1) inset, 
-    -0.5px -0.5px 0.5px rgba(255, 255, 255, 0.112) inset, 
+  box-shadow:
+    0.5px 0.5px 1px rgba(255, 255, 255, 1) inset,
+    -0.5px -0.5px 0.5px rgba(255, 255, 255, 0.112) inset,
     1px 1px 5px rgba(0, 0, 0, 0.018) inset;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
   /* Ensure clipping works for all children including absolute ones */
   isolation: isolate;
   transform: translateZ(0);
-  
+
   /* Base border - always visible like AppHeader */
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -95,7 +93,8 @@ function handleFlashLeave() {
   backdrop-filter: blur(4px);
   overflow: hidden;
   pointer-events: none;
-  border-radius: inherit; /* Inherit border radius from wrapper */
+  border-radius: inherit;
+  /* Inherit border radius from wrapper */
 }
 
 .liquidGlass-tint {
@@ -112,7 +111,7 @@ function handleFlashLeave() {
   inset: 0;
   z-index: 2;
   overflow: hidden;
-  box-shadow: 
+  box-shadow:
     inset 1.5px 1.5px 3px rgba(255, 255, 255, 0.221),
     inset -1.5px -1.5px 3px rgba(0, 0, 0, 0.15),
     0 0 0 1px rgba(255, 255, 255, 0.05);
@@ -125,18 +124,16 @@ function handleFlashLeave() {
   content: "";
   position: absolute;
   inset: -1px;
-  border-radius: inherit; 
-  padding: 1.2px; 
-  background: radial-gradient(
-    100px circle at var(--mouse-x) var(--mouse-y), 
-    rgba(255, 255, 255, 0.9), 
-    transparent 100%
-  );
-  -webkit-mask: 
-    linear-gradient(#fff 0 0) content-box, 
+  border-radius: inherit;
+  padding: 1.2px;
+  background: radial-gradient(100px circle at var(--mouse-x) var(--mouse-y),
+      rgba(255, 255, 255, 0.9),
+      transparent 100%);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
-  mask: 
-    linear-gradient(#fff 0 0) content-box, 
+  mask:
+    linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -148,7 +145,7 @@ function handleFlashLeave() {
 
 .content-slot {
   position: relative;
-  z-index: 5;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: center;

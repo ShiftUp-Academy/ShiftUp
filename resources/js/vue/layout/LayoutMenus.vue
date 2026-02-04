@@ -116,7 +116,7 @@ const imgCategoriesBg = '/images/catégorie.jpg';
 const categoryLinks = [
     { label: 'Toutes les catégories', href: '/toutcategorie' },
     { label: 'Formations', href: '/programmes' },
-    { label: 'Offres', href: '/programmes' },
+    { label: 'Offres', href: '/offres' },
     { label: 'Consultations', href: '/consultations' },
 ];
 

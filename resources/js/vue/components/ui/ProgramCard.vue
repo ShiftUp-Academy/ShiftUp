@@ -19,13 +19,16 @@
           </div>
           <span class="prog-text">{{ progression }}%</span>
         </div>
-        <button class="add-to-cart">
+        <button v-if="showAddToCart" class="add-to-cart">
           <span class="btn-text">AJOUTER AU PANIER</span>
           <svg viewBox="0 0 24 24" fill="none" class="arrow-icon">
             <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"
               stroke-linejoin="round" />
           </svg>
         </button>
+        <div v-else-if="reduction" class="reduction-badge">
+          -{{ Number(reduction) }}%
+        </div>
       </div>
     </div>
   </div>
@@ -51,6 +54,18 @@ const props = defineProps({
   progression: {
     type: Number,
     default: 0
+  },
+  type: {
+    type: String,
+    default: 'Programme'
+  },
+  showAddToCart: {
+    type: Boolean,
+    default: true
+  },
+  reduction: {
+    type: [Number, String],
+    default: null
   }
 });
 
@@ -69,7 +84,13 @@ function handleFlashLeave() {
 
 function goToDetail() {
   if (props.id !== undefined && props.id !== null) {
-    router.visit(`/programmes/${props.id}`);
+    // Normaliser le type pour gérer les variantes de casse et d'accentuation
+    const normalizedType = (props.type || '').toLowerCase().trim();
+    if (normalizedType === 'séminaire' || normalizedType === 'seminaire') {
+      router.visit(`/seminaires/${props.id}`);
+    } else {
+      router.visit(`/programmes/${props.id}`);
+    }
   }
 }
 </script>
@@ -245,6 +266,65 @@ function goToDetail() {
 @media (max-width: 768px) {
   .price-tag {
     font-size: 1.3rem;
+  }
+}
+
+.reduction-badge {
+  position: relative;
+  background: linear-gradient(90deg, #dc2626, #f7b455, #dc2626);
+  background-size: 200% 100%;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  animation: gradient-move 3s linear infinite, pulse 2s infinite;
+  overflow: hidden;
+}
+
+.reduction-badge::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: skewX(-20deg);
+  animation: shine-move 2.5s infinite;
+}
+
+@keyframes gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes shine-move {
+  0% {
+    left: -100%;
+  }
+
+  100% {
+    left: 150%;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.03);
+  }
+
+  100% {
+    transform: scale(1);
   }
 }
 </style>

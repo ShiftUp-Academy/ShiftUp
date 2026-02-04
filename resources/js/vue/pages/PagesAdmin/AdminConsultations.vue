@@ -24,7 +24,6 @@
       <transition mode="out-in" @before-enter="beforeEnter" @enter="enter">
         <div :key="mainTab + subTab + selectedCategoryId" class="tab-content">
 
-          <!-- ARCHIVE VIEW (RIGHT TAB) -->
           <template v-if="mainTab === 'right'">
             <div class="archive-header-controls" v-if="subTab === 'categories'">
               <span class="filter-label">Trier par catégorie de question</span>
@@ -75,9 +74,7 @@
             </div>
           </template>
 
-          <!-- PENDING QUESTIONS (LEFT TAB) -->
           <template v-else>
-            <!-- CATEGORIES VIEW -->
             <template v-if="subTab === 'categories'">
               <div v-if="!selectedCategoryId" class="category-grid">
                 <div v-for="cat in categoryStats" :key="cat.IdCategorie" class="category-stat-card"
