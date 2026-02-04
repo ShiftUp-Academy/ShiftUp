@@ -8,8 +8,10 @@ use App\Http\Controllers\CoachingController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\LiveController;
 use App\Http\Controllers\TemoignageController;
+use App\Http\Controllers\GeminiChatController;
 
 Route::get('/', [ProgrammeController::class, 'home']);
+Route::post('/ai/chat', [GeminiChatController::class, 'chat'])->name('ai.chat');
 Route::get('/live', [LiveController::class, 'index'])->name('live.index');
 
 Route::get('/menu', function () {

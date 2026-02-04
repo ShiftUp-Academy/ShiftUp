@@ -1,16 +1,25 @@
 <template>
     <Transition @before-enter="beforeEnter" @enter="enter" @leave="leave" :css="false">
-        <div v-if="isOpen" class="modal-notif-wrapper" ref="wrapperRef">
+        <div v-if="isOpen" class="modal-notif-wrapper" @click.stop ref="wrapperRef">
             <LiquidGlass border-radius="25px 25px 0 25px" class="glass-container">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h3>Notifications</h3>
+                        <div class="toggle-container">
+                            <button :class="['toggle-bt', activeTab === 'assistant' ? 'active' : '']"
+                                @click="activeTab = 'assistant'">
+                                Assistant
+                            </button>
+                            <button :class="['toggle-bt', activeTab === 'notif' ? 'active' : '']"
+                                @click="activeTab = 'notif'">
+                                Notification
+                            </button>
+                        </div>
                         <button class="close-btn" @click.stop="$emit('close')">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
 
-                    <div class="notifications-list" data-lenis-prevent>
+                    <div v-if="activeTab === 'notif'" class="notifications-list" data-lenis-prevent>
                         <div v-if="notifications.length === 0" class="empty-state">
                             <i class="fas fa-bell-slash"></i>
                             <p>Aucune nouvelle activité.</p>
@@ -25,6 +34,10 @@
                             </div>
                         </div>
                     </div>
+
+                    <div v-else class="assistant-container" data-lenis-prevent>
+                        <ChatAssistant :embedded="true" />
+                    </div>
                 </div>
             </LiquidGlass>
             <div class="bubble-tail"></div>
@@ -36,6 +49,7 @@
 import { ref } from 'vue';
 import { gsap } from 'gsap';
 import LiquidGlass from './LiquidGlass.vue';
+import ChatAssistant from './ChatAssistant.vue';
 
 const props = defineProps({
     isOpen: Boolean,
@@ -44,6 +58,8 @@ const props = defineProps({
         default: () => []
     }
 });
+
+const activeTab = ref('notif'); // 'notif' or 'assistant'
 
 const emit = defineEmits(['close']);
 
@@ -90,7 +106,7 @@ const leave = (el, done) => {
     position: relative;
     z-index: 200;
     margin-bottom: 10px;
-    will-change: transform, opacity, filter;
+    will-change: transform, opacity;
 }
 
 .glass-container {
@@ -98,7 +114,8 @@ const leave = (el, done) => {
 }
 
 .modal-content {
-    padding: 20px;
+    padding: 15px;
+    /* Reduced for better fit */
     width: 100%;
     color: white;
 }
@@ -108,8 +125,36 @@ const leave = (el, done) => {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     padding-bottom: 10px;
+}
+
+.toggle-container {
+    display: flex;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 3px;
+    backdrop-filter: blur(5px);
+}
+
+.toggle-bt {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.3);
+    padding: 6px 14px;
+    border-radius: 9px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+.toggle-bt.active {
+    background: rgba(0, 102, 255, 0.5);
+    color: white;
+    box-shadow: 0 0 15px rgba(0, 102, 255, 0.2);
 }
 
 .modal-header h3 {
@@ -137,6 +182,11 @@ const leave = (el, done) => {
 .notifications-list {
     max-height: 350px;
     overflow-y: auto;
+}
+
+.assistant-container {
+    height: 400px;
+    width: 100%;
 }
 
 .notifications-list::-webkit-scrollbar {
