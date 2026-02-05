@@ -8,11 +8,11 @@
         <img :src="logoSrc" alt="ShiftUp" class="menu-brand-logo" />
         <div class="vertical-title cube-scene">
           <div class="cube-container">
-            <Link href="#" class="cube-face face-front">
+            <Link href="#" class="cube-face face-front" @click="closeMenu">
               <span class="small-text">Mes</span>
               <span class="rotate-text">ACHATS</span>
             </Link>
-            <Link href="#" class="cube-face face-right">
+            <Link href="#" class="cube-face face-right" @click="closeMenu">
               <span class="small-text">Mes</span>
               <span class="rotate-text bold-italic">ACHATS</span>
             </Link>
@@ -23,10 +23,10 @@
       <div class="menu-column border-left col-2">
         <div class="vertical-title full-center cube-scene">
           <div class="cube-container">
-            <Link href="#" class="cube-face face-front">
+            <Link href="/panier" class="cube-face face-front" @click="closeMenu">
               <span class="rotate-text">PANIERS</span>
             </Link>
-            <Link href="#" class="cube-face face-right">
+            <Link href="/panier" class="cube-face face-right" @click="closeMenu">
               <span class="rotate-text bold-italic">PANIERS</span>
             </Link>
           </div>
@@ -36,10 +36,10 @@
       <div class="menu-column border-left col-3">
         <div class="vertical-title full-center cube-scene">
           <div class="cube-container">
-            <Link href="#" class="cube-face face-front">
+            <Link href="#" class="cube-face face-front" @click="closeMenu">
               <span class="rotate-text">REUSSITES</span>
             </Link>
-            <Link href="#" class="cube-face face-right">
+            <Link href="#" class="cube-face face-right" @click="closeMenu">
               <span class="rotate-text bold-italic">REUSSITES</span>
             </Link>
           </div>
@@ -49,10 +49,10 @@
       <div class="menu-column border-left col-4">
         <div class="vertical-title full-center cube-scene">
           <div class="cube-container">
-            <Link href="#" class="cube-face face-front">
+            <Link href="#" class="cube-face face-front" @click="closeMenu">
               <span class="rotate-text">COACHINGS</span>
             </Link>
-            <Link href="#" class="cube-face face-right">
+            <Link href="#" class="cube-face face-right" @click="closeMenu">
               <span class="rotate-text bold-italic">COACHINGS</span>
             </Link>
           </div>
@@ -69,7 +69,8 @@
             <div class="action-link" @click="logout">
               SE DÉCONNECTER <span class="arrow">&rarr;</span>
             </div>
-            <Link href="/admin/programmes" v-if="user.Role === 'admin'" class="action-link dashboard-link">
+            <Link href="/admin/programmes" v-if="user.Role === 'admin'" class="action-link dashboard-link"
+              @click="closeMenu">
               DASHBOARD <span class="arrow">&rarr;</span>
             </Link>
           </div>

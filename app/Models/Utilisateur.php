@@ -94,4 +94,20 @@ class Utilisateur extends Authenticatable
         return $this->belongsToMany(Reussite::class, 'badges_utilisateurs', 'IdUtilisateur', 'IdReussite')
                     ->withTimestamps();
     }
+
+    /**
+     * User's shopping cart.
+     */
+    public function panier()
+    {
+        return $this->hasOne(Panier::class, 'IdUtilisateur', 'IdUtilisateur');
+    }
+
+    /**
+     * User's purchase history.
+     */
+    public function commandes()
+    {
+        return $this->hasMany(Commande::class, 'IdUtilisateur', 'IdUtilisateur');
+    }
 }

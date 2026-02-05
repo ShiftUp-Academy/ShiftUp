@@ -21,7 +21,7 @@
                 </div>
 
                 <div class="action-buttons-container">
-                    <button class="cart-btn">
+                    <button class="cart-btn" @click="addToCart">
                         <i class="fas fa-shopping-cart"></i> Ajouter au panier
                     </button>
 
@@ -304,10 +304,24 @@ import axios from 'axios';
 import LiquidGlass from '../components/ui/LiquidGlass.vue';
 import PremiumButton from '../components/ui/PremiumButton.vue';
 import PremiumModal from '../components/ui/PremiumModal.vue';
-import ShaderBackground from '../components/ui/ShaderBackground.vue';
 import LessonContentPlayer from '../components/sections/LessonContentPlayer.vue';
+import { useToast } from "primevue/usetoast";
+import Toast from 'primevue/toast';
 
-// Props expected from the backend
+const toast = useToast();
+
+const addToCart = () => {
+    router.post('/panier/ajouter', {
+        id: props.program.IdProgrammeFormation,
+        type: 'programme',
+        prix: props.program.Prix
+    }, {
+        onSuccess: () => {
+            toast.add({ severity: 'success', summary: 'Panier', detail: 'Programme ajouté au panier !', life: 3000 });
+        }
+    });
+};
+
 const props = defineProps({
     program: {
         type: Object,
@@ -398,11 +412,10 @@ const pdfDownloadUrl = computed(() => {
     return currentLesson.value.Contenu;
 });
 
-// Quiz State
 const selectedOptions = ref({});
 const questionStatus = ref({});
 const retryTimers = ref({});
-const intervals = {}; // Non-reactive for storing interval IDs
+const intervals = {};
 
 const resetQuizState = () => {
     selectedOptions.value = {};
@@ -492,7 +505,6 @@ const validateQuestion = (question) => {
     }
 };
 
-// Computed Properties
 const visibleThemes = computed(() => {
     return props.program.themes?.filter(t => t.Statut === 'Publié') || [];
 });
@@ -523,12 +535,6 @@ const isStepValidated = computed(() => {
     return currentStep.value.questions.every(q => questionStatus.value[q.IdQuestion] === 'correct');
 });
 
-// Auto-complete lesson when last step is validated
-// Toast Logic
-import { useToast } from "primevue/usetoast";
-import Toast from 'primevue/toast';
-
-const toast = useToast();
 
 const submitQuestion = () => {
     questionForm.post('/consultations', {

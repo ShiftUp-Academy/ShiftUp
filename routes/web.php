@@ -9,10 +9,17 @@ use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\LiveController;
 use App\Http\Controllers\TemoignageController;
 use App\Http\Controllers\GeminiChatController;
+use App\Http\Controllers\CommandeController;
 
 Route::get('/', [ProgrammeController::class, 'home']);
 Route::post('/ai/chat', [GeminiChatController::class, 'chat'])->name('ai.chat');
 Route::get('/live', [LiveController::class, 'index'])->name('live.index');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/panier', [CommandeController::class, 'viewPanier'])->name('panier.index');
+    Route::post('/panier/ajouter', [CommandeController::class, 'ajouterAuPanier'])->name('panier.add');
+    Route::delete('/panier/{id}', [CommandeController::class, 'supprimerDuPanier'])->name('panier.remove');
+});
 
 Route::get('/menu', function () {
     return Inertia::render('Menus');

@@ -55,7 +55,7 @@
                             </span>
 
                             <div class="offer-actions">
-                                <button class="cart-btn" @click.stop="">
+                                <button class="cart-btn" @click.stop="addToCart(offre)">
                                     <i class="fas fa-shopping-cart"></i> Ajouter au panier
                                 </button>
                                 <PremiumButton class="buy-btn-premium" @click.stop="">
@@ -125,6 +125,7 @@
         <ModalReservationCoaching v-if="showReservationModal" :isOpen="showReservationModal"
             :coaching="selectedCoaching" :availabilities="availabilities" @close="closeReservationModal" />
 
+        <Toast />
     </div>
 </template>
 
@@ -136,6 +137,11 @@ import ProgramCard from '../components/ui/ProgramCard.vue';
 import CoachingCard from '../components/ui/CoachingCard.vue';
 import ModalReservationCoaching from '../components/ui/ModalReservationCoaching.vue';
 import PremiumButton from '../components/ui/PremiumButton.vue';
+
+import { useToast } from "primevue/usetoast";
+import Toast from 'primevue/toast';
+
+const toast = useToast();
 
 const props = defineProps({
     offres: Array,
@@ -267,6 +273,18 @@ onUnmounted(() => {
 });
 
 const isOpen = (id) => openOffers.value.has(id);
+
+const addToCart = (offre) => {
+    router.post('/panier/ajouter', {
+        id: offre.IdOffre,
+        type: 'offre',
+        prix: calcPackPrice(offre)
+    }, {
+        onSuccess: () => {
+            toast.add({ severity: 'success', summary: 'Panier', detail: 'Pack ajouté au panier !', life: 3000 });
+        }
+    });
+};
 
 const getRegularPrograms = (offre) => {
     if (!offre.programmes || offre.programmes.length === 0) return [];

@@ -157,6 +157,7 @@ const dynamicHomeLabel = computed(() => {
   if (currentPath === '/temoignages') return 'Témoignages';
   if (currentPath === '/offres') return 'Offres';
   if (currentPath === '/live') return 'Live';
+  if (currentPath === '/panier') return 'Mon Panier';
 
 
   return 'Accueil';
@@ -299,6 +300,27 @@ const initScrollLogic = async () => {
 
 let resizeObserver = null;
 
+const forceRemoveSplineLogo = () => {
+  const viewers = document.querySelectorAll('spline-viewer');
+  viewers.forEach(viewer => {
+    if (viewer && viewer.shadowRoot) {
+      const logo = viewer.shadowRoot.querySelector('#logo') ||
+        viewer.shadowRoot.querySelector('a[href*="spline.design"]') ||
+        viewer.shadowRoot.querySelector('.spline-watermark') ||
+        viewer.shadowRoot.querySelector('#spline-logo') ||
+        viewer.shadowRoot.querySelector('div[style*="position: absolute"][style*="bottom: 0px"]') ||
+        viewer.shadowRoot.querySelector('div[style*="z-index: 10000"]') ||
+        viewer.shadowRoot.querySelector('div[style*="pointer-events: none"] > a');
+      if (logo) {
+        logo.style.display = 'none';
+        logo.style.visibility = 'hidden';
+        logo.style.opacity = '0';
+        logo.remove();
+      }
+    }
+  });
+};
+
 onMounted(async () => {
   const menuItems = document.querySelector('.menu-items');
   if (menuItems) {
@@ -322,25 +344,12 @@ onMounted(async () => {
 
   await initScrollLogic();
 
-  const forceRemoveSplineLogo = () => {
-    const viewer = document.querySelector('spline-viewer');
-    if (viewer && viewer.shadowRoot) {
-      const logo = viewer.shadowRoot.querySelector('#logo') ||
-        viewer.shadowRoot.querySelector('a[href*="spline.design"]') ||
-        viewer.shadowRoot.querySelector('.spline-watermark');
-      if (logo) {
-        logo.remove();
-        return true;
-      }
-    }
-    return false;
-  };
-
   const logoCheckInterval = setInterval(forceRemoveSplineLogo, 200);
+  window.logoCheckInterval = logoCheckInterval;
 
   setTimeout(() => {
-    clearInterval(logoCheckInterval);
-    setInterval(forceRemoveSplineLogo, 2000);
+    clearInterval(window.logoCheckInterval);
+    window.logoCheckInterval = setInterval(forceRemoveSplineLogo, 1000);
   }, 10000);
 
   setTimeout(() => {
@@ -364,6 +373,7 @@ onBeforeUnmount(() => {
 
 watch(() => page.url, () => {
   nextTick(async () => {
+    forceRemoveSplineLogo();
     await initScrollLogic();
     setTimeout(() => {
       import("gsap/ScrollTrigger").then(({ ScrollTrigger }) => {

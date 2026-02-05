@@ -14,9 +14,6 @@
                                 Notification
                             </button>
                         </div>
-                        <button class="close-btn" @click.stop="$emit('close')">
-                            <i class="fas fa-times"></i>
-                        </button>
                     </div>
 
                     <div class="content-viewport" data-lenis-prevent>
@@ -81,6 +78,7 @@ const enter = (el, done) => {
         y: 0,
         duration: 0.6,
         ease: "power3.out",
+        clearProps: "all",
         onComplete: done
     });
 };
@@ -104,7 +102,6 @@ const leave = (el, done) => {
     position: relative;
     z-index: 200;
     margin-bottom: 10px;
-    will-change: transform, opacity;
 }
 
 .glass-container {
@@ -113,12 +110,22 @@ const leave = (el, done) => {
     flex-direction: column;
 }
 
+:deep(.liquidGlass-effect) {
+    backdrop-filter: blur(5px) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+:deep(.liquidGlass-tint) {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.15) 100%) !important;
+}
+
 .modal-content {
     padding: 20px;
     width: 100%;
     color: white;
     display: flex;
     flex-direction: column;
+    background: transparent !important;
 }
 
 .modal-header {
@@ -142,7 +149,7 @@ const leave = (el, done) => {
 .toggle-bt {
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.922);
     padding: 6px 14px;
     border-radius: 9px;
     font-size: 0.7rem;
@@ -154,21 +161,7 @@ const leave = (el, done) => {
 }
 
 .toggle-bt.active {
-    background: rgba(0, 102, 255, 0.5);
-    color: white;
-    box-shadow: 0 0 15px rgba(0, 102, 255, 0.2);
-}
-
-.close-btn {
-    background: transparent;
-    border: none;
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 1rem;
-    cursor: pointer;
-    transition: color 0.3s;
-}
-
-.close-btn:hover {
+    background: rgb(35, 35, 35);
     color: white;
 }
 
@@ -222,7 +215,9 @@ const leave = (el, done) => {
     gap: 12px;
     padding: 12px;
     border-radius: 15px;
-    background: rgb(1, 1, 1);
+    background: rgba(10, 10, 10, 0.6);
+    backdrop-filter: blur(2px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     margin-bottom: 8px;
     transition: background 0.3s;
 }
@@ -268,7 +263,6 @@ const leave = (el, done) => {
     z-index: 10;
 }
 
-/* Tab Transition */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
     transition: all 0.3s ease;

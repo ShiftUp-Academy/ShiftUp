@@ -1,7 +1,6 @@
 <template>
     <div class="liquidGlass-wrapper" :style="wrapperStyle" @mousemove="handleFlashMove" @mouseleave="handleFlashLeave">
 
-        <!-- The Effect Layer -->
         <div class="liquidGlass-effect" :style="{ filter: `url(#${filterId})` }"></div>
         <div class="liquidGlass-tint"></div>
         <div class="liquidGlass-shine"></div>
@@ -10,7 +9,6 @@
             <slot></slot>
         </div>
 
-        <!-- SVG Filter Definition: Absolute positioning instead of display:none to keep it active -->
         <svg style="position: absolute; width: 0; height: 0; pointer-events: none; opacity: 0; visibility: hidden;">
             <defs>
                 <filter :id="filterId" x="-20%" y="-20%" width="140%" height="140%" filterUnits="objectBoundingBox">
@@ -91,10 +89,8 @@ function handleFlashLeave() {
     position: absolute;
     z-index: 0;
     inset: 0 !important;
-    backdrop-filter: blur(10px) !important;
-    /* Increased for visibility */
+    backdrop-filter: blur(5px) !important;
     background: rgba(255, 255, 255, 0.05) !important;
-    /* Base for SourceGraphic */
     border-radius: var(--border-radius-val) !important;
     pointer-events: none;
     overflow: hidden;

@@ -99,7 +99,7 @@ const setupScrollAnimations = () => {
     if (node.nodeType !== 1) return; // Ensure element node
 
     if (node.dataset.hasScrollAnim) return;
-    if (node.closest('[data-lenis-prevent]') || node.closest('.consultation-lists') || node.closest('.no-global-reveal') || node.closest('.infinite-photo-scroll') || node.closest('.video-grid') || node.closest('.founder-section') || node.closest('.programmes-page') || node.closest('.how-it-works-page') || node.closest('.seminaire-detail-page') || node.closest('.program-detail-page')) {
+    if (node.closest('[data-lenis-prevent]') || node.closest('.consultation-lists') || node.closest('.no-global-reveal') || node.closest('.infinite-photo-scroll') || node.closest('.video-grid') || node.closest('.founder-section') || node.closest('.programmes-page') || node.closest('.how-it-works-page') || node.closest('.seminaire-detail-page') || node.closest('.program-detail-page') || node.closest('.panier-page') || node.closest('header') || node.closest('nav')) {
       return;
     }
 
