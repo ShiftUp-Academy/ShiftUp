@@ -1,7 +1,7 @@
 <template>
     <Transition @before-enter="beforeEnter" @enter="enter" @leave="leave" :css="false">
         <div v-if="isOpen" class="modal-notif-wrapper" @click.stop ref="wrapperRef">
-            <LiquidGlass border-radius="25px 25px 0 25px" class="glass-container">
+            <LiquidGlass border-radius="30px 30px 0 30px" class="glass-container">
                 <div class="modal-content">
                     <div class="modal-header">
                         <div class="toggle-container">
@@ -19,24 +19,28 @@
                         </button>
                     </div>
 
-                    <div v-if="activeTab === 'notif'" class="notifications-list" data-lenis-prevent>
-                        <div v-if="notifications.length === 0" class="empty-state">
-                            <i class="fas fa-bell-slash"></i>
-                            <p>Aucune nouvelle activité.</p>
-                        </div>
-                        <div v-else v-for="(notif, index) in notifications" :key="index" class="notif-item">
-                            <div class="notif-icon">
-                                <i :class="notif.icon || 'fas fa-info-circle'"></i>
+                    <div class="content-viewport" data-lenis-prevent>
+                        <Transition name="fade-slide" mode="out-in">
+                            <div v-if="activeTab === 'notif'" key="notif" class="notifications-list custom-scrollbar">
+                                <div v-if="notifications.length === 0" class="empty-state">
+                                    <i class="fas fa-bell-slash"></i>
+                                    <p>Aucune nouvelle activité.</p>
+                                </div>
+                                <div v-else v-for="(notif, index) in notifications" :key="index" class="notif-item">
+                                    <div class="notif-icon">
+                                        <i :class="notif.icon || 'fas fa-info-circle'"></i>
+                                    </div>
+                                    <div class="notif-body">
+                                        <p class="notif-text">{{ notif.message }}</p>
+                                        <span class="notif-time">{{ notif.time }}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="notif-body">
-                                <p class="notif-text">{{ notif.message }}</p>
-                                <span class="notif-time">{{ notif.time }}</span>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div v-else class="assistant-container" data-lenis-prevent>
-                        <ChatAssistant :embedded="true" />
+                            <div v-else key="assistant" class="assistant-container">
+                                <ChatAssistant :embedded="true" />
+                            </div>
+                        </Transition>
                     </div>
                 </div>
             </LiquidGlass>
@@ -59,16 +63,13 @@ const props = defineProps({
     }
 });
 
-const activeTab = ref('notif'); // 'notif' or 'assistant'
-
+const activeTab = ref('notif');
 const emit = defineEmits(['close']);
 
-// GSAP HOOKS
 const beforeEnter = (el) => {
     gsap.set(el, {
         opacity: 0,
-        y: -30, // Starts slightly above
-        filter: 'blur(10px)',
+        y: -30,
         scale: 1,
         position: 'relative'
     });
@@ -78,7 +79,6 @@ const enter = (el, done) => {
     gsap.to(el, {
         opacity: 1,
         y: 0,
-        filter: 'blur(0px)',
         duration: 0.6,
         ease: "power3.out",
         onComplete: done
@@ -86,12 +86,10 @@ const enter = (el, done) => {
 };
 
 const leave = (el, done) => {
-    // NO absolute positioning needed anymore thanks to the grid container
     gsap.to(el, {
         opacity: 0,
-        y: 30, // Continue DESCENDING towards robot
+        y: 30,
         scale: 0.85,
-        filter: 'blur(10px)',
         duration: 0.4,
         ease: "power2.in",
         onComplete: done
@@ -102,7 +100,7 @@ const leave = (el, done) => {
 <style scoped>
 .modal-notif-wrapper {
     width: 320px;
-    margin-right: 8vw;
+    margin-right: 4vw !important;
     position: relative;
     z-index: 200;
     margin-bottom: 10px;
@@ -111,13 +109,16 @@ const leave = (el, done) => {
 
 .glass-container {
     width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .modal-content {
-    padding: 15px;
-    /* Reduced for better fit */
+    padding: 20px;
     width: 100%;
     color: white;
+    display: flex;
+    flex-direction: column;
 }
 
 .modal-header {
@@ -125,8 +126,9 @@ const leave = (el, done) => {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding-bottom: 10px;
+    flex-shrink: 0;
 }
 
 .toggle-container {
@@ -157,15 +159,6 @@ const leave = (el, done) => {
     box-shadow: 0 0 15px rgba(0, 102, 255, 0.2);
 }
 
-.modal-header h3 {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #ffffff;
-}
-
 .close-btn {
     background: transparent;
     border: none;
@@ -179,21 +172,41 @@ const leave = (el, done) => {
     color: white;
 }
 
+.content-viewport {
+    height: 400px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.content-viewport>.fade-slide-enter-active,
+.content-viewport>.fade-slide-leave-active,
+.content-viewport>div {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
 .notifications-list {
-    max-height: 350px;
+    height: 100%;
     overflow-y: auto;
 }
 
 .assistant-container {
-    height: 400px;
+    height: 100%;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
-.notifications-list::-webkit-scrollbar {
+.custom-scrollbar::-webkit-scrollbar {
     width: 3px;
 }
 
-.notifications-list::-webkit-scrollbar-thumb {
+.custom-scrollbar::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
 }
@@ -253,5 +266,21 @@ const leave = (el, done) => {
     border-right: 0px solid transparent;
     border-top: 12px solid rgba(15, 15, 15, 0.8);
     z-index: 10;
+}
+
+/* Tab Transition */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+    transition: all 0.3s ease;
+}
+
+.fade-slide-enter-from {
+    opacity: 0;
+    transform: translateX(10px);
+}
+
+.fade-slide-leave-to {
+    opacity: 0;
+    transform: translateX(-10px);
 }
 </style>

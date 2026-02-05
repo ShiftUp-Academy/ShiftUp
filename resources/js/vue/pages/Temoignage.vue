@@ -551,6 +551,9 @@ const handleMediaScroll = (e) => {
 
 .prompt-text {
     color: #c9c9c9;
+    width: 90%;
+    margin-top: 1vh;
+    text-align: center;
     font-weight: 500;
     font-size: 1.1rem;
 }

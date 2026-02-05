@@ -1,17 +1,7 @@
 <template>
-  <div 
-    class="video-sessions-list" 
-    id="nos-evenements-section"
-    @mouseenter="onMouseEnter" 
-    @mouseleave="onMouseLeave"
-    @mousedown="onMouseDown"
-    @mouseup="onMouseUp"
-    @click="goToFacebook"
-  >
-    <div 
-      ref="cursorRef"
-      class="fb-isolated-marquee-cursor" 
-    >
+  <div class="video-sessions-list" id="nos-evenements-section" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave"
+    @mousedown="onMouseDown" @mouseup="onMouseUp" @click="goToFacebook">
+    <div ref="cursorRef" class="fb-isolated-marquee-cursor">
       <div class="marquee-wrapper">
         <div class="marquee-content">
           <span v-for="n in 4" :key="n"><i class="fab fa-facebook"></i> VOIR LA PAGE FACEBOOK &nbsp;</span>
@@ -34,48 +24,24 @@
         <div v-for="(item, index) in videoSessions" :key="index" class="session-item">
           <div class="item-header">SÉQUENCE {{ index + 1 }}</div>
 
-          <div 
-            class="video-wrapper" 
-            @mouseenter="onVideoEnter" 
-            @mouseleave="onVideoLeave"
-          >
-            <div 
-              v-if="!activatedVideos[index]" 
-              class="video-manual-trigger"
-              :style="{ backgroundImage: `url(${item.thumbnail})` }"
-              @click.stop="activateVideo(index)"
-            >
-              <LiquidGlass 
-                class="play-btn-glass" 
-                border-radius="50%"
-              >
-                 <i class="fas fa-play"></i>
+          <div class="video-wrapper" @mouseenter="onVideoEnter" @mouseleave="onVideoLeave">
+            <div v-if="!activatedVideos[index]" class="video-manual-trigger"
+              :style="{ backgroundImage: `url(${item.thumbnail})` }" @click.stop="activateVideo(index)">
+              <LiquidGlass class="play-btn-glass" border-radius="50%" center> <i class="fas fa-play"></i>
               </LiquidGlass>
             </div>
 
-            <iframe
-              v-if="activatedVideos[index]"
+            <iframe v-if="activatedVideos[index]"
               :src="`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(item.videoUrl)}&show_text=0&autoplay=1&loop=1&muted=0`"
-              width="100%" 
-              height="100%" 
-              style="border:none;overflow:hidden; pointer-events: auto;" 
-              scrolling="no" 
-              frameborder="0" 
-              allowfullscreen="true" 
-              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-            ></iframe>
+              width="100%" height="100%" style="border:none;overflow:hidden; pointer-events: auto;" scrolling="no"
+              frameborder="0" allowfullscreen="true"
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
           </div>
 
           <div class="item-footer">
             <span class="category-tag">catégorie : <span class="category-name">{{ item.category }}</span></span>
-            <a 
-              :href="item.videoUrl" 
-              target="_blank" 
-              class="session-link" 
-              @click.stop 
-              @mouseenter="onLinkEnter" 
-              @mouseleave="onLinkLeave"
-            >
+            <a :href="item.videoUrl" target="_blank" class="session-link" @click.stop @mouseenter="onLinkEnter"
+              @mouseleave="onLinkLeave">
               VOIR LA SESSION
               <img :src="ArrowIcon" alt="Flèche" class="arrow-icon" />
             </a>
@@ -89,7 +55,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { gsap } from 'gsap';
-import ArrowIcon from '../../../assets/images/fleche-lien.svg'; 
+import ArrowIcon from '../../../assets/images/fleche-lien.svg';
 import ShaderBackground from '../ui/ShaderBackground.vue';
 import LiquidGlass from '../ui/LiquidGlass.vue';
 
@@ -98,24 +64,23 @@ const isInsideSection = ref(false);
 const isCursorForcedHidden = ref(false);
 
 const videoSessions = [
-  { 
-    videoUrl: 'https://www.facebook.com/nante.randria.gel/videos/387180633829552/?t=18', 
+  {
+    videoUrl: 'https://www.facebook.com/nante.randria.gel/videos/387180633829552/?t=18',
     category: 'Finances',
     thumbnail: 'https://res.cloudinary.com/dzgdjei0h/image/upload/v1767346336/s%C3%A9minaire_3_vchxqz.jpg'
   },
-  { 
-    videoUrl: 'https://www.facebook.com/nante.randria.gel/videos/736429424790754/?t=48', 
+  {
+    videoUrl: 'https://www.facebook.com/nante.randria.gel/videos/736429424790754/?t=48',
     category: 'Entrepreneuriat',
     thumbnail: 'https://res.cloudinary.com/dzgdjei0h/image/upload/v1767346253/s%C3%A9minaire_1_szvxfh.jpg'
   },
-  { 
-    videoUrl: 'https://www.facebook.com/nante.randria.gel/videos/1426325668316950/?t=83', 
+  {
+    videoUrl: 'https://www.facebook.com/nante.randria.gel/videos/1426325668316950/?t=83',
     category: 'Développement',
     thumbnail: 'https://res.cloudinary.com/dzgdjei0h/image/upload/v1767346335/s%C3%A9minaire_2_zutvnp.jpg'
   }
 ];
 
-// All videos wait for click to play with sound and show thumbnail
 const activatedVideos = ref(videoSessions.map(() => false));
 
 const activateVideo = (index) => {
@@ -147,8 +112,6 @@ const onLinkLeave = () => {
   showCursor();
 };
 
-// --- Mouse Tracking ---
-
 onMounted(() => {
   if (cursorRef.value) {
     gsap.set(cursorRef.value, { display: 'none', opacity: 0 });
@@ -162,7 +125,7 @@ onUnmounted(() => {
 
 const updateMouse = (e) => {
   if (!isInsideSection.value || !cursorRef.value) return;
-  
+
   gsap.set(cursorRef.value, {
     x: e.clientX - 75,
     y: e.clientY - 20
@@ -172,23 +135,23 @@ const updateMouse = (e) => {
 const onMouseEnter = (e) => {
   isInsideSection.value = true;
   if (!cursorRef.value || isCursorForcedHidden.value) return;
-  
+
   gsap.set(cursorRef.value, {
     x: e.clientX - 75,
     y: e.clientY - 20,
     display: 'flex',
     scale: 1
   });
-  
+
   gsap.to(cursorRef.value, { opacity: 1, duration: 0.2 });
 };
 
 const onMouseLeave = () => {
   isInsideSection.value = false;
   if (!cursorRef.value) return;
-  
-  gsap.to(cursorRef.value, { 
-    opacity: 0, 
+
+  gsap.to(cursorRef.value, {
+    opacity: 0,
     duration: 0.2,
     onComplete: () => {
       if (!isInsideSection.value && cursorRef.value) {
@@ -227,17 +190,17 @@ const themeColors = {
   position: fixed;
   top: 0;
   left: 0;
-  width: 150px; 
+  width: 150px;
   height: 40px;
   background: rgb(59, 20, 255);
   border-radius: 50px;
-  pointer-events: none; 
-  z-index: 1000000; 
-  display: none; 
+  pointer-events: none;
+  z-index: 1000000;
+  display: none;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  opacity: 0; 
+  opacity: 0;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   will-change: transform, opacity;
 }
@@ -271,8 +234,13 @@ const themeColors = {
 }
 
 @keyframes marquee-animation {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-25%); }
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-25%);
+  }
 }
 
 .video-sessions-list {
@@ -462,13 +430,16 @@ const themeColors = {
     flex-direction: column;
     height: auto;
   }
+
   .sidebar {
     padding: 40px;
     flex: none;
   }
+
   .sidebar-title {
     font-size: 2.5rem;
   }
+
   .main-content {
     padding: 40px;
     height: 500px;

@@ -94,7 +94,7 @@
 
     <div class="robot-container" :class="{ 'is-visible': showFooter }" @click.stop="showNotif = !showNotif">
       <div class="robot-messages-area">
-        <ModalNotif :is-open="showNotif" :notifications="dummyNotifications" @close.stop="showNotif = false" />
+        <ModalAssistant :is-open="showNotif" :notifications="dummyNotifications" @close.stop="showNotif = false" />
 
         <div class="robot-bubble" v-if="!showNotif">
           Je suis votre assistante pour vous aider à vous notifier de toutes activité dans ShiftUp
@@ -117,7 +117,7 @@ import { ref, onMounted, onBeforeUnmount, computed, nextTick, reactive, watch } 
 import { Link, usePage } from '@inertiajs/vue3';
 import Profil from './Profil.vue';
 import LoginModal from '../auth/LoginModal.vue';
-import ModalNotif from '../ui/ModalNotif.vue';
+import ModalAssistant from '../ui/ModalAssistant.vue';
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -668,14 +668,7 @@ watch(() => page.url, () => {
   color: #333;
 }
 
-.modal-notif-wrapper {
-  width: 320px;
-  margin-right: 4vw;
-  position: relative;
-  z-index: 200;
-  margin-bottom: 10px;
-  will-change: transform, opacity, filter;
-}
+
 
 .robot-container {
   width: auto;

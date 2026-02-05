@@ -38,8 +38,7 @@
             <div class="video-section" ref="videoSectionRef">
                 <div class="video-wrapper">
                     <div class="video-overlay" v-if="!isPlaying" @click="playVideo">
-                        <LiquidGlass class="play-btn-glass" border-radius="50%">
-                            <i class="fas fa-play"></i>
+                        <LiquidGlass class="play-btn-glass" border-radius="50%"><i class="fas fa-play"></i>
                         </LiquidGlass>
                         <img :src="program.LienPhoto || '/images/placeholder.jpg'" alt="Cover" class="video-cover" />
                     </div>
@@ -55,10 +54,8 @@
                 </div>
             </div>
 
-            <!-- Details Grid -->
             <div class="details-grid">
 
-                <!-- Left Column: Description (Now Full Width and First) -->
                 <div class="details-description">
                     <div class="info-block">
                         <h2 class="section-title">À propos de ce programme</h2>
