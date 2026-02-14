@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use App\Models\Utilisateur;
+use App\Notifications\NouveauContenuNotification;
+use Illuminate\Support\Facades\Notification;
 
 class ProgrammeController extends Controller
 {
@@ -385,6 +388,35 @@ class ProgrammeController extends Controller
         ]);
     }
 
+    public function articlesConseils()
+    {
+        $articles = ProgrammeFormation::where('Statut', 'Publié')
+            ->where(function ($query) {
+                $query->where('Prix', 0)
+                    ->orWhereNull('Prix');
+            })
+            ->where('Type', '!=', 'Seminaire')
+            ->whereHas('lecons', function ($query) {
+                $query->where('TypeLecon', 'Texte');
+            })
+            ->with(['auteur', 'lecons' => function ($query) {
+                $query->where('Statut', 'Publié')->where('TypeLecon', 'Texte')->orderBy('Ordre');
+            }, 'themes' => function ($query) {
+                $query->where('Statut', 'Publié')->orderBy('Ordre');
+            }, 'themes.lecons' => function ($query) {
+                $query->where('Statut', 'Publié')->where('TypeLecon', 'Texte')->orderBy('Ordre');
+            }])
+            ->orderBy('DateCreation', 'desc')
+            ->get();
+
+        $categories = \App\Models\Categorie::where('Statut', 'Publié')->get();
+
+        return Inertia::render('ArticlesConseils', [
+            'articles' => $articles,
+            'categories' => $categories
+        ]);
+    }
+
     public function InsertionProgramme(Request $requete)
     {
         $valide = $requete->validate([
@@ -446,6 +478,12 @@ class ProgrammeController extends Controller
             ]);
         }
 
+        // Notification Automatique à tous les utilisateurs
+        if ($programme->Statut === 'Publié') {
+            $users = Utilisateur::where('Role', '!=', 'admin')->get();
+            Notification::send($users, new NouveauContenuNotification($programme, $programme->Type ?? 'Programme'));
+        }
+
         return back()->with('success', 'Le programme "' . $programme->Titre . '" a été créé avec succès.');
     }
 
@@ -485,6 +523,8 @@ class ProgrammeController extends Controller
             $lienPhoto = $valide['LienPhoto'];
         }
 
+        $wasPublished = $programme->Statut === 'Publié';
+        
         $programme->update([
             'Type' => $valide['Type'] ?? $programme->Type,
             'Titre' => $valide['Titre'],
@@ -504,6 +544,14 @@ class ProgrammeController extends Controller
             'LienGoogleMeet' => $valide['LienGoogleMeet'] ?? null,
             'idAuteur' => Auth::id() ?? $programme->idAuteur ?? \App\Models\Utilisateur::where('Role', 'admin')->first()?->IdUtilisateur,
         ]);
+
+        // Notification si le programme est publié et ne l'était pas avant (Republication ou 1ère publication après brouillon)
+        if ($valide['Statut'] === 'Publié' && !$wasPublished) {
+            $users = Utilisateur::where('Role', '!=', 'admin')->get();
+            // On peut rafraîchir le programme pour avoir les données à jour dans la notif si besoin
+             $programme->refresh();
+            Notification::send($users, new NouveauContenuNotification($programme, $programme->Type ?? 'Programme'));
+        }
 
         return back()->with('success', 'Le programme a été mis à jour.');
     }

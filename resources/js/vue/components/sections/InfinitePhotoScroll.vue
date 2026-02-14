@@ -21,12 +21,12 @@ const sectionRef = ref(null);
 const marqueeContent = ref(null);
 
 const photos = [
-  '/images/photoOrganisme/Séminaire MVC 2025 - Jour 2-130.jpg',
-  '/images/photoOrganisme/Séminaire MVC 2025 - Jour 2-136.jpg',
-  '/images/photoOrganisme/Séminaire MVC 2025 - Jour 2-52.jpg',
-  '/images/photoOrganisme/Séminaire MVC 2025 - Jour 2-54.jpg',
-  '/images/photoOrganisme/Séminaire MVC 2025 - Jour 2-67.jpg',
-  '/images/photoOrganisme/Séminaire MVC 2025 - Jour 2-7.jpg'
+  'https://res.cloudinary.com/dzgdjei0h/image/upload/v1770968334/S%C3%A9minaire_MVC_2025_-_Jour_2-7-transformed_h2ujwn.jpg',
+  'https://res.cloudinary.com/dzgdjei0h/image/upload/v1770968333/S%C3%A9minaire_MVC_2025_-_Jour_2-52-transformed_eejr6j.jpg',
+  'https://res.cloudinary.com/dzgdjei0h/image/upload/v1770968334/S%C3%A9minaire_MVC_2025_-_Jour_2-136-transformed_nmedes.jpg',
+  'https://res.cloudinary.com/dzgdjei0h/image/upload/v1770968334/S%C3%A9minaire_MVC_2025_-_Jour_2-54-transformed_mq99fk.jpg',
+  'https://res.cloudinary.com/dzgdjei0h/image/upload/v1770968333/S%C3%A9minaire_MVC_2025_-_Jour_2-67-transformed_banynu.jpg',
+  'https://res.cloudinary.com/dzgdjei0h/image/upload/v1770968333/S%C3%A9minaire_MVC_2025_-_Jour_2-130-transformed_rnhxvw.jpg'
 ];
 
 let loop; // La timeline GSAP

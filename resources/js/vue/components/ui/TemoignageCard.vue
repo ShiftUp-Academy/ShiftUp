@@ -124,13 +124,13 @@ function handleFlashLeave() {
 
 .author-role {
     font-size: 1.1rem;
-    color: #888;
+    color: #8A38F5;
     display: block;
 }
 
 .testimonial-text {
     line-height: 1.4;
-    color: #9c9c9c;
+    color: #c7c7c7;
     margin: 0;
 }
 

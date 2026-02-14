@@ -9,6 +9,9 @@ use App\Models\DisponibiliteCoaching;
 use App\Models\Categorie;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Utilisateur;
+use App\Notifications\NouveauContenuNotification;
+use Illuminate\Support\Facades\Notification;
 
 class OffreController extends Controller
 {
@@ -89,6 +92,12 @@ class OffreController extends Controller
             }
         }
 
+        // Notification aux utilisateurs
+        if ($offre->Statut === 'Publié') {
+            $users = Utilisateur::where('Role', '!=', 'admin')->get();
+            Notification::send($users, new NouveauContenuNotification($offre, 'Offre'));
+        }
+
         return back()->with('success', 'Offre créée avec succès.');
     }
 
@@ -107,7 +116,13 @@ class OffreController extends Controller
             'SelectedCoachings' => 'array',
         ]);
 
+        $wasPublished = $offre->Statut === 'Publié';
         $offre->update($validated);
+
+        if ($offre->Statut === 'Publié' && !$wasPublished) {
+            $users = Utilisateur::where('Role', '!=', 'admin')->get();
+            Notification::send($users, new NouveauContenuNotification($offre, 'Offre'));
+        }
 
         $offre->programmes()->delete();
         if ($request->has('SelectedProgrammes')) {

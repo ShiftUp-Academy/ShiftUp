@@ -2,11 +2,12 @@
     <div class="program-detail-page">
         <div class="background-noise"></div>
 
+        <div class="back-link" @click="goBack">
+            <i class="fas fa-arrow-left"></i> Retour aux programmes
+        </div>
+
         <div class="hero-section" @mousemove="handleMouseMove" @mouseleave="handleMouseLeave" ref="heroRef">
             <div class="hero-content">
-                <div class="back-link" @click="goBack">
-                    <i class="fas fa-arrow-left"></i> Retour aux programmes
-                </div>
 
                 <h1 class="hover-title">
                     <span v-for="(char, index) in titleChars" :key="index" class="char"
@@ -38,7 +39,8 @@
             <div class="video-section" ref="videoSectionRef">
                 <div class="video-wrapper">
                     <div class="video-overlay" v-if="!isPlaying" @click="playVideo">
-                        <LiquidGlass class="play-btn-glass" border-radius="50%"><i class="fas fa-play"></i>
+                        <LiquidGlass class="play-btn-glass" border-radius="50%" :center="true">
+                            <i class="fas fa-play" style="margin-left: 8px;"></i>
                         </LiquidGlass>
                         <img :src="program.LienPhoto || '/images/placeholder.jpg'" alt="Cover" class="video-cover" />
                     </div>
@@ -129,10 +131,10 @@
                                             </h4>
                                             <div class="lesson-meta-info">
                                                 <span><i class="fas fa-layer-group"></i> {{ (lesson.etapes?.length || 0)
-                                                    }} étape(s)</span>
+                                                }} étape(s)</span>
                                                 <span><i class="fas fa-history"></i> {{ lesson.DelaiDrop ?
                                                     lesson.DelaiDrop + 'h' : '0h'
-                                                    }}</span>
+                                                }}</span>
                                             </div>
                                         </div>
                                         <div class="lesson-action-icon">
@@ -874,7 +876,7 @@ onMounted(() => {
     position: fixed;
     top: 5vh;
     left: 3vw;
-    z-index: 1000;
+    z-index: 9999;
     font-weight: 700;
     font-size: 0.9rem;
     color: #fff;
@@ -1016,7 +1018,6 @@ onMounted(() => {
     z-index: 2;
 }
 
-/* VIDEO SECTION */
 .video-section {
     margin-top: -100px;
     margin-bottom: 60px;
@@ -1055,21 +1056,19 @@ onMounted(() => {
     z-index: 1;
 }
 
-.video-overlay:hover .video-cover {
-    opacity: 0.5;
-    transform: scale(1.02);
-}
-
 .play-btn-glass {
     width: 150px;
     height: 150px;
     color: white;
-    font-size: 1.5rem;
+    font-size: 3rem;
     z-index: 2;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.video-overlay:hover .play-btn-glass {
+.play-btn-glass:hover {
     transform: scale(1.15);
 }
 
@@ -1892,15 +1891,74 @@ onMounted(() => {
     opacity: 0;
 }
 
+@media (max-width: 1024px) {
+    .hover-title {
+        font-size: 3.5rem;
+    }
+
+    .section-title {
+        width: 100%;
+        font-size: 2rem;
+    }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
+    .back-link {
+        top: 2vh;
+        left: 5vw;
+        padding: 8px 12px;
+        font-size: 0.75rem;
+    }
+
+    .hero-section {
+        height: auto;
+        min-height: 50vh;
+        padding-top: 15vh;
+        padding-bottom: 5vh;
+    }
+
+    .hover-title {
+        font-size: 2.2rem;
+    }
+
+    .tag.premium {
+        font-size: 1.5rem;
+    }
+
+    .action-buttons-container {
+        flex-direction: column;
+        width: 100%;
+        padding: 0 10vw;
+    }
+
+    .cart-btn,
+    :deep(.buy-btn-premium) {
+        width: 100% !important;
+        justify-content: center;
+    }
+
+    .video-section {
+        margin-top: 0;
+    }
+
+    .details-grid {
+        gap: 40px;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+    }
+
+    .description-text {
+        font-size: 1.1rem;
+    }
+
     .fs-hover-nav {
         height: 80px;
         padding: 0 20px;
         background: rgba(0, 0, 0, 0.8);
-        /* Always visible bg on mobile? Or keep hover logic? */
         opacity: 1;
-        /* On mobile, hover is hard, so maybe always show or show on tap? Let's keep it visible for now or 1 for usability */
     }
 
     .fs-lesson-title-floating {
@@ -1919,9 +1977,22 @@ onMounted(() => {
     :deep(.fullscreen-player-override .text-content) {
         font-size: 1rem;
     }
+
+    .fs-actions-overlay {
+        bottom: 20px;
+        right: 20px;
+        left: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .premium-btn-link {
+        margin-right: 0;
+        width: 100%;
+    }
 }
 
-/* Ask Question Modal Styles */
 .ask-modal-body {
     padding: 10px 0;
     color: #e0e0e0;

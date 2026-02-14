@@ -14,15 +14,16 @@
           @reset="resetFilters" @view-all="() => console.log('View all clicked')" />
       </div>
 
-      <div class="programs-grid" ref="gridRef">
-        <ProgramCard v-for="(program, index) in displayPrograms" :key="index" v-bind="program" />
+      <div :class="['programs-grid', { 'is-hovered': isGridHovered }]" ref="gridRef">
+        <ProgramCard v-for="(program, index) in displayPrograms" :key="index" v-bind="program"
+          @mouseenter="isGridHovered = true" @mouseleave="isGridHovered = false" />
       </div>
     </div>
   </section>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick, reactive, computed } from 'vue';
+import { ref, onMounted, nextTick, computed } from 'vue';
 import ProgramCard from '../ui/ProgramCard.vue';
 import SectionFilters from '../ui/SectionFilters.vue';
 
@@ -34,7 +35,6 @@ gsap.registerPlugin(ScrollTrigger);
 const sectionRef = ref(null);
 const fogRef = ref(null);
 const gridRef = ref(null);
-
 
 const flashOpacity = ref(0);
 
@@ -63,15 +63,19 @@ function handleFlashLeave() {
 
 const searchValue = ref('');
 const selectedCategory = ref(null);
+const isGridHovered = ref(false);
 const filteredSuggestions = ref([]);
 
 const displayPrograms = computed(() => {
-  return props.programs.filter(program => {
-    const isNotSeminaire = program.type !== 'Seminaire';
-    const matchesSearch = program.title.toLowerCase().includes(searchValue.value.toLowerCase());
-    const matchesCategory = !selectedCategory.value || program.categoryId === selectedCategory.value.code;
-    return isNotSeminaire && matchesSearch && matchesCategory;
-  });
+  return props.programs
+    .filter(program => {
+      const isNotSeminaire = program.type !== 'Seminaire';
+      const isNotFree = program.price !== 'Gratuit';
+      const matchesSearch = program.title.toLowerCase().includes(searchValue.value.toLowerCase());
+      const matchesCategory = !selectedCategory.value || program.categoryId === selectedCategory.value.code;
+      return isNotSeminaire && isNotFree && matchesSearch && matchesCategory;
+    })
+    .slice(0, 6);
 });
 
 const categories = computed(() => {
@@ -137,6 +141,7 @@ onMounted(async () => {
       scrollTrigger: {
         trigger: sectionRef.value,
         start: "top 70%",
+        toggleActions: "play none none reverse"
       }
     });
   }
@@ -146,7 +151,9 @@ onMounted(async () => {
 <style scoped>
 .training-programs-section {
   position: relative;
-  padding: 80px 0;
+  padding-top: 7vh;
+  /* Matching RessourceGratuites */
+  padding-bottom: 80px;
   background-color: #050505;
   z-index: 10;
   color: #ffffff;
@@ -163,8 +170,8 @@ onMounted(async () => {
       transparent 80%);
   opacity: var(--flash-opacity, 0);
   transition: opacity 0.5s ease;
-  will-change: opacity, transform;
-  /* Hardware acceleration */
+  will-change: transform, opacity;
+  transform: translateZ(0);
 }
 
 .spreading-fog {
@@ -175,15 +182,14 @@ onMounted(async () => {
   height: 120vh;
   background: linear-gradient(to bottom,
       transparent 0%,
-      rgba(0, 0, 0, 0.05) 15%,
-      rgba(0, 0, 0, 0.2) 35%,
-      rgba(0, 0, 0, 0.5) 55%,
-      rgba(0, 0, 0, 0.8) 80%,
+      rgba(0, 0, 0, 0.2) 40%,
       #050505 100%);
+  /* Matching RessourceGratuites simplified gradient */
   pointer-events: none;
   z-index: -1;
-  transform: translateY(0);
+  transform: translateY(0) translateZ(0);
   margin-top: -30vh;
+  will-change: transform;
 }
 
 .container {
@@ -191,14 +197,12 @@ onMounted(async () => {
   margin: 0 auto;
   position: relative;
   z-index: 2;
-  /* Content above fog */
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* Changed from flex-end to center for better alignment with the new button */
   margin-bottom: 6vh;
   gap: 3vw;
 }
@@ -211,14 +215,17 @@ onMounted(async () => {
   margin: 0;
 }
 
-.programs-grid:has(.image-container:hover) .program-card:not(:has(.image-container:hover)) {
-  filter: opacity(0.7) grayscale(0.5) brightness(0.9) sepia(0.2) hue-rotate(220deg) blur(1px);
+/* Matching RessourceGratuites hover effect */
+.programs-grid.is-hovered .program-card:not(:hover) {
+  filter: grayscale(0.5) sepia(0.2) hue-rotate(220deg) brightness(0.8) blur(1px);
+  opacity: 0.6;
 }
 
 .programs-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+  margin-bottom: 60px;
 }
 
 @media (max-width: 1280px) {
@@ -241,7 +248,8 @@ onMounted(async () => {
 
   .programs-grid {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 15px;
+    /* Matching RessourceGratuites */
   }
 }
 </style>

@@ -48,20 +48,30 @@ watch(() => page.props.flash, (flash) => {
 let lenis;
 
 onMounted(() => {
-  lenis = new Lenis({
-    duration: 1.2,
-    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    smoothWheel: true,
-  });
+  const isMobile = window.innerWidth <= 768;
 
-  lenis.on('scroll', ScrollTrigger.update);
-  window.lenis = lenis;
+  // Ne pas activer Lenis sur mobile pour éviter les conflits avec le scroll tactile
+  if (!isMobile) {
+    lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
 
-  gsap.ticker.add((time) => {
-    lenis.raf(time * 1000);
-  });
+    lenis.on('scroll', ScrollTrigger.update);
+    window.lenis = lenis;
 
-  gsap.ticker.lagSmoothing(0);
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000);
+    });
+
+    gsap.ticker.lagSmoothing(0);
+  } else {
+    // Sur mobile, utiliser le scroll natif mais garder ScrollTrigger synchronisé
+    window.addEventListener('scroll', () => {
+      ScrollTrigger.update();
+    }, { passive: true });
+  }
 
   setupScrollAnimations();
 });
@@ -95,6 +105,9 @@ let unbindTransitionFinish;
 const setupScrollAnimations = () => {
   if (!mainRef.value) return;
 
+  const isMobile = window.innerWidth <= 768;
+  if (isMobile) return; // Stop global animations on mobile to prevent "elastic" issues
+
   const animateNode = (node) => {
     if (node.nodeType !== 1) return; // Ensure element node
 
@@ -115,31 +128,50 @@ const setupScrollAnimations = () => {
 
     const isFooter = node.closest('footer');
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: node,
-        start: "top bottom",
-        end: isFooter ? "center 90%" : "bottom top",
-        scrub: 0.5,
-      }
-    });
-
-    if (isFooter) {
-      tl.fromTo(node,
-        { scale: 0.9, y: 0, opacity: 1, transformOrigin: "center center" },
-        { scale: 1, y: 0, opacity: 1, duration: 1, ease: "power2.out" }
+    if (isMobile) {
+      // Version mobile simplifiée sans scrub
+      gsap.fromTo(node,
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: node,
+            start: "top 90%",
+            toggleActions: "play none none none"
+          }
+        }
       );
     } else {
-      tl.fromTo(node,
-        { scale: 0.85, y: 0, opacity: 0, transformOrigin: "center center" },
-        { scale: 1, y: 0, opacity: 1, duration: 0.3, ease: "power2.out" }
-      )
-        .to(node,
-          { scale: 1, y: 0, opacity: 1, duration: 0.4 }
-        )
-        .to(node,
-          { scale: 0.85, y: 0, opacity: 0, duration: 0.3, ease: "power1.in" }
+      // Version desktop avec scrub
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: node,
+          start: "top bottom",
+          end: isFooter ? "center 90%" : "bottom top",
+          scrub: 0.5,
+        }
+      });
+
+      if (isFooter) {
+        tl.fromTo(node,
+          { scale: 0.9, y: 0, opacity: 1, transformOrigin: "center center" },
+          { scale: 1, y: 0, opacity: 1, duration: 1, ease: "power2.out" }
         );
+      } else {
+        tl.fromTo(node,
+          { scale: 0.85, y: 0, opacity: 0, transformOrigin: "center center" },
+          { scale: 1, y: 0, opacity: 1, duration: 0.3, ease: "power2.out" }
+        )
+          .to(node,
+            { scale: 1, y: 0, opacity: 1, duration: 0.4 }
+          )
+          .to(node,
+            { scale: 0.85, y: 0, opacity: 0, duration: 0.3, ease: "power1.in" }
+          );
+      }
     }
   };
 

@@ -38,33 +38,16 @@
             :class="{ 'fullscreen-mode': fullScreenMode, 'show-scroll-hint': isAnimating }" ref="textContainerRef"
             @scroll="checkScroll">
             <template v-if="fullScreenMode">
-                <div class="side-controls left">
-                    <div class="arrow-btn up" @click="scrollText('up')" @mousemove="handleFlashMove"
-                        @mouseleave="handleFlashLeave">
-                        <div class="flashlight-overlay"></div>
-                        <div class="image-border-glow"></div>
-                        <i class="fas fa-chevron-up"></i>
-                    </div>
-                    <div class="arrow-btn down" @click="scrollText('down')" @mousemove="handleFlashMove"
-                        @mouseleave="handleFlashLeave">
-                        <div class="flashlight-overlay"></div>
-                        <div class="image-border-glow"></div>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                </div>
-
                 <div class="side-controls right">
                     <div class="arrow-btn up" @click="scrollText('up')" @mousemove="handleFlashMove"
                         @mouseleave="handleFlashLeave">
                         <div class="flashlight-overlay"></div>
                         <div class="image-border-glow"></div>
-                        <i class="fas fa-chevron-up"></i>
                     </div>
                     <div class="arrow-btn down" @click="scrollText('down')" @mousemove="handleFlashMove"
                         @mouseleave="handleFlashLeave">
                         <div class="flashlight-overlay"></div>
                         <div class="image-border-glow"></div>
-                        <i class="fas fa-chevron-down"></i>
                     </div>
                 </div>
             </template>
@@ -451,6 +434,12 @@ const handleFlashLeave = (event) => {
 
 .side-controls.right {
     right: 8vw;
+    opacity: 0.15;
+    transition: opacity 0.3s ease;
+}
+
+.side-controls.right:hover {
+    opacity: 1;
 }
 
 .arrow-btn {

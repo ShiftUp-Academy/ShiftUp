@@ -14,8 +14,8 @@
           </div>
           <p class="question-text">{{ item.Question }}</p>
           <div class="item-footer">
-            <span class="category-tag">catégorie : <span class="category-name">{{ item.categorie?.Nom || 'Général'
-                }}</span></span>
+            <span class="category-tag">Catégorie <br /> <span class="category-name">{{ item.categorie?.Nom || 'Général'
+            }}</span></span>
             <a v-if="item.reponse_consultations && item.reponse_consultations.length > 0" href="#"
               class="consultation-link" @click.prevent="$emit('view-detail', item.reponse_consultations[0])">
               VOIR LA RÉPONSE <span class="arrow">↗</span>
@@ -87,7 +87,6 @@ const getAuthorAvatar = () => {
 .main-content {
   flex: 1;
   padding: 40px 60px 40px 60px;
-  /* Added bottom padding */
   overflow-y: auto;
   overscroll-behavior: auto;
 }
@@ -164,6 +163,7 @@ const getAuthorAvatar = () => {
 .category-tag {
   font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.8);
+  line-height: 1.2;
 }
 
 .category-name {
@@ -210,7 +210,43 @@ const getAuthorAvatar = () => {
 
   .main-content {
     padding: 40px;
-    height: 500px;
+    height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    padding: 30px 20px;
+  }
+
+  .list-container {
+    height: 70vh;
+  }
+
+  .sidebar-title {
+    font-size: 2.6rem !important;
+    width: 80% !important;
+    margin-top: 2vh;
+    margin-bottom: 0;
+    margin-left: 2vw;
+  }
+
+  .main-content {
+    padding: 20px;
+    height: 20vh !important;
+  }
+
+  .category-tag {
+    width: 3vw;
+  }
+
+  .question-text {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+  }
+
+  .replay-item {
+    padding: 20px 0;
   }
 }
 </style>

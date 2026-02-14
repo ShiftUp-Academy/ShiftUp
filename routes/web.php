@@ -10,12 +10,17 @@ use App\Http\Controllers\LiveController;
 use App\Http\Controllers\TemoignageController;
 use App\Http\Controllers\GeminiChatController;
 use App\Http\Controllers\CommandeController;
+use App\Http\Controllers\NotificationController;
 
 Route::get('/', [ProgrammeController::class, 'home']);
 Route::post('/ai/chat', [GeminiChatController::class, 'chat'])->name('ai.chat');
 Route::get('/live', [LiveController::class, 'index'])->name('live.index');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    
     Route::get('/panier', [CommandeController::class, 'viewPanier'])->name('panier.index');
     Route::post('/panier/ajouter', [CommandeController::class, 'ajouterAuPanier'])->name('panier.add');
     Route::delete('/panier/{id}', [CommandeController::class, 'supprimerDuPanier'])->name('panier.remove');
@@ -57,6 +62,7 @@ Route::get('/contact', function () {
 });
 
 Route::get('/programmes', [ProgrammeController::class, 'programmesPublic']);
+Route::get('/articles-conseils', [ProgrammeController::class, 'articlesConseils'])->name('articles.index');
 Route::get('/offres', [\App\Http\Controllers\OffreController::class, 'publicIndex'])->name('offres.public');
 Route::get('/temoignages', [TemoignageController::class, 'index'])->name('temoignages.index');
 Route::post('/temoignages', [TemoignageController::class, 'store'])->name('temoignages.store')->middleware('auth');
@@ -116,6 +122,7 @@ Route::prefix('admin')->group(function () {
     Route::post('/coachings/types/{id}/status', [\App\Http\Controllers\CoachingController::class, 'updateStatus'])->name('admin.coachings.types.status');
     Route::post('/coachings/reservations/{id}/update', [\App\Http\Controllers\CoachingController::class, 'updateReservation'])->name('admin.coachings.reservations.update');
     Route::post('/coachings/availabilities', [\App\Http\Controllers\CoachingController::class, 'storeAvailabilities'])->name('admin.coachings.availabilities.store');
+    Route::delete('/coachings/availabilities/{id}', [\App\Http\Controllers\CoachingController::class, 'destroyAvailability'])->name('admin.coachings.availabilities.delete');
     Route::post('/coachings/google-meet', [\App\Http\Controllers\CoachingController::class, 'storeLienGoogle'])->name('admin.coachings.google-meet.store');
     Route::get('/offres', [\App\Http\Controllers\OffreController::class, 'index'])->name('admin.offres');
     Route::post('/offres', [\App\Http\Controllers\OffreController::class, 'store'])->name('admin.offres.store');
@@ -140,3 +147,5 @@ Route::prefix('admin')->group(function () {
     Route::post('/categories/{id}', [\App\Http\Controllers\CategorieController::class, 'update'])->name('admin.categories.update');
     Route::delete('/categories/{id}', [\App\Http\Controllers\CategorieController::class, 'destroy'])->name('admin.categories.delete');
 });
+
+

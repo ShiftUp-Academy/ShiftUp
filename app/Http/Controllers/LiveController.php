@@ -8,6 +8,9 @@ use Inertia\Inertia;
 
 use App\Models\Categorie;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Utilisateur;
+use App\Notifications\NouveauContenuNotification;
+use Illuminate\Support\Facades\Notification;
 
 class LiveController extends Controller
 {
@@ -64,7 +67,11 @@ class LiveController extends Controller
         $validated['IdAuteur'] = Auth::id();
         $validated['Statut'] = 'Publié';
 
-        Live::create($validated);
+        $live = Live::create($validated);
+
+        // Notification aux utilisateurs
+        $users = Utilisateur::where('Role', '!=', 'admin')->get();
+        Notification::send($users, new NouveauContenuNotification($live, 'Live'));
 
         return redirect()->back()->with('success', 'Live programmé avec succès.');
     }

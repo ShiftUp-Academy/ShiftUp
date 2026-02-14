@@ -52,10 +52,10 @@ const selectedCoaching = ref(null);
 const showModal = ref(false);
 
 const themeColors = {
-    primary: '#1A888D', 
-    secondary: '#202020', 
-    accent: '#F7B455',  
-    dark: '#010101'   
+    primary: '#1A888D',
+    secondary: '#202020',
+    accent: '#F7B455',
+    dark: '#010101'
 };
 
 const handleReserve = (type) => {
@@ -159,20 +159,37 @@ const onReservationSuccess = () => {
     font-size: 1.2rem;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1024px) {
     .grid-container {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (max-width: 768px) {
-    .grid-container {
-        grid-template-columns: 1fr;
-    }
-
     .intro-section {
         height: auto;
-        padding-bottom: 50px;
+        min-height: 50vh;
+        padding: 120px 6vw 60px;
+    }
+
+    .impact-title {
+        font-size: 3.5rem;
+    }
+
+    .subtitle {
+        font-size: 1.2rem;
+        width: 90%;
+        font-weight: 400;
+        color: #ffffff;
+    }
+
+    .grid-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .coaching-grid-section {
+        padding: 40px 6vw;
     }
 }
 </style>

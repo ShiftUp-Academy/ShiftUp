@@ -575,12 +575,30 @@ const submitReservation = () => {
         grid-template-columns: repeat(2, 1fr);
     }
 
+    .description {
+        color: rgba(255, 255, 255, 0.914);
+        line-height: 1.1;
+        font-size: 1.2rem;
+    }
+
+    .type-name {
+        line-height: 1 !important;
+    }
+
+    .section-title {
+        margin-left: 10vw;
+    }
+
     .price-badge {
         min-width: 100%;
     }
 
     .coaching-summary {
         flex-direction: column;
+    }
+
+    .cancel-btn {
+        display: none;
     }
 }
 </style>

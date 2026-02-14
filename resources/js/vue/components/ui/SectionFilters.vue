@@ -3,15 +3,16 @@
     <div class="filter-inputs">
       <div class="filter-item search-wrapper">
         <AutoComplete :modelValue="searchValue" @update:modelValue="$emit('update:searchValue', $event)"
-          :suggestions="suggestions" @complete="$emit('complete', $event)" @item-select="$emit('select-suggestion', $event.value)" placeholder="recherchez par mot clé"
+          :suggestions="suggestions" @complete="$emit('complete', $event)"
+          @item-select="$emit('select-suggestion', $event.value)" placeholder="recherchez par mot clé"
           class="search-autocomplete full-width-prime" />
       </div>
 
       <div class="filter-item category-wrapper">
         <FloatLabel variant="on" class="full-width-float">
           <Select :modelValue="selectedCategory" @update:modelValue="$emit('update:selectedCategory', $event)"
-            inputId="category_label" placeholder="Catégorie" :options="categories" optionLabel="name"
-            editable class="search-select full-width-prime" />
+            inputId="category_label" placeholder="Catégorie" :options="categories" optionLabel="name" editable
+            class="search-select full-width-prime" />
         </FloatLabel>
       </div>
     </div>
@@ -193,7 +194,7 @@ defineEmits(['update:searchValue', 'update:selectedCategory', 'complete', 'reset
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  padding: 12px 10px 0 10px;
+  padding: 12px 10px 0 0px;
   transition: opacity 0.4s;
   text-transform: uppercase;
 }

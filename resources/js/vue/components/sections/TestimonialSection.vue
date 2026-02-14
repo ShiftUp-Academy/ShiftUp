@@ -204,8 +204,9 @@ onMounted(() => {
   color: white;
   position: relative;
   overflow: hidden;
-  contain: content;
+  contain: paint layout;
   /* Rendering Optimization */
+  will-change: scroll-position;
 }
 
 .container {
@@ -272,6 +273,8 @@ onMounted(() => {
   cursor: grab;
   padding-bottom: 0;
   -ms-overflow-style: none;
+  touch-action: pan-y;
+  will-change: scroll-position;
 }
 
 .set-wrapper {
@@ -298,6 +301,14 @@ onMounted(() => {
 @media (max-width: 768px) {
   .testimonial-wrapper {
     min-width: 85vw;
+  }
+
+  .testimonials-grid {
+    padding-bottom: 20px;
+  }
+
+  .testimonial-section {
+    padding-bottom: 5vh;
   }
 
   .section-header {

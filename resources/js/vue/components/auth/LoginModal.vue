@@ -468,4 +468,14 @@ watch(() => props.isOpen, (newVal) => {
         background-position: 0% 50%;
     }
 }
+
+@media (max-width: 768px) {
+    .auth-image-col {
+        display: none;
+    }
+
+    .auth-form-col {
+        padding: 5vh 5vw;
+    }
+}
 </style>

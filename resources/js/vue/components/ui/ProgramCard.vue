@@ -12,7 +12,7 @@
 
     <div class="program-content">
       <div class="card-footer">
-        <div class="price-tag">{{ price }}</div>
+        <div class="price-tag">{{ displayPrice }}</div>
         <div v-if="progression > 0" class="mini-progression">
           <div class="prog-bar">
             <div class="prog-fill" :style="{ width: progression + '%' }"></div>
@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
 import { router } from '@inertiajs/vue3';
 
 const props = defineProps({
@@ -67,6 +67,15 @@ const props = defineProps({
     type: [Number, String],
     default: null
   }
+});
+
+const displayPrice = computed(() => {
+  if (!props.price || props.price === 'Gratuit') return props.price;
+  const numericValue = parseInt(props.price.replace(/[^0-9]/g, ''));
+  if (!isNaN(numericValue) && numericValue >= 1000) {
+    return Math.round(numericValue / 1000) + ' k';
+  }
+  return props.price.replace(/\s*Ar$/i, '');
 });
 
 const flash = reactive({ x: '50%', y: '50%', opacity: 0 });

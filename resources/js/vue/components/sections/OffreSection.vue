@@ -328,11 +328,30 @@ onMounted(() => {
 
 @media (max-width: 768px) {
   .title-main {
-    font-size: 2rem;
+    font-size: 2.2rem;
+    font-weight: 500;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .description-text {
+    font-size: 1.2rem;
+    line-height: 1.1;
+    margin-top: 0;
+    padding-top: 0;
+    margin-bottom: 2rem;
   }
 
   .card-wrapper {
-    width: 80vw;
+    width: 85vw;
+    /* Slightly increased to match card width better */
+  }
+
+  .card-meta {
+    margin-left: 2vw;
+    /* Align with CategoryCard's margin-left */
+    width: calc(100% - 4vw);
+    /* Align with CategoryCard's width */
   }
 }
 </style>

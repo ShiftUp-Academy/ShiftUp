@@ -154,6 +154,8 @@
       </form>
     </PremiumModal>
 
+    <ConfirmModal :isOpen="confirmData.isOpen" :title="confirmData.title" :message="confirmData.message"
+      :type="confirmData.type" @confirm="onModalConfirm" @cancel="confirmData.isOpen = false" />
     <Toast />
   </div>
 </template>
@@ -168,6 +170,7 @@ import PremiumModal from '../../components/ui/PremiumModal.vue';
 import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
 import AdminFilters from '../../components/admin/AdminFilters.vue';
+import ConfirmModal from '../../components/ui/ConfirmModal.vue';
 
 const props = defineProps({
   temoignages: Array,
@@ -335,14 +338,37 @@ const submitForm = () => {
   }
 };
 
+// CONFIRM MODAL STATE
+const confirmData = ref({
+  isOpen: false,
+  title: '',
+  message: '',
+  type: 'danger',
+  action: null
+});
+
+const triggerConfirm = (title, message, type, action) => {
+  confirmData.value = { isOpen: true, title, message, type, action };
+};
+
+const onModalConfirm = () => {
+  if (confirmData.value.action) confirmData.value.action();
+  confirmData.value.isOpen = false;
+};
+
 const confirmDelete = (t) => {
-  if (confirm('Êtes-vous sûr de vouloir supprimer ce témoignage ?')) {
-    router.delete(`/admin/temoignages/${t.IdTemoignage}`, {
-      onSuccess: () => {
-        toast.add({ severity: 'warn', summary: 'Supprimé', detail: 'Témoignage supprimé avec succès', life: 3000 });
-      }
-    });
-  }
+  triggerConfirm(
+    "Supprimer le témoignage",
+    `Êtes-vous sûr de vouloir supprimer ce témoignage ?`,
+    'danger',
+    () => {
+      router.delete(`/admin/temoignages/${t.IdTemoignage}`, {
+        onSuccess: () => {
+          toast.add({ severity: 'warn', summary: 'Supprimé', detail: 'Témoignage supprimé avec succès', life: 3000 });
+        }
+      });
+    }
+  );
 };
 </script>
 

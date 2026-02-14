@@ -1,17 +1,12 @@
 <template>
   <div class="category-card" ref="cardRef" @click="goToDetail">
 
-    <!-- IMAGE SECTION (MOVED TO TOP) -->
     <div class="image-section">
       <div class="bg-image" :style="{ backgroundImage: `url('${image}')` }"></div>
       <div class="overlay"></div>
     </div>
 
-    <!-- CONTENT SECTION (MOVED TO BOTTOM) -->
     <div class="content">
-
-      <!-- REMOVED TAGS (Date/Location) as requested -->
-
       <div class="title-wrapper">
         <h3 class="card-title">{{ title }}</h3>
       </div>
@@ -28,13 +23,12 @@
 
       <div class="separator"></div>
 
-      <!-- Hidden content for description if needed, or keep it visible -->
       <div class="description-wrapper">
         <p class="description">{{ description }}</p>
       </div>
 
       <div class="action-footer">
-        <p class="price">{{ price }}</p>
+        <p class="price">{{ displayPrice }}</p>
 
         <button class="action-btn">
           <span class="btn-text">AJOUTER AU PANIER</span>
@@ -50,6 +44,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { router } from '@inertiajs/vue3';
 
 const props = defineProps({
@@ -73,6 +68,15 @@ const props = defineProps({
     type: Boolean,
     default: false
   }
+});
+
+const displayPrice = computed(() => {
+  if (!props.price) return '';
+  const numericValue = parseInt(props.price.replace(/[^0-9]/g, ''));
+  if (!isNaN(numericValue) && numericValue >= 1000) {
+    return Math.round(numericValue / 1000) + ' k';
+  }
+  return props.price.replace(/\s*Ar$/i, '');
 });
 
 const goToDetail = () => {
@@ -123,7 +127,7 @@ const goToDetail = () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.115) 100%);
 }
 
 .category-card:hover .bg-image {
@@ -253,5 +257,83 @@ const goToDetail = () => {
 
 .action-btn:hover .btn-icon {
   transform: translate(2px, -2px);
+}
+
+@media (max-width: 768px) {
+  .category-card {
+    height: auto;
+    margin-left: 2vw;
+    min-height: 480px;
+    width: calc(100% - 4vw);
+  }
+
+  .image-section {
+    height: 180px;
+  }
+
+  .content {
+    padding: 20px 18px;
+    background-color: #121212;
+  }
+
+  .card-title {
+    font-size: 1.4rem;
+    line-height: 1.1;
+    margin-bottom: 5px;
+  }
+
+  .author-info {
+    margin-bottom: 5px;
+  }
+
+  .description-wrapper {
+    max-height: none;
+    /* Auto height based on content */
+    opacity: 1;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    height: auto;
+  }
+
+  .description {
+    height: auto;
+    max-height: none;
+  }
+
+  .separator {
+    opacity: 0.3;
+    margin-left: 0;
+    /* Reset margin-left of separator to align with content */
+    width: 100%;
+  }
+
+  .action-footer {
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    gap: 10px;
+  }
+
+  .price {
+    font-size: 1.5rem;
+    font-weight: 600;
+    white-space: nowrap;
+    min-width: fit-content;
+  }
+
+  .action-btn {
+    padding: 12px 20px;
+    flex-grow: 1;
+    justify-content: center;
+  }
+
+  .btn-text {
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+  }
+
+  .btn-icon {
+    width: 14px;
+    height: 14px;
+  }
 }
 </style>

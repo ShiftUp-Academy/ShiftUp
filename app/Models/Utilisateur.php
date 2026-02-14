@@ -110,4 +110,30 @@ class Utilisateur extends Authenticatable
     {
         return $this->hasMany(Commande::class, 'IdUtilisateur', 'IdUtilisateur');
     }
+
+    /**
+     * Surcharger la relation de notification pour utiliser les colonnes en français.
+     */
+    public function notifications()
+    {
+        return $this->morphMany(Notification::class, 'Destinataire', 'TypeDestinataire', 'IdDestinataire')
+                    ->orderBy('DateCreation', 'desc');
+    }
+
+    /**
+     * Route notifications for the mail channel.
+     *
+     * @return  array<string, string>|string
+     */
+    public function routeNotificationForMail($notification)
+    {
+        $emails = [$this->Email]; // Email de connexion
+
+        // Ajouter l'email de contact du profil s'il existe et est différent
+        if ($this->profil && !empty($this->profil->EmailContact) && $this->profil->EmailContact !== $this->Email) {
+            $emails[] = $this->profil->EmailContact;
+        }
+
+        return $emails;
+    }
 }

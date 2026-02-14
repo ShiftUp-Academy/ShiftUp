@@ -75,7 +75,7 @@ class UtilisateurController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/')->with('Au revoir', 'Vous avez été déconnecté avec succès. À bientôt !');
+        return \Inertia\Inertia::location('/');
     }
 
     public function redirectToGoogle()

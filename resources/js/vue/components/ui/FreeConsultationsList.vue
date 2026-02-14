@@ -14,9 +14,9 @@
           </div>
           <p class="question-text">{{ getQuestionText(item.questions) }}</p>
           <div class="item-footer">
-            <span class="category-tag">catégorie : <span class="category-name">{{ item.categorie?.Nom || 'Général'
+            <span class="category-tag">Catégorie <br /> <span class="category-name">{{ item.categorie?.Nom || 'Général'
             }}</span></span>
-            <a href="#" class="consultation-link" @click.prevent="$emit('view-detail', item)">VOIR LA CONSULTATION <span
+            <a href="#" class="consultation-link" @click.prevent="$emit('view-detail', item)">VOIR LA REPONSE <span
                 class="arrow">↗</span></a>
           </div>
         </div>
@@ -164,6 +164,7 @@ const getQuestionText = (questions) => {
 .category-tag {
   font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.5);
+  line-height: 1.2;
 }
 
 .category-name {
@@ -201,6 +202,42 @@ const getQuestionText = (questions) => {
   .main-content {
     padding: 40px;
     height: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    padding: 30px 20px;
+  }
+
+  .sidebar-title {
+    font-size: 2.6rem !important;
+    width: 80% !important;
+    margin-top: 2vh;
+    margin-bottom: 0;
+    margin-left: 2vw;
+  }
+
+  .category-tag {
+    width: 3vw;
+  }
+
+  .list-container {
+    height: 70vh;
+  }
+
+  .main-content {
+    padding: 20px;
+    height: 300px;
+  }
+
+  .question-text {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+  }
+
+  .replay-item {
+    padding: 20px 0;
   }
 }
 </style>

@@ -41,11 +41,14 @@ import { gsap } from 'gsap'
 import { router } from '@inertiajs/vue3'
 import ShaderBackground from './ShaderBackground.vue'
 
-// --- PROPS ---
 const props = defineProps({
   title: {
     type: String,
     default: 'L’organisme ShiftUp a pour vocation <br />d’aider les cadres qui veulent se reconvertir <br />et les dirigeants de TPE / PME à devenir <br />Un Entrepreneur Libre.'
+  },
+  mobileTitle: {
+    type: String,
+    default: 'L’organisme ShiftUp a pour vocation <br />d’aider les cadres qui <br /> veulent se reconvertir <br />et les dirigeants de TPE / PME à devenir <br />Un Entrepreneur Libre.'
   },
   cursorText: {
     type: String,
@@ -61,9 +64,19 @@ const themeColors = {
   dark: '#000000'
 }
 
-const highlights = ['ShiftUp', 'reconvertir', 'dirigeants', 'TPE / PME', 'Entrepreneur Libre'];
+const isMobile = ref(false);
+
+const updateIsMobile = () => {
+  if (typeof window !== 'undefined') {
+    isMobile.value = window.innerWidth <= 768;
+  }
+};
+
+const highlights = ['ShiftUp', 'reconvertir', 'dirigeants', 'TPE / PME', 'Entrepreneur Libre', 'liberté', 'entrepreneuriale'];
 const formattedLines = computed(() => {
-  return props.title.split('<br />').map(line => {
+  const textToUse = (isMobile.value && props.mobileTitle) ? props.mobileTitle : props.title;
+
+  return textToUse.split('<br />').map(line => {
     let words = line.trim().split(/\s+/);
     let result = [];
     let i = 0;
@@ -96,7 +109,6 @@ const formattedLines = computed(() => {
   });
 });
 
-// --- REFS ---
 const rootContainer = ref(null)
 const cursorRef = ref(null)
 
@@ -104,7 +116,6 @@ const goToHowItWorks = () => {
   router.visit('/comment-ca-fonctionne');
 }
 
-// État curseur
 const isInsideSection = ref(false)
 const isHoveringLink = ref(false)
 let cursorTimeout = null
@@ -115,8 +126,9 @@ const scrollToContent = () => {
 }
 
 onMounted(() => {
-  // 1. INITIALISATION CURSEUR (GSAP Set)
-  // On le place au centre au début et on le cache (scale 0)
+  updateIsMobile();
+  window.addEventListener('resize', updateIsMobile);
+
   gsap.set(cursorRef.value, {
     xPercent: -50,
     yPercent: -50,
@@ -124,19 +136,14 @@ onMounted(() => {
     opacity: 0
   });
 
-  // 2. GESTION SOURIS (Curseur HTML uniquement)
   const onMouseMove = (e) => {
-    // Curseur HTML
-    // On déplace le curseur
     gsap.to(cursorRef.value, {
       x: e.clientX,
       y: e.clientY,
-      duration: 0.1, // Très réactif
+      duration: 0.1,
       overwrite: 'auto'
     })
 
-    // On l'affiche (Scale 1 = Taille Originale Définie en CSS)
-    // EXCEPTION: On le cache si on approche du menu (haut de page)
     const isOverHeader = e.clientY < 110;
 
     const targetScale = (isHoveringLink.value || isOverHeader || !isInsideSection.value) ? 0 : 1;
@@ -175,6 +182,7 @@ onMounted(() => {
   if (rootContainer.value) rootContainer.value.addEventListener('click', handleGlobalClick)
 
   onBeforeUnmount(() => {
+    window.removeEventListener('resize', updateIsMobile);
     window.removeEventListener('mousemove', onMouseMove)
     if (rootContainer.value) rootContainer.value.removeEventListener('click', handleGlobalClick)
     clearTimeout(cursorTimeout)
@@ -190,7 +198,6 @@ onMounted(() => {
   overflow: hidden;
   background-color: #000000;
   cursor: none;
-  /* Cache curseur natif */
 }
 
 .shader-bg-wrapper {
@@ -338,6 +345,8 @@ onMounted(() => {
 @media (max-width: 768px) {
   .main-title {
     font-size: 8vw;
+    padding-top: 0 !important;
+    width: 95% !important;
   }
 
   .scroll-arrow {
@@ -345,12 +354,40 @@ onMounted(() => {
     margin-top: 5vh;
   }
 
+  .hero-subtitle {
+  font-size: 1.2rem;
+  margin-top: 0 !important;
+}
+
   .custom-cursor {
     display: none;
   }
 
   .monopo-root {
     cursor: auto;
+  }
+
+  .title-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero-subtitle {
+    order: -1;
+    margin-top: 0;
+    margin-bottom: 20px;
+  }
+
+  .hero-content {
+    margin-top: 5vh;
+  }
+
+  .main-title {
+    order: 0;
+  }
+
+  .scroll-arrow {
+    order: 1;
   }
 }
 </style>

@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Temoignage;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use App\Models\Utilisateur;
+use App\Notifications\ActiviteAdminNotification;
+use Illuminate\Support\Facades\Notification;
 
 class TemoignageController extends Controller
 {
@@ -45,6 +48,14 @@ class TemoignageController extends Controller
         }
 
         $temoignage->save();
+
+        // Notification Admin
+        $admins = \App\Models\Utilisateur::where('Role', 'admin')->get();
+        Notification::send($admins, new ActiviteAdminNotification(
+            "Nouveau témoignage reçu (" . $request->Type . ")",
+            "Temoignage",
+            "/admin/temoignages"
+        ));
 
         return redirect()->back()->with('success', 'Votre témoignage a été publié avec succès !');
     }

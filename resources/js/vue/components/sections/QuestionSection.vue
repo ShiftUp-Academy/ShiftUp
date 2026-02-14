@@ -39,7 +39,7 @@
           <div class="item-footer">
             <div class="meta-info">
               <span class="category-tag">catégorie : <span class="category-name">{{ item.categorie?.Nom || 'Général'
-                  }}</span></span>
+              }}</span></span>
             </div>
             <a href="#" class="consultation-link" @click.prevent="$emit('view-detail', item)">VOIR LA CONSULTATION <span
                 class="arrow">↗</span></a>
@@ -143,7 +143,7 @@ const getStatusLabel = (item) => {
 <style scoped>
 .question-section {
   background-color: #050505;
-  padding: 80px 0;
+  padding: 40px 0;
   color: white;
 }
 
@@ -156,7 +156,7 @@ const getStatusLabel = (item) => {
   background: #ffffff;
   border-radius: 25px;
   padding: 0 5vw;
-  margin-bottom: 50px;
+  margin-bottom: 30px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
@@ -178,22 +178,21 @@ const getStatusLabel = (item) => {
 }
 
 .filters-grid {
-  padding: 30px 0;
-  /* Retrait du padding horizontal car géré par le wrapper */
+  padding: 20px 0;
   display: grid;
   grid-template-columns: 2fr 1fr 1fr auto;
-  gap: 25px;
+  gap: 20px;
   align-items: flex-end;
 }
 
 .filter-group {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .filter-group label {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: #111;
 }
@@ -204,8 +203,8 @@ const getStatusLabel = (item) => {
   background: transparent !important;
   border: none !important;
   border-bottom: 2px solid #afafaf !important;
-  padding: 10px 0 !important;
-  font-size: 1.2rem !important;
+  padding: 8px 0 !important;
+  font-size: 1.1rem !important;
   color: #111 !important;
   outline: none !important;
   box-shadow: none !important;
@@ -230,8 +229,8 @@ const getStatusLabel = (item) => {
 }
 
 :deep(.filter-prime-simple.p-select .p-select-label) {
-  padding: 10px 0 !important;
-  font-size: 1.2rem !important;
+  padding: 8px 0 !important;
+  font-size: 1.1rem !important;
   color: #111 !important;
 }
 
@@ -244,14 +243,14 @@ const getStatusLabel = (item) => {
 .filter-actions-inline {
   display: flex;
   align-items: center;
-  padding-bottom: 10px;
+  padding-bottom: 8px;
 }
 
 .minimal-reset-btn {
   background: transparent;
   border: none;
   color: #202020;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 400;
   cursor: pointer;
   display: flex;
@@ -272,7 +271,7 @@ const getStatusLabel = (item) => {
 }
 
 .session-item.full-page-item {
-  padding: 50px 0;
+  padding: 30px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -281,24 +280,24 @@ const getStatusLabel = (item) => {
 }
 
 .item-header {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 800;
   color: rgba(255, 255, 255, 0.4);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .author-row {
   display: flex;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 25px;
+  gap: 12px;
+  margin-bottom: 15px;
 }
 
 .avatar {
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   object-fit: cover;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -307,23 +306,23 @@ const getStatusLabel = (item) => {
 .author-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .author-name {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #fff;
 }
 
 .admin-badge {
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #A16EFF;
   font-weight: 500;
 }
 
 .status-badge {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.4);
   background: rgba(255, 255, 255, 0.1);
   padding: 2px 8px;
@@ -332,11 +331,11 @@ const getStatusLabel = (item) => {
 }
 
 .question-text {
-  font-size: 1.8rem;
-  line-height: 1.25;
+  font-size: 1.5rem;
+  line-height: 1.2;
   color: #fff;
   font-weight: 600;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   letter-spacing: -0.01em;
 }
 
@@ -350,7 +349,7 @@ const getStatusLabel = (item) => {
   display: flex;
   align-items: center;
   color: rgba(255, 255, 255, 0.5);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .category-name {
@@ -366,7 +365,7 @@ const getStatusLabel = (item) => {
 }
 
 .consultation-link {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 800;
   color: #fff;
   text-decoration: none;
@@ -374,7 +373,7 @@ const getStatusLabel = (item) => {
   letter-spacing: 0.05em;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   transition: all 0.3s;
 }
 
@@ -389,14 +388,14 @@ const getStatusLabel = (item) => {
 .initial-state,
 .no-results {
   text-align: center;
-  padding: 80px 0;
+  padding: 60px 20px;
   border: 1px dashed rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   color: rgba(255, 255, 255, 0.4);
 }
 
 .initial-text {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 500;
   max-width: 400px;
   margin: 0 auto;
@@ -412,16 +411,17 @@ const getStatusLabel = (item) => {
 @media (max-width: 768px) {
   .filters-grid {
     grid-template-columns: 1fr;
+    padding: 20px 10px;
   }
 
   .question-text {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
   }
 
   .item-footer {
     flex-direction: column;
     align-items: flex-start;
-    gap: 25px;
+    gap: 15px;
   }
 }
 </style>

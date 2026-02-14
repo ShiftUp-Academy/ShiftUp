@@ -178,7 +178,7 @@ const submitQuestion = () => {
 .consultation-lists {
   display: flex;
   flex-direction: column;
-  gap: 60px;
+  gap: 40px;
 }
 
 .ask-modal-body {
@@ -346,5 +346,15 @@ const submitQuestion = () => {
 
 .q-text {
   color: #e0e0e0;
+}
+
+@media (max-width: 768px) {
+  .consultation-lists {
+    gap: 30px;
+  }
+
+  .hero-subtitle {
+    margin-left: 6vw;
+  }
 }
 </style>

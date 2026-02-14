@@ -2,80 +2,77 @@
   <div class="contact-page">
     <div class="contact-left">
       <div class="contact-list">
-        
+
         <div class="contact-item">
           <div class="icon-circle">
             <i class="fa-solid fa-envelope-open-text"></i>
           </div>
           <div class="item-content">
-             <p class="content-value">hello@shiftup.academy</p>
-             <p class="content-label">EMAIL</p>
-            </div>
+            <p class="content-value">hello@shiftup.academy</p>
+            <p class="content-label">EMAIL</p>
+          </div>
         </div>
-        
+
         <div class="contact-item">
           <div class="icon-circle">
-             <i class="fa-solid fa-phone-volume"></i>
-            </div>
-            <div class="item-content">
-              <p class="content-value">038 34 540 81</p>
-              <p class="content-label">TÉLÉPHONE</p>
-            </div>
+            <i class="fa-solid fa-phone-volume"></i>
           </div>
+          <div class="item-content">
+            <p class="content-value">038 34 540 81</p>
+            <p class="content-label">TÉLÉPHONE</p>
+          </div>
+        </div>
 
         <div class="map-wrapper shadow-lg">
-             <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3775.622799368237!2d47.51436257475886!3d-18.859432405865626!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x21f087006c4452df%3A0xd971034fc8be97e!2sEpik%20Brand%20Madagascar!5e0!3m2!1sfr!2sus!4v1767361271740!5m2!1sfr!2sus" 
-                class="dark-map"
-                allowfullscreen="" 
-                loading="lazy" 
-                referrerpolicy="no-referrer-when-downgrade">
-            </iframe>
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3775.622799368237!2d47.51436257475886!3d-18.859432405865626!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x21f087006c4452df%3A0xd971034fc8be97e!2sEpik%20Brand%20Madagascar!5e0!3m2!1sfr!2sus!4v1767361271740!5m2!1sfr!2sus"
+            class="dark-map" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
         </div>
 
 
         <div class="working-hours">
-           <div class="hours-row">
-             <span class="day-label">Jours de travail</span>
-             <span class="dots-spacer"></span>
-             <span class="time-value">9h00 – 18h00</span>
-           </div>
-           <div class="hours-row">
-             <span class="day-label">Samedi</span>
-             <span class="dots-spacer"></span>
-             <span class="time-value">12h00 – 18h00</span>
-           </div>
+          <div class="hours-row">
+            <span class="day-label">Jours de travail</span>
+            <span class="dots-spacer"></span>
+            <span class="time-value">9h00 – 18h00</span>
+          </div>
+          <div class="hours-row">
+            <span class="day-label">Samedi</span>
+            <span class="dots-spacer"></span>
+            <span class="time-value">12h00 – 18h00</span>
+          </div>
         </div>
       </div>
 
       <div class="pnj-container">
-         <div class="comic-bubble-wrapper" ref="bubbleWrapper">
-            <div class="bubble-relative-container">
-                <div class="paper-bubble-rectangular shadow-2xl" ref="paperBubble">
-                   <div class="bubble-inner">
-                      <p>Le coaching <br> vous intéresse ?<br>Contactez moi.</p>
-                   </div>
-                   
-                   <!-- 4 Folded corners -->
-                   <div class="paper-fold fold-tl"></div>
-                   <div class="paper-fold fold-tr"></div>
-                   <div class="paper-fold fold-bl"></div>
-                   <div class="paper-fold fold-br"></div>
-                </div>
-                <div class="comic-tail-bottom"></div>
+        <div class="comic-bubble-wrapper" ref="bubbleWrapper">
+          <div class="bubble-relative-container">
+            <div class="paper-bubble-rectangular shadow-2xl" ref="paperBubble">
+              <div class="bubble-inner">
+                <p>Le coaching <br> vous intéresse ?<br>Contactez moi.</p>
+              </div>
+
+              <!-- 4 Folded corners -->
+              <div class="paper-fold fold-tl"></div>
+              <div class="paper-fold fold-tr"></div>
+              <div class="paper-fold fold-bl"></div>
+              <div class="paper-fold fold-br"></div>
             </div>
-         </div>
-         <div class="pnj-display">
-            <img :src="contactImg" alt="ShiftUp Contact" class="pnj-img" />
-         </div>
+            <div class="comic-tail-bottom"></div>
+          </div>
+        </div>
+        <div class="pnj-display">
+          <img :src="contactImg" alt="ShiftUp Contact" class="pnj-img" />
+        </div>
       </div>
 
       <div class="social-links-container">
-         <div class="social-links">
-            <a href="#"><i class="fab fa-facebook-f"></i></a>
-            <a href="#"><i class="fab fa-linkedin-in"></i></a>
-            <a href="#"><i class="fab fa-youtube"></i></a>
-         </div>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#"><i class="fab fa-youtube"></i></a>
+        </div>
       </div>
     </div>
 
@@ -83,37 +80,37 @@
       <div class="contact-gradient-box shadow-2xl">
         <ShaderBackground :colors="customShaderColors" class="full-box-shader">
           <form @submit.prevent="submitForm" class="contact-custom-form">
-              <div class="form-row">
-                <div class="form-line-group">
-                  <label>Nom</label>
-                  <input type="text" v-model="form.nom" placeholder="Votre nom" required />
-                </div>
-                <div class="form-line-group">
-                  <label>Prénom</label>
-                  <input type="text" v-model="form.prenom" placeholder="Votre prénom" required />
-                </div>
-              </div>
-
+            <div class="form-row">
               <div class="form-line-group">
-                <label>Sujet</label>
-                <input type="text" v-model="form.sujet" placeholder="De quoi s'agit-il ?" required />
+                <label>Nom</label>
+                <input type="text" v-model="form.nom" placeholder="Votre nom" required />
               </div>
-
               <div class="form-line-group">
-                <label>Email</label>
-                <input type="email" v-model="form.email" placeholder="exemple@gmail.com" required />
+                <label>Prénom</label>
+                <input type="text" v-model="form.prenom" placeholder="Votre prénom" required />
               </div>
+            </div>
 
-              <div class="form-line-group">
-                <label>Message</label>
-                <textarea v-model="form.message" rows="2" placeholder="Dites-nous tout..." required></textarea>
-              </div>
+            <div class="form-line-group">
+              <label>Sujet</label>
+              <input type="text" v-model="form.sujet" placeholder="De quoi s'agit-il ?" required />
+            </div>
 
-              <div class="form-footer">
-                <button type="submit" class="contact-submit-btn" :disabled="isLoading">
-                  {{ isLoading ? 'Envoi en cours...' : 'Envoyer le message' }}
-                </button>
-              </div>
+            <div class="form-line-group">
+              <label>Email</label>
+              <input type="email" v-model="form.email" placeholder="exemple@gmail.com" required />
+            </div>
+
+            <div class="form-line-group">
+              <label>Message</label>
+              <textarea v-model="form.message" rows="2" placeholder="Dites-nous tout..." required></textarea>
+            </div>
+
+            <div class="form-footer">
+              <button type="submit" class="contact-submit-btn" :disabled="isLoading">
+                {{ isLoading ? 'Envoi en cours...' : 'Envoyer le message' }}
+              </button>
+            </div>
           </form>
         </ShaderBackground>
       </div>
@@ -188,7 +185,8 @@ const submitForm = () => {
   height: 100vh;
   width: 100%;
   display: flex;
-  background-color: #0c0c0c; /* Dark Mode Background */
+  background-color: #0c0c0c;
+  /* Dark Mode Background */
   overflow: hidden;
   font-family: 'Plus Jakarta Sans', sans-serif;
   align-items: center;
@@ -208,7 +206,8 @@ const submitForm = () => {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  margin-top: 4vh; /* Reduced from 10vh to fix layout */
+  margin-top: 4vh;
+  /* Reduced from 10vh to fix layout */
   margin-left: 0;
   margin-bottom: auto;
 }
@@ -254,7 +253,8 @@ const submitForm = () => {
 }
 
 .working-hours {
-  margin-top: 25px; /* Fixed: was 30vh */
+  margin-top: 25px;
+  /* Fixed: was 30vh */
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -271,92 +271,111 @@ const submitForm = () => {
 }
 
 .dots-spacer {
-    flex: 1;
-    border-bottom: 2px dotted rgb(255 255 255 / 33%);
-    height: 1px;
+  flex: 1;
+  border-bottom: 2px dotted rgb(255 255 255 / 33%);
+  height: 1px;
 }
 
 .pnj-container {
-    position: absolute;
-    right: -60px; 
-    bottom: 0px;
-    width: 480px; 
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    pointer-events: none;
-    z-index: 1;
+  position: absolute;
+  right: -60px;
+  bottom: 0px;
+  width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .comic-bubble-wrapper {
-    width: 100%;
-    margin-bottom: -55px;
-    z-index: 20;
-    display: flex;
-    justify-content: flex-end;
+  width: 100%;
+  margin-bottom: -55px;
+  z-index: 20;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .bubble-relative-container {
-    position: relative;
-    transform: rotate(10deg);
+  position: relative;
+  transform: rotate(10deg);
 }
 
 .paper-bubble-rectangular {
-    background: #8A38F5;
-    color: white;
-    padding: 30px 45px;
-    position: relative;
-    min-width: 270px;
-    clip-path: polygon(
-        /* Top jagged */
-        2% 5%, 35% 2%, 65% 5%, 98% 3%, 
-        /* Right jagged */
-        99% 65%, 100% 65%, 100% 80%, 
-        /* Bottom jagged */
-        100% 94%, 55% 98%, 25% 95%, 0% 97%, 
-        /* Left jagged */
-        1% 65%, 4% 35%
-    );
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    z-index: 2;
+  background: #8A38F5;
+  color: white;
+  padding: 30px 45px;
+  position: relative;
+  min-width: 270px;
+  clip-path: polygon(
+      /* Top jagged */
+      2% 5%, 35% 2%, 65% 5%, 98% 3%,
+      /* Right jagged */
+      99% 65%, 100% 65%, 100% 80%,
+      /* Bottom jagged */
+      100% 94%, 55% 98%, 25% 95%, 0% 97%,
+      /* Left jagged */
+      1% 65%, 4% 35%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 2;
 }
 
 .bubble-inner p {
-    font-size: 1.25rem;
-    font-weight: 900;
-    margin-right: -5vw;
-    margin: 0;
-    line-height: 1.4;
-    text-transform: uppercase;
-    letter-spacing: -0.5px;
-    font-style: italic;
+  font-size: 1.25rem;
+  font-weight: 900;
+  margin-right: -5vw;
+  margin: 0;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+  font-style: italic;
 }
 
 .paper-fold {
-    position: absolute;
-    width: 25px;
-    height: 25px;
-    background: #8A38F5;
-    z-index: 3;
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  background: #8A38F5;
+  z-index: 3;
 }
-.fold-tl { top: 0; left: 0; clip-path: polygon(0 0, 100% 0, 0 100%); }
-.fold-tr { top: 0; right: 0; clip-path: polygon(0 0, 100% 100%, 100% 0); }
-.fold-bl { bottom: 0; left: 0; clip-path: polygon(0 0, 0 100%, 100% 100%); }
-.fold-br { bottom: 0; right: 0; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+
+.fold-tl {
+  top: 0;
+  left: 0;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.fold-tr {
+  top: 0;
+  right: 0;
+  clip-path: polygon(0 0, 100% 100%, 100% 0);
+}
+
+.fold-bl {
+  bottom: 0;
+  left: 0;
+  clip-path: polygon(0 0, 0 100%, 100% 100%);
+}
+
+.fold-br {
+  bottom: 0;
+  right: 0;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
 
 .comic-tail-bottom {
-    position: absolute;
-    bottom: -10px;
-    right: 50px;
-    width: 0;
-    height: 0;
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    border-top: 40px solid #8A38F5;
-    z-index: 1;
+  position: absolute;
+  bottom: -10px;
+  right: 50px;
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-top: 40px solid #8A38F5;
+  z-index: 1;
 }
 
 .pnj-display {
@@ -368,53 +387,53 @@ const submitForm = () => {
 .pnj-img {
   width: 100%;
   height: auto;
-  filter: drop-shadow(-20px 20px 50px rgba(0,0,0,0.15));
+  filter: drop-shadow(-20px 20px 50px rgba(0, 0, 0, 0.15));
 }
 
 .social-links-container {
-    padding-top: 20px;
+  padding-top: 20px;
 }
 
 .social-links {
-    display: flex;
-    gap: 15px;
+  display: flex;
+  gap: 15px;
 }
 
 .social-links a {
-    width: 40px;
-    height: 40px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #ffffff;
-    transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  transition: all 0.3s ease;
 }
 
 .social-links a:hover {
-    color: #8A38F5;
-    transform: translateY(-3px);
-    border-color: #8A38F5;
+  color: #8A38F5;
+  transform: translateY(-3px);
+  border-color: #8A38F5;
 }
 
 .map-wrapper {
-    width: 81%;
-    height: 42vh;
-    border-radius: 20px;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    margin: 0;
-    position: relative;
-    z-index: 0;
+  width: 81%;
+  height: 42vh;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 0;
+  position: relative;
+  z-index: 0;
 }
 
 .dark-map {
-    width: 100%;
-    height: 100%;
-    border: 0;
-   filter: invert(100%) hue-rotate(180deg) brightness(1.2) contrast(0.7);
-    display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  filter: invert(100%) hue-rotate(180deg) brightness(1.2) contrast(0.7);
+  display: block;
 }
 
 
@@ -422,10 +441,10 @@ const submitForm = () => {
 /* ASYMMETRICAL HEIGHT (85vh) */
 .contact-right-outer {
   flex: 1;
-  padding: 40px; 
+  padding: 40px;
   height: 85vh;
   margin-right: 2vw;
-  margin-top: 9vh; 
+  margin-top: 9vh;
   display: flex;
   align-items: center;
 }
@@ -433,13 +452,15 @@ const submitForm = () => {
 .contact-gradient-box {
   width: 100%;
   height: 100%;
-  background: #000; /* Fallback */
+  background: #000;
+  /* Fallback */
   border-radius: 50px;
   color: white;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  overflow: hidden; /* Important for shader corners */
+  overflow: hidden;
+  /* Important for shader corners */
   position: relative;
 }
 
@@ -451,9 +472,9 @@ const submitForm = () => {
 
 
 .form-title-right {
-    font-size: 2.2rem;
-    font-weight: 800;
-    margin-bottom: 30px;
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 30px;
 }
 
 .contact-custom-form {
@@ -464,8 +485,8 @@ const submitForm = () => {
 }
 
 .form-row {
-    display: flex;
-    gap: 20px;
+  display: flex;
+  gap: 20px;
 }
 
 .form-line-group {
@@ -507,7 +528,7 @@ const submitForm = () => {
 }
 
 .form-footer {
-    margin-top: 15px;
+  margin-top: 15px;
 }
 
 .contact-submit-btn {
@@ -527,19 +548,69 @@ const submitForm = () => {
     flex-direction: column;
     height: auto;
     overflow-y: auto;
+    padding-top: 100px;
+    align-items: stretch;
   }
-  .contact-left, .contact-right-outer {
-    padding: 30px;
-    flex: none;
+
+  .contact-left {
+    padding: 20px 5vw;
     height: auto;
+    flex: none;
   }
+
+  .contact-list {
+    margin-top: 20px;
+  }
+
+  .map-wrapper {
+    width: 100%;
+    height: 300px;
+    margin-top: 20px;
+  }
+
+  .contact-right-outer {
+    flex: none;
+    padding: 20px 5vw 60px;
+    height: auto;
+    margin-right: 0;
+    margin-top: 0;
+  }
+
+  .contact-gradient-box {
+    border-radius: 30px;
+  }
+
+  .full-box-shader {
+    padding: 40px 30px;
+  }
+
   .pnj-container {
     position: relative;
     right: auto;
     width: 100%;
-    max-width: 400px;
+    max-width: 350px;
     margin: 40px auto 0;
     align-items: center;
+  }
+
+  .pnj-display {
+    margin-right: 0;
+  }
+
+  .bubble-inner p {
+    font-size: 1rem;
+  }
+
+  .paper-bubble-rectangular {
+    min-width: 200px;
+    padding: 20px 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 15px;
   }
 }
 </style>

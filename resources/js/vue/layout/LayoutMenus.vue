@@ -17,7 +17,8 @@
                     <p class="card-desc-temoignage">Êtes-vous satisfait de notre accompagnement ? Témoignez votre
                         avancée.
                     </p>
-                    <PremiumButton style="width: 10vw; margin-top: -2vh;" href="/temoignages" text="Témoigner" />
+                    <PremiumButton style="width: 10vw; margin-top: -2vh;" class="mobile-temoignage-btn"
+                        href="/temoignages" text="Témoigner" />
                 </div>
             </div>
 
@@ -42,8 +43,8 @@
                 </div>
             </div>
 
-            <Link href="/blog" class="card card-articles" @mousemove="moveCursor" @mouseenter="showCursor('#f7b455')"
-                @mouseleave="hideCursor">
+            <Link href="/articles-conseils" class="card card-articles" @mousemove="moveCursor"
+                @mouseenter="showCursor('#f7b455')" @mouseleave="hideCursor">
                 <div class="card-bg-container">
                     <img :src="imgArticles" class="card-img" />
                     <div class="overlay-base"></div>
@@ -386,6 +387,8 @@ const onLiveLeaveCustom = () => {
     margin-bottom: 2rem;
 }
 
+
+
 .body-organisme {
     justify-content: flex-end;
 }
@@ -441,13 +444,15 @@ const onLiveLeaveCustom = () => {
 .cat-link {
     color: #f3f3f3;
     font-size: 1.8rem;
+    line-height: 1.3;
     font-weight: 700;
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 5px;
     transition: all 0.4s;
 }
+
 
 .cat-link:hover {
     color: #ffffff;
@@ -484,23 +489,65 @@ const onLiveLeaveCustom = () => {
 @media (max-width: 1024px) {
     .bento-section {
         height: auto;
-        padding: 40px 20px;
+        padding: 120px 20px 40px 20px;
+        align-items: flex-start;
     }
 
     .bento-grid {
+        display: flex;
+        flex-direction: column;
+        flex-direction: column;
         grid-template-columns: 1fr;
         height: auto;
+        gap: 20px;
+        max-width: 100%;
     }
 
     .card {
         grid-area: auto !important;
-        min-height: 350px;
+        width: 100%;
         transform: none !important;
         cursor: pointer !important;
+        min-height: 250px;
+    }
+
+    .card-testimonials {
+        height: 400px;
+        line-height: 1.1;
+        margin-top: 0;
+    }
+
+    .card-categories {
+        height: auto;
+        min-height: 320px;
+        margin-top: 0;
+    }
+
+    .card-articles {
+        height: 250px;
+        line-height: 1.1;
+    }
+
+    .card-coaching {
+        height: 250px;
+    }
+
+    .card-live {
+        height: 200px;
+    }
+
+    .card-organisme {
+        height: 350px;
     }
 
     .custom-cursor {
         display: none;
+    }
+
+    .mobile-temoignage-btn {
+        width: 140px !important;
+        margin-top: 20px !important;
+        font-size: 1rem !important;
     }
 }
 </style>

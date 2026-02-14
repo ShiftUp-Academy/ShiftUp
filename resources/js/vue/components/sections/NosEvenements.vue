@@ -22,7 +22,10 @@
 
       <div class="main-content scrollable" data-lenis-prevent @click.stop>
         <div v-for="(item, index) in videoSessions" :key="index" class="session-item">
-          <div class="item-header">SÉQUENCE {{ index + 1 }}</div>
+          <div class="item-header">
+            <span>SÉQUENCE {{ index + 1 }}</span>
+            <span class="category-tag">catégorie : <span class="category-name">{{ item.category }}</span></span>
+          </div>
 
           <div class="video-wrapper" @mouseenter="onVideoEnter" @mouseleave="onVideoLeave">
             <div v-if="!activatedVideos[index]" class="video-manual-trigger"
@@ -39,7 +42,6 @@
           </div>
 
           <div class="item-footer">
-            <span class="category-tag">catégorie : <span class="category-name">{{ item.category }}</span></span>
             <a :href="item.videoUrl" target="_blank" class="session-link" @click.stop @mouseenter="onLinkEnter"
               @mouseleave="onLinkLeave">
               VOIR LA SESSION
@@ -331,10 +333,12 @@ const themeColors = {
 }
 
 .item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-size: 0.8rem;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.8);
-  text-transform: uppercase;
   margin-bottom: 15px;
 }
 
@@ -349,7 +353,6 @@ const themeColors = {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
-/* MANUAL TRIGGER OVERLAY */
 .video-manual-trigger {
   position: absolute;
   inset: 0;
@@ -429,21 +432,90 @@ const themeColors = {
   .list-container {
     flex-direction: column;
     height: auto;
+    width: 95%;
   }
 
   .sidebar {
-    padding: 40px;
+    padding: 40px 20px;
     flex: none;
+    align-items: center;
+    text-align: center;
   }
 
   .sidebar-title {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
+    margin-left: 0;
+  }
+
+  .description-text {
+    font-size: 1.1rem;
+    margin-left: 0;
+    max-width: 90%;
+  }
+
+  .list-container {
+    height: auto;
+    width: 95%;
   }
 
   .main-content {
-    padding: 40px;
-    height: 500px;
+    padding: 20px;
+    height: auto;
     flex: none;
+    max-height: 80vh;
+  }
+}
+
+@media (max-width: 768px) {
+  .video-sessions-list {
+    margin-top: -2px;
+    padding-bottom: 5vh;
+  }
+
+  .fb-isolated-marquee-cursor {
+    display: none !important;
+  }
+
+  .list-container {
+    border-radius: 30px;
+    max-height: 75vh;
+  }
+
+  .main-content {
+    max-height: 55vh;
+    padding: 15px 15px 170px 15px;
+  }
+
+  .session-item {
+    padding: 10px 0;
+  }
+
+  .video-wrapper {
+    margin-bottom: 5px;
+  }
+
+  .video-manual-trigger .play-btn-glass {
+    width: 50px;
+    height: 50px;
+    font-size: 0.9rem;
+  }
+
+  .item-footer {
+    margin-top: 2px;
+    /* Rapproche le bouton au max */
+    width: 100%;
+  }
+
+  .session-link {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.08);
+    /* Légèrement plus visible */
+    border-radius: 8px;
+    margin-top: 0 !important;
   }
 }
 </style>

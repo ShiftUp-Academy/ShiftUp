@@ -80,8 +80,9 @@ function goToDetail() {
   cursor: pointer;
   border: none;
   width: 100%;
-  transition: filter 0.8s ease;
+  transition: opacity 0.4s ease, filter 0.4s ease;
   will-change: transform, opacity, filter;
+  transform: translateZ(0);
 }
 
 .image-container {
@@ -91,17 +92,20 @@ function goToDetail() {
   overflow: hidden;
   border-radius: 20px;
   transform: translateZ(0);
+  will-change: transform;
 }
 
 .program-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.8s cubic-bezier(0.2, 0, 0.2, 1);
+  transition: transform 0.6s cubic-bezier(0.2, 0, 0.2, 1);
+  will-change: transform;
 }
 
 .program-card:hover .program-image {
-  transform: scale(1);
+  transform: scale(1.05);
+  /* Restore subtle scale if it was supposed to be there */
 }
 
 .flashlight-overlay {
@@ -110,10 +114,12 @@ function goToDetail() {
   pointer-events: none;
   z-index: 5;
   background: radial-gradient(400px circle at var(--mouse-x) var(--mouse-y),
-      rgba(255, 255, 255, 0.23),
+      rgba(255, 255, 255, 0.15),
       transparent 80%);
   opacity: var(--flash-opacity, 0);
   transition: opacity 0.3s ease;
+  transform: translateZ(0);
+  will-change: transform, opacity;
 }
 
 .image-border-glow {
@@ -124,7 +130,7 @@ function goToDetail() {
   border-radius: inherit;
   padding: 1.5px;
   background: radial-gradient(300px circle at var(--mouse-x) var(--mouse-y),
-      rgba(255, 255, 255, 0.5),
+      rgba(255, 255, 255, 0.4),
       transparent 60%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -132,12 +138,14 @@ function goToDetail() {
   mask-composite: exclude;
   opacity: var(--flash-opacity, 0);
   transition: opacity 0.3s ease;
+  transform: translateZ(0);
 }
 
 .parallax-target {
   width: 100%;
   height: 100%;
   will-change: transform;
+  transform: translateZ(0);
 }
 
 .image-overlay {
@@ -221,9 +229,33 @@ function goToDetail() {
   transform: translateX(3px);
 }
 
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+}
+
 @media (max-width: 768px) {
-  .price-tag {
-    font-size: 1.3rem;
+  .image-container {
+    aspect-ratio: 16 / 10;
+    /* Image plus haute sur mobile */
+  }
+
+  .view-more {
+    font-size: 0.8rem;
+    /* Bouton plus petit */
+  }
+
+  .arrow-icon {
+    width: 18px;
+    /* Icône plus petite */
+    height: 18px;
+  }
+
+  .program-content {
+    padding: 10px 2px;
+    /* Réduire le padding au profit de l'image */
   }
 }
 </style>

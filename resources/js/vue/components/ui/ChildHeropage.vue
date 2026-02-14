@@ -188,18 +188,57 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
+  .monopo-root {
+    height: auto;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+  }
+
   .hero-content {
-    flex-direction: column;
+    flex-direction: column-reverse;
     justify-content: center;
-    padding: 30px;
+    align-items: flex-start;
+    padding: 120px 25px 60px 25px;
+    gap: 3rem;
+    height: auto;
+    width: 100%;
+  }
+
+  .right-column {
+    gap: 1.2rem;
+    width: 100%;
+  }
+
+  .title-container {
+    padding-left: 0 !important;
+    width: 100%;
   }
 
   .main-title {
-    font-size: 12vw;
+    font-size: 13vw;
+    padding-left: 0 !important;
+    margin-bottom: 10px;
+    margin-left: -4px;
+    line-height: 0.95;
+  }
+
+  .sub-text {
+    font-size: 1.2rem;
+    line-height: 1.1;
+    padding-left: 20px;
+    margin-bottom: 0;
+    max-width: 100%;
   }
 
   .scroll-arrow {
     width: 35px;
-    margin-top: 20px;
+    margin-top: 15px;
   }
-}</style>
+
+  .action-slot {
+    margin-bottom: 0.5rem;
+
+  }
+}
+</style>

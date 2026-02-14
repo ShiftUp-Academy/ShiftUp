@@ -319,30 +319,61 @@ const reserveSeat = () => {
         max-width: 90vw;
     }
 
+    .edition-label {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
     .seminaire-description {
         max-width: 100%;
         margin: 1rem auto 2rem;
     }
 
+    .date-time-block {
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+    }
+
+    .time-text {
+        border-left: none;
+        padding-left: 0;
+    }
+
+    .date-text,
+    .time-text {
+        font-size: 2.5rem;
+        line-height: 1.1;
+    }
+
     .starts-in-label {
         justify-content: center;
+        font-size: 0.9rem;
+        margin-bottom: 0.5vh;
     }
 
     .countdown-timer {
         justify-content: center;
-        gap: 1.5rem;
+        gap: 1.8rem;
+        margin-bottom: 0;
     }
 
     .time-unit .number {
-        font-size: 2rem;
+        font-size: 3rem;
+        margin-bottom: 0 !important;
     }
 
     .reserve-btn {
         margin: 0 auto;
+        width: 100%;
+        margin-bottom: 5vh;
+        max-width: 300px;
     }
 
     .gradient-overlay-full {
-        background: linear-gradient(180deg, rgba(0, 48, 85, 0.3) 0%, rgba(0, 48, 85, 0.9) 100%);
+        width: 100%;
+        background: linear-gradient(180deg, rgba(24, 24, 24, 0.4) 0%, rgba(24, 24, 24, 0.9) 100%);
     }
 }
 </style>

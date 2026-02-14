@@ -247,7 +247,7 @@ const deleteProgram = (prog) => {
     "Supprimer le programme",
     `Voulez-vous vraiment déplacer le programme "${prog.Titre}" vers la corbeille ?`,
     'danger',
-    () => router.delete(route('admin.programmes.delete', prog.IdProgrammeFormation))
+    () => router.delete('/admin/programmes/' + prog.IdProgrammeFormation)
   );
 };
 const editProgram = (prog) => {

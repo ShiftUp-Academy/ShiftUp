@@ -670,4 +670,124 @@ onUnmounted(() => window.removeEventListener('mousedown', handleOutsideClick));
   filter: invert();
   margin-bottom: 2rem;
 }
+
+@media (max-width: 768px) {
+  .menu-columns {
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 10vh;
+  }
+
+  .menu-column {
+    width: 100%;
+    min-height: 100px;
+    height: auto;
+    border-left: none;
+    border-bottom: 1px solid #ccc;
+    padding: 20px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .menu-column.first-col {
+    align-items: flex-start;
+  }
+
+  .menu-brand-logo {
+    width: 150px !important;
+    margin: 0 auto 20px auto;
+
+    display: block;
+    align-self: center;
+  }
+
+  .cube-scene {
+    height: 50px;
+    perspective: 1000px;
+  }
+
+  .cube-container {
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .cube-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .face-right {
+    display: flex;
+    transform: rotateX(-90deg) translateZ(25px);
+  }
+
+  .face-front {
+    transform: rotateX(0deg) translateZ(25px);
+  }
+
+  .menu-column:active .cube-container {
+    transform: rotateX(90deg);
+  }
+
+  .rotate-text {
+    writing-mode: horizontal-tb;
+    transform: none;
+    font-size: 1.5rem;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .small-text {
+    font-size: 1.2rem;
+    margin-bottom: 0;
+    margin-right: 0;
+  }
+
+  .menu-column.user-profile-column {
+    padding: 20px 15px !important;
+    overflow-y: visible;
+    margin-top: 37vh !important;
+  }
+
+  .profile-header-section {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 5vh;
+  }
+
+  .profile-actions {
+    margin-right: 0;
+    align-items: center;
+    width: 100%;
+  }
+
+  .social-circle {
+    margin-bottom: 5vh;
+  }
+
+  .global-close-btn {
+    top: 25px;
+    opacity: 0.3;
+    right: 20px;
+  }
+
+  :deep(.premium-btn) {
+    padding: 10px 20px !important;
+    width: auto !important;
+    min-width: 120px;
+  }
+}
 </style>

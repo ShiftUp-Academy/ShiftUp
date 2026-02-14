@@ -112,7 +112,7 @@ function formatDate(dateString) {
     color: #fff;
     padding-bottom: 3rem;
     position: relative;
-    background-color: #111;
+    background-color: #010101;
     z-index: 20;
 }
 
@@ -251,7 +251,7 @@ function formatDate(dateString) {
 .image-side {
     width: 40%;
     position: relative;
-    background-color: #111;
+    background-color: #010101;
 }
 
 .sem-image {
@@ -266,7 +266,7 @@ function formatDate(dateString) {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to right, #111 0%, rgba(17, 17, 17, 3.8) 0%, transparent 60%);
+    background: linear-gradient(to right, #010101 0%, rgba(1, 1, 1, 3.8) 0%, transparent 60%);
     pointer-events: none;
 }
 
@@ -277,25 +277,88 @@ function formatDate(dateString) {
 }
 
 @media (max-width: 768px) {
+    .seminaire-section {
+        margin-top: -2px;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+        margin-bottom: 2vh;
+    }
+
     .seminaire-card {
         height: auto;
-        min-height: 350px;
+        border: none;
+        min-height: 320px;
     }
 
     .card-content {
         flex-direction: column-reverse;
     }
 
-    .image-side {
-        width: 100%;
-        height: 180px;
+    .info-side {
+        padding: 20px;
+    }
+
+    .title-label {
+        font-size: 1.1rem;
+        line-height: 1;
+    }
+
+    .huge-date {
+        font-size: 2rem;
+        margin-bottom: 5px;
     }
 
     .main-row {
-        flex-wrap: wrap;
-        height: auto;
-        gap: 15px;
-        margin: 15px 0;
+        flex-direction: row !important;
+        align-items: center;
+        gap: 10px;
+        margin: 5px 0;
+    }
+
+    .v-divider {
+        display: block !important;
+        height: 15px;
+        width: 1px;
+        background-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .modality-text {
+        font-size: 0.9rem;
+    }
+
+    .en-label {
+        font-size: 0.6rem;
+    }
+
+    .lieu-text,
+    .lieu-label{
+        font-size: 1.1rem;
+    }
+
+    .location-container {
+        font-size: 0.8rem;
+        gap: 5px;
+    }
+
+    .savoir-plus {
+        font-size: 0.9rem;
+        margin-top: 3px;
+    }
+
+    .savoir-plus svg {
+        width: 10px;
+        height: 10px;
+    }
+
+    .image-side {
+        width: 100%;
+        height: 250px;
+    }
+
+    .image-overlay {
+        display: none;
     }
 
     .v-divider {

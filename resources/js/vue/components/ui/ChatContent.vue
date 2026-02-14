@@ -107,7 +107,6 @@ onMounted(() => {
 <style scoped>
 .chat-content-root {
     display: grid;
-    align-items:end;
     grid-template-rows: auto 1fr auto;
     height: 100%;
     width: 100%;
@@ -163,6 +162,7 @@ onMounted(() => {
     -webkit-overflow-scrolling: touch;
     display: flex;
     flex-direction: column;
+    min-height: 0;
 }
 
 .messages-list {

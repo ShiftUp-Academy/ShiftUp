@@ -10,6 +10,9 @@ use Inertia\Inertia;
 use Carbon\Carbon;
 
 use App\Models\LienGoogle;
+use App\Models\Utilisateur;
+use App\Notifications\NouveauContenuNotification;
+use Illuminate\Support\Facades\Notification;
 
 class CoachingController extends Controller
 {
@@ -37,61 +40,96 @@ class CoachingController extends Controller
             'NoteUtilisateur' => 'nullable|string',
         ]);
 
-        // Check if availability is still free
         $availability = DisponibiliteCoaching::findOrFail($validated['IdDisponibilite']);
         if ($availability->EstReserve) {
             return back()->withErrors(['IdDisponibilite' => 'Ce créneau vient d\'être réservé.']);
         }
 
+        $originalStart = $availability->HeureDebut;
+        $originalEnd = $availability->HeureFin;
+        $chosenStartStr = $validated['HeureChoisie'] . ':00';
+        
+        $chosenStart = Carbon::createFromFormat('H:i:s', $chosenStartStr);
+        $blockEnd = Carbon::createFromFormat('H:i:s', $originalEnd);
+        
+        // Calculer la fin du verrouillage (1h session + 3h repos = 4h total)
+        $sessionEnd = $chosenStart->copy()->addHour();
+        $lockEnd = $sessionEnd->copy()->addHours(3);
+
+        // Mise à jour préventive du slot actuel pour libérer la contrainte unique sur l'heure de début originale
+        // On fait de ce slot celui de la RÉSERVATION
+        $availability->HeureDebut = $chosenStart->format('H:i:s');
+        $availability->HeureFin = ($blockEnd->lt($lockEnd)) ? $originalEnd : $lockEnd->format('H:i:s');
+        $availability->EstReserve = true;
+        $availability->save();
+
+        // 1. Créer le bloc libre AVANT la session si nécessaire
+        if ($chosenStart->format('H:i:s') > $originalStart) {
+            DisponibiliteCoaching::create([
+                'DateDisponible' => $availability->DateDisponible,
+                'HeureDebut' => $originalStart,
+                'HeureFin' => $chosenStart->format('H:i:s'),
+                'EstReserve' => false
+            ]);
+        }
+
+        // 2. Créer le bloc libre APRÈS le verrouillage si nécessaire
+        if ($blockEnd->gt($lockEnd)) {
+            DisponibiliteCoaching::create([
+                'DateDisponible' => $availability->DateDisponible,
+                'HeureDebut' => $lockEnd->format('H:i:s'),
+                'HeureFin' => $originalEnd,
+                'EstReserve' => false
+            ]);
+        }
+
         $reservation = ReservationCoaching::create([
             'IdUtilisateur' => auth()->id(),
             'IdTypeCoaching' => $validated['IdTypeCoaching'],
-            'IdDisponibilite' => $validated['IdDisponibilite'],
+            'IdDisponibilite' => $availability->IdDisponibilite,
             'HeureDebutReservation' => $validated['HeureChoisie'],
             'StatutReservation' => 'En attente',
             'NoteUtilisateur' => $validated['NoteUtilisateur'] ?? null,
         ]);
 
-        // Mark slot as reserved
-        $availability->update(['EstReserve' => true]);
-
-        // --- RÈGLE DES 3 HEURES ---
-        // On bloque les créneaux qui débutent dans les 3 heures après la fin de ce coaching
-        $heureFinCoaching = Carbon::createFromFormat('H:i:s', $availability->HeureFin);
-        $limiteGap = $heureFinCoaching->copy()->addHours(3)->format('H:i:s');
-
+        // Verrouiller les autres micro-créneaux éventuels dans la zone de repos
         DisponibiliteCoaching::where('DateDisponible', $availability->DateDisponible)
-            ->where('HeureDebut', '>=', $availability->HeureFin)
-            ->where('HeureDebut', '<', $limiteGap)
+            ->where('HeureDebut', '>=', $chosenStart->format('H:i:s'))
+            ->where('HeureDebut', '<', $lockEnd->format('H:i:s'))
+            ->where('IdDisponibilite', '!=', $availability->IdDisponibilite)
             ->where('EstReserve', false)
             ->update([
                 'EstReserve' => true,
                 'BlockedByReservationId' => $reservation->IdReservation
             ]);
 
+        // Notifications
+        $reservation->load(['utilisateur.profil', 'type', 'disponibilite']);
+        
+        // Au client
+        auth()->user()->notify(new \App\Notifications\CoachingReservationNotification($reservation, 'client'));
+        
+        // À l'admin
+        $admin = Utilisateur::where('Role', 'admin')->first();
+        if ($admin) {
+            $admin->notify(new \App\Notifications\CoachingReservationNotification($reservation, 'admin'));
+        }
+
         return back()->with('success', 'Votre demande de coaching a été envoyée avec succès.');
     }
 
     public function adminIndex()
     {
-        // 1. Mise à jour automatique des statuts expirés
         $today = now()->toDateString();
         
-        // Les confirmés deviennent terminés
         ReservationCoaching::whereHas('disponibilite', function($q) use ($today) {
             $q->where('DateDisponible', '<', $today);
-        })->where('StatutReservation', 'Confirmé')
+        })->whereIn('StatutReservation', ['Confirmé', 'En attente'])
           ->update(['StatutReservation' => 'Terminé']);
 
-        // Les en attente deviennent annulés
-        ReservationCoaching::whereHas('disponibilite', function($q) use ($today) {
-            $q->where('DateDisponible', '<', $today);
-        })->where('StatutReservation', 'En attente')
-          ->update(['StatutReservation' => 'Annulé']);
 
         $coachingTypes = TypeDeCoaching::withCount('reservations')->get();
         
-        // 2. Récupération triée par date la plus proche
         $reservations = ReservationCoaching::with(['utilisateur.profil', 'type', 'disponibilite'])
             ->join('DisponibiliteCoaching', 'ReservationCoaching.IdDisponibilite', '=', 'DisponibiliteCoaching.IdDisponibilite')
             ->orderBy('DisponibiliteCoaching.DateDisponible', 'asc') // Le plus proche d'abord
@@ -136,7 +174,13 @@ class CoachingController extends Controller
             'Statut' => 'required|string|in:Publié,Dépublié',
         ]);
 
-        TypeDeCoaching::create($validated);
+        $type = TypeDeCoaching::create($validated);
+
+        // Notification aux utilisateurs
+        if ($type->Statut === 'Publié') {
+            $users = Utilisateur::where('Role', '!=', 'admin')->get();
+            Notification::send($users, new NouveauContenuNotification($type, 'Coaching'));
+        }
 
         return back()->with('success', 'Type de coaching créé avec succès.');
     }
@@ -152,7 +196,13 @@ class CoachingController extends Controller
             'Statut' => 'required|string|in:Publié,Dépublié',
         ]);
 
+        $wasPublished = $type->Statut === 'Publié';
         $type->update($validated);
+
+        if ($type->Statut === 'Publié' && !$wasPublished) {
+            $users = Utilisateur::where('Role', '!=', 'admin')->get();
+            Notification::send($users, new NouveauContenuNotification($type, 'Coaching'));
+        }
 
         return back()->with('success', 'Type de coaching mis à jour.');
     }
@@ -161,36 +211,62 @@ class CoachingController extends Controller
     {
         $request->validate([
             'slots' => 'required|array',
+            'slots.*.IdDisponibilite' => 'nullable',
             'slots.*.DateDisponible' => 'required|date',
             'slots.*.HeureDebut' => 'required',
             'slots.*.HeureFin' => 'required',
         ]);
 
-        // Option 1: Delete all future unreserved slots and replace them
-        // This is simpler given the UI sends the full list
-        DisponibiliteCoaching::where('EstReserve', false)
-            ->where('DateDisponible', '>=', now()->toDateString())
-            ->delete();
-
         foreach ($request->slots as $slot) {
-            // Only insert if valid
-            if ($slot['DateDisponible'] && $slot['HeureDebut'] && $slot['HeureFin']) {
-                DisponibiliteCoaching::create([
-                    'DateDisponible' => $slot['DateDisponible'],
-                    'HeureDebut' => $slot['HeureDebut'],
-                    'HeureFin' => $slot['HeureFin']
-                ]);
+            if (!empty($slot['DateDisponible']) && !empty($slot['HeureDebut']) && !empty($slot['HeureFin'])) {
+                $id = $slot['IdDisponibilite'] ?? null;
+                
+                if ($id) {
+                    $avail = DisponibiliteCoaching::find($id);
+                    if ($avail) {
+                        $avail->DateDisponible = $slot['DateDisponible'];
+                        $avail->HeureDebut = $slot['HeureDebut'];
+                        $avail->HeureFin = $slot['HeureFin'];
+                        $avail->save();
+                    }
+                } else {
+                    DisponibiliteCoaching::create([
+                        'DateDisponible' => $slot['DateDisponible'],
+                        'HeureDebut' => $slot['HeureDebut'],
+                        'HeureFin' => $slot['HeureFin']
+                    ]);
+                }
             }
         }
 
         return back()->with('success', 'Disponibilités mises à jour.');
     }
 
+    public function destroyAvailability($id)
+    {
+        $avail = DisponibiliteCoaching::findOrFail($id);
+        
+        // On ne bloque la suppression que si le créneau est réservé ET qu'il est dans le futur
+        if ($avail->EstReserve && $avail->DateDisponible >= now()->toDateString()) {
+            return back()->withErrors(['error' => 'Impossible de supprimer un créneau réservé pour une date future ou actuelle.']);
+        }
+        
+        $avail->delete();
+
+        return back()->with('success', 'Créneau de disponibilité supprimé avec succès.');
+    }
+
     public function updateStatus(Request $request, $id)
     {
         $type = TypeDeCoaching::findOrFail($id);
+        $wasPublished = $type->Statut === 'Publié';
         $type->Statut = $request->Statut;
         $type->save();
+
+        if ($type->Statut === 'Publié' && !$wasPublished) {
+            $users = Utilisateur::where('Role', '!=', 'admin')->get();
+            Notification::send($users, new NouveauContenuNotification($type, 'Coaching'));
+        }
 
         return back()->with('success', 'Statut mis à jour.');
     }
@@ -206,16 +282,9 @@ class CoachingController extends Controller
 
         $reservation->update($validated);
 
-        // Optional: If cancelled, free up validity?
-        // Logic: If status becomes 'Annulé' and was not 'Annulé', should we free the availability?
-        // Currently availability has EstReserve=true.
-        // If we cancel, maybe set EstReserve=false?
-        // Let's keep it simple for now, user might want to keep the slot blocked or not. 
-        // Usually if cancelled, slot should open up.
         if ($validated['StatutReservation'] === 'Annulé') {
             $reservation->disponibilite()->update(['EstReserve' => false]);
             
-            // On débloque aussi les créneaux qui étaient bloqués par la règle des 3h
             DisponibiliteCoaching::where('BlockedByReservationId', $reservation->IdReservation)
                 ->update([
                     'EstReserve' => false,

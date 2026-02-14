@@ -28,7 +28,7 @@ CREATE TABLE ReservationCoaching
     IdReservation BIGSERIAL PRIMARY KEY,
     IdUtilisateur BIGINT NOT NULL,
     IdTypeCoaching BIGINT REFERENCES TypeDeCoaching(IdTypeCoaching),
-    IdDisponibilite BIGINT REFERENCES DisponibiliteCoaching(IdDisponibilite),
+    IdDisponibilite BIGINT REFERENCES DisponibiliteCoaching(IdDisponibilite) ON DELETE SET NULL,
     StatutReservation VARCHAR(50) DEFAULT 'En attente' CHECK (StatutReservation IN ('En attente', 'Confirmé', 'Annulé', 'Terminé')),
     NoteUtilisateur TEXT,
     DateCreation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -44,15 +44,15 @@ CREATE TABLE ReplayCoaching
     DateUpload TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE lienGoogle
-{
-    LienGoogleMeet TEXT,
-}
+CREATE TABLE IF NOT EXISTS lienGoogle
+(
+    LienGoogleMeet TEXT
+);
 
 
--- Supprimer l'ancienne contrainte unique
+-- Supprimer l'ancienne contrainte unique (nom exact défini à la ligne 21)
 ALTER TABLE "DisponibiliteCoaching" 
-DROP CONSTRAINT IF EXISTS "disponibilitecoaching_datedisponible_heuredebut_unique";
+DROP CONSTRAINT IF EXISTS "unique_slot";
 
 -- Créer un index unique composite qui permet plusieurs créneaux le même jour
 -- mais empêche les doublons exactes (même date + même début + même fin)
@@ -93,37 +93,24 @@ SELECT * FROM clean_expired_availabilities();
 
 
 -- Fonction pour mettre à jour les statuts des réservations passées
--- Confirmé -> Terminé, En attente -> Annulé
+-- Confirmé -> Terminé, En attente -> Terminé
 CREATE OR REPLACE FUNCTION update_reservation_statuses() RETURNS text AS $$
 DECLARE
     termines_count INT;
-    annules_count INT;
 BEGIN
-    -- Mettre à jour les réservations confirmées en 'Terminé'
-    WITH updated_confirmed AS (
+    -- Mettre à jour les réservations passées (Confirmé ou En attente) en 'Terminé'
+    WITH updated AS (
         UPDATE "ReservationCoaching" RC
         SET "StatutReservation" = 'Terminé'
         FROM "DisponibiliteCoaching" DC
         WHERE RC."IdDisponibilite" = DC."IdDisponibilite"
         AND DC."DateDisponible" < CURRENT_DATE
-        AND RC."StatutReservation" = 'Confirmé'
+        AND RC."StatutReservation" IN ('Confirmé', 'En attente')
         RETURNING 1
     )
-    SELECT COUNT(*) INTO termines_count FROM updated_confirmed;
+    SELECT COUNT(*) INTO termines_count FROM updated;
 
-    -- Mettre à jour les réservations en attente en 'Annulé'
-    WITH updated_pending AS (
-        UPDATE "ReservationCoaching" RC
-        SET "StatutReservation" = 'Annulé'
-        FROM "DisponibiliteCoaching" DC
-        WHERE RC."IdDisponibilite" = DC."IdDisponibilite"
-        AND DC."DateDisponible" < CURRENT_DATE
-        AND RC."StatutReservation" = 'En attente'
-        RETURNING 1
-    )
-    SELECT COUNT(*) INTO annules_count FROM updated_pending;
-
-    RETURN 'Mise à jour effectuée : ' || termines_count || ' terminés, ' || annules_count || ' annulés.';
+    RETURN 'Mise à jour effectuée : ' || termines_count || ' réservations passées passées à Terminé.';
 END;
 $$ LANGUAGE plpgsql;
 
@@ -150,10 +137,10 @@ BEGIN
     )
     SELECT count(*) INTO terminated_count FROM rows;
 
-    -- Update En attente -> Annulé
+    -- Update En attente -> Terminé (formerly Annulé)
     WITH rows AS (
         UPDATE "ReservationCoaching" rc
-        SET "StatutReservation" = 'Annulé'
+        SET "StatutReservation" = 'Terminé'
         FROM "DisponibiliteCoaching" dc
         WHERE rc."IdDisponibilite" = dc."IdDisponibilite"
         AND dc."DateDisponible" < CURRENT_DATE
@@ -162,6 +149,6 @@ BEGIN
     )
     SELECT count(*) INTO cancelled_count FROM rows;
     
-    RETURN 'Mise à jour: ' || terminated_count || ' terminés, ' || cancelled_count || ' annulés.';
+    RETURN 'Mise à jour: ' || (terminated_count + cancelled_count) || ' terminés.';
 END;
 $$ LANGUAGE plpgsql;

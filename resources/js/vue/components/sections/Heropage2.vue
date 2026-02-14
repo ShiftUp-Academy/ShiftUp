@@ -56,11 +56,11 @@ import ShaderBackground from '../ui/ShaderBackground.vue';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const themeColors = { 
-    primary: '#F7B455', 
-    secondary: '#0E7EC3', 
-    accent: '#981e12', 
-    dark: '#000000' 
+const themeColors = {
+    primary: '#202020',
+    secondary: '#1A888D',
+    accent: '#1A888D',
+    dark: '#000000'
 };
 const heroVideoSrc = "https://res.cloudinary.com/dzgdjei0h/video/upload/v1766751142/Shift_Up_1_Workflow_1_lzre8i.mp4";
 const fullTitle = 'Propulsez votre entreprise au niveau supérieur et devenez un entrepreneur';
@@ -82,40 +82,68 @@ let currentMode = 'programmes';
 let xSetter, ySetter;
 
 function initAnimations() {
+    const isMobile = window.innerWidth <= 768;
+
     gsap.fromTo(".word", { y: '110%' }, { y: '0%', duration: 1.2, ease: "power4.out", stagger: 0.05, delay: 0.2 });
     gsap.fromTo(".highlight-text-wrapper", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 1, ease: "power3.out", transformOrigin: "center center", delay: 1.2 });
 
-    const videoTl = gsap.timeline({
-        scrollTrigger: {
-            trigger: videoContainerRef.value,
-            start: "top 95%",
-            end: "bottom center",
-            scrub: true,
-        }
-    });
-
-    videoTl.fromTo(curveBgRef.value,
-        { clipPath: 'ellipse(15% 0% at 50% 100%)' },
-        { clipPath: 'ellipse(150% 120% at 50% 100%)', ease: "power1.inOut" }
-    ).fromTo(videoWrapperRef.value,
-        { width: "5%", borderRadius: "0px", y: 400 },
-        { width: "85%", borderRadius: "30px", y: -5, ease: "power2.out" },
-        0
-    );
-
-    gsap.fromTo(videoOverlayRef.value,
-        { opacity: 1 },
-        {
-            opacity: 0,
-            ease: "power1.in",
+    if (isMobile) {
+        const videoTl = gsap.timeline({
             scrollTrigger: {
                 trigger: videoContainerRef.value,
-                start: "top 55%",
-                end: "top 40%",
+                start: "top 85%",
+                end: "top -10%",
+                scrub: 1,
+            }
+        });
+
+        videoTl.fromTo(curveBgRef.value,
+            { clipPath: 'ellipse(100% 20% at 50% 100%)', y: 0 },
+            { clipPath: 'ellipse(150% 120% at 50% 100%)', y: -40, ease: "power1.inOut" }
+        ).fromTo(videoWrapperRef.value,
+            { borderRadius: "0px", y: 150 },
+            { borderRadius: "30px", y: -10, ease: "power2.out" },
+            0
+        );
+
+        videoTl.fromTo(videoOverlayRef.value,
+            { opacity: 1 },
+            { opacity: 0, duration: 0.3, ease: "power2.in" },
+            0
+        );
+    } else {
+        const videoTl = gsap.timeline({
+            scrollTrigger: {
+                trigger: videoContainerRef.value,
+                start: "top 95%",
+                end: "bottom center",
                 scrub: true,
             }
-        }
-    );
+        });
+
+        videoTl.fromTo(curveBgRef.value,
+            { clipPath: 'ellipse(15% 0% at 50% 100%)' },
+            { clipPath: 'ellipse(150% 120% at 50% 100%)', ease: "power1.inOut" }
+        ).fromTo(videoWrapperRef.value,
+            { width: "5%", borderRadius: "0px", y: 400 },
+            { width: "85%", borderRadius: "30px", y: -5, ease: "power2.out" },
+            0
+        );
+
+        gsap.fromTo(videoOverlayRef.value,
+            { opacity: 1 },
+            {
+                opacity: 0,
+                ease: "power1.in",
+                scrollTrigger: {
+                    trigger: videoContainerRef.value,
+                    start: "top 55%",
+                    end: "top 40%",
+                    scrub: true,
+                }
+            }
+        );
+    }
 }
 
 const handleGlobalMouseMove = (e) => {
@@ -174,12 +202,15 @@ function handleCursorClick() {
 }
 
 onMounted(() => {
-    xSetter = gsap.quickSetter(cursorRef.value, "x", "px");
-    ySetter = gsap.quickSetter(cursorRef.value, "y", "px");
+    const isMobile = window.innerWidth <= 768;
+
+    if (!isMobile) {
+        xSetter = gsap.quickSetter(cursorRef.value, "x", "px");
+        ySetter = gsap.quickSetter(cursorRef.value, "y", "px");
+        window.addEventListener('mousemove', handleGlobalMouseMove);
+    }
 
     initAnimations();
-
-    window.addEventListener('mousemove', handleGlobalMouseMove);
 
     setTimeout(() => {
         ScrollTrigger.refresh();
@@ -194,6 +225,13 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+@font-face {
+    font-family: 'Xtradex';
+    src: url('/font/Xtradex.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 .heropage2-root {
     width: 100%;
     overflow-x: hidden;
@@ -398,7 +436,7 @@ onBeforeUnmount(() => {
     z-index: 100;
     cursor: none !important;
     width: 9vw;
-    height: 20vh;
+    height: 19vh;
     padding: 1.5vw !important;
     border-radius: 50%;
     display: flex;
@@ -417,5 +455,106 @@ onBeforeUnmount(() => {
     background-color: #8A38F5;
     transition: background-color 0.3s;
     will-change: transform;
+}
+
+@media (max-width: 1200px) {
+    .hero-title {
+        width: 80vw;
+        font-size: 3.2em;
+    }
+}
+
+@media (max-width: 768px) {
+    .heropage2-root {
+        cursor: auto !important;
+        overflow: visible !important;
+        padding-bottom: 30vh;
+    }
+
+    .hero-section {
+        height: 100vh !important;
+        min-height: 100vh !important;
+        z-index: 1 !important;
+        display: flex !important;
+        visibility: visible !important;
+    }
+
+    .hero-title {
+        width: 90vw;
+        font-size: 2.2em;
+        top: 20%;
+        line-height: 1;
+        z-index: 10;
+    }
+
+    .highlight-text-wrapper {
+        width: 250px;
+        height: 150px;
+        top: 35%;
+        z-index: 11;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    .svg-text {
+        font-size: 14em;
+    }
+
+    .video-transition-container {
+        margin-top: -45vh;
+        margin-bottom: 5vh;
+        z-index: 20;
+        position: relative;
+        pointer-events: auto !important;
+    }
+
+    .black-curve-bg {
+        height: 150vh;
+        top: -95vh;
+        clip-path: ellipse(15% 0% at 50% 100%);
+        visibility: visible !important;
+        display: block !important;
+        pointer-events: none;
+    }
+
+    .video-wrapper {
+        width: 95% !important;
+        height: 300px;
+        margin-top: 0vh;
+        /* On remet votre valeur exacte */
+        z-index: 25;
+        pointer-events: auto !important;
+    }
+
+    .custom-cursor {
+        display: none !important;
+    }
+
+    .scroll-indicator {
+        display: flex !important;
+        z-index: 30;
+        transform: scale(0.8);
+    }
+
+    .video-overlay {
+        padding-top: 2vh !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 2.5em;
+        top: 12%;
+    }
+
+    .highlight-text-wrapper {
+        width: 450px;
+        height: 150px;
+        top: 32%;
+    }
+
+    .video-wrapper {
+        height: 350px;
+    }
 }
 </style>

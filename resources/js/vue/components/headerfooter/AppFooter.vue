@@ -101,11 +101,11 @@
 // Fonction pour transformer le texte en tableau de caractères pour l'animation
 const splitText = (text) => text.split('');
 
-const scrollToTop = () => { 
+const scrollToTop = () => {
   if (window.lenis) {
     window.lenis.scrollTo(0);
   } else {
-    window.scrollTo({ top: 0, behavior: 'smooth' }); 
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 };
 
@@ -230,7 +230,6 @@ const linksClients = [
   transition: color 0.2s;
 }
 
-/* Logique de l'animation letter-fall */
 .animated-link {
   display: inline-flex;
   overflow: hidden;
@@ -271,7 +270,6 @@ const linksClients = [
   color: #ffffff;
 }
 
-/* Footer Bottom Bar */
 .footer-bottom {
   max-width: 1400px;
   margin: 0 auto;
@@ -305,7 +303,6 @@ const linksClients = [
   display: flex;
   text-decoration: none;
   align-items: center;
-  /* gap: 0.8rem; */
 }
 
 .fa-arrow-up {
@@ -313,10 +310,32 @@ const linksClients = [
   margin-left: 1.5vw;
 }
 
-/* Responsive */
 @media (max-width: 1024px) {
   .footer-container {
     grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-bottom: 4rem;
+  }
+
+  .newsletter-text {
+    max-width: 80%;
+    font-size: 1.6rem;
+    line-height: 1.1;
+  }
+
+  .link {
+    font-size: 1.5rem;
+    line-height: 1.1;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .email-input {
+    font-size: 1.6rem;
+  }
+
+  .newsletter-disclaimer {
+    max-width: 100%;
   }
 
   .footer {
@@ -326,11 +345,23 @@ const linksClients = [
 
 @media (max-width: 768px) {
   .footer-columns {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
+    gap: 2rem;
   }
 
   .footer-bottom {
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
+    text-align: center;
+    padding-bottom: 20vh;
   }
-}</style>
+
+  .social-links {
+    justify-content: center;
+  }
+
+  .back-to-top {
+    margin-top: 10px;
+  }
+}
+</style>

@@ -12,7 +12,8 @@
                         <div class="hero-content">
                             <h1 class="hover-title">
                                 <span v-for="(char, index) in titleChars" :key="index" class="char"
-                                    :ref="el => charRefs[index] = el" :style="{ fontWeight: 300 }">
+                                    :class="{ 'break-word': char === ' ' }" :ref="el => charRefs[index] = el"
+                                    :style="{ fontWeight: 300 }">
                                     {{ char === ' ' ? '&nbsp;' : char }}
                                 </span>
                             </h1>
@@ -52,7 +53,7 @@
                                         <div class="item-info">
                                             <div class="item-top">
                                                 <span class="badge">{{ item.programme ? 'Formation' : 'Pack Offre'
-                                                    }}</span>
+                                                }}</span>
                                                 <h3 class="item-title">{{ item.programme?.Titre || item.offre?.Titre }}
                                                 </h3>
                                             </div>
@@ -284,7 +285,7 @@ const proceedToCheckout = () => {
     cursor: default;
     user-select: none;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
     color: #ffffff;
 }
@@ -518,13 +519,45 @@ const proceedToCheckout = () => {
         grid-template-columns: 1fr;
     }
 
+    .hover-title {
+        margin-top: 3vh;
+    font-size: 4rem !important;
+    }
+
     .summary-section {
         position: static;
         margin-top: 20px;
     }
 
-    .premium-title {
+    .hover-title {
         font-size: 3rem;
+        flex-wrap: wrap !important;
+        padding: 0 20px;
+        line-height: 1.2;
+    }
+}
+
+@media (max-width: 768px) {
+    .premium-subtitle {
+        font-size: 1.2rem;
+        font-weight: 500;
+        padding: 0 10vw;
+    }
+
+    .break-word {
+        flex-basis: 100%;
+        height: 0;
+    }
+
+    .hero-video-bg {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 25%;
+        min-width: 250px;
+        z-index: 0;
+        pointer-events: none;
     }
 }
 

@@ -9,7 +9,7 @@
             <slot></slot>
         </div>
 
-        <svg style="position: absolute; width: 0; height: 0; pointer-events: none; opacity: 0; visibility: hidden;">
+        <svg style="position: absolute; width: 0; height: 0; pointer-events: none; z-index: -1;">
             <defs>
                 <filter :id="filterId" x="-20%" y="-20%" width="140%" height="140%" filterUnits="objectBoundingBox">
                     <feTurbulence type="fractalNoise" baseFrequency="0.012 0.012" numOctaves="1" seed="5"

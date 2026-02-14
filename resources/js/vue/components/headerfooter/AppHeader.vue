@@ -1,6 +1,6 @@
 <template>
   <header>
-    <div class="liquidGlass-wrapper menu"
+    <div class="liquidGlass-wrapper menu" :class="{ 'menu-shrunk-mobile': showFooter }"
       :style="{ '--mouse-x': menuFlash.x, '--mouse-y': menuFlash.y, '--flash-opacity': menuFlash.opacity }"
       @mousemove="handleFlashMove($event, 'menu')" @mouseleave="handleFlashLeave('menu')">
       <div class="liquidGlass-effect"></div>
@@ -16,7 +16,7 @@
         </div>
 
         <Link v-for="(item, index) in renderedMenuItems" :key="index" :href="item.route" :data-index="index"
-          @click="setActive(index)" :class="{ 'is-active': activeIndex === index }">
+          @click="setActive(index)" :class="{ 'is-active': activeIndex === index, 'hide-on-mobile': index === 0 }">
           {{ item.label }}
         </Link>
       </div>
@@ -70,13 +70,6 @@
             {{ char === ' ' ? '&nbsp;' : char }}
           </span>
         </Link>
-
-        <Link href="/coaching" class="action-button coaching-btn">
-          <span v-for="(char, index) in coachingChars" :key="`coaching-${index}`" class="char"
-            :style="{ 'animation-delay': `${index * 0.03}s` }">
-            {{ char === ' ' ? '&nbsp;' : char }}
-          </span>
-        </Link>
       </div>
 
       <Link href="/contact" class="profile-icon-wrapper"
@@ -92,20 +85,32 @@
       </div>
     </div>
 
-    <div class="robot-container" :class="{ 'is-visible': showFooter }" @click.stop="showNotif = !showNotif">
+    <div class="robot-container" :class="{ 'is-visible': showFooter }">
       <div class="robot-messages-area">
-        <ModalAssistant :is-open="showNotif" :notifications="dummyNotifications" @close.stop="showNotif = false" />
+        <ModalAssistant :is-open="showNotif" :notifications="notifications" @close.stop="showNotif = false"
+          @refresh="fetchNotifications" />
 
-        <div class="robot-bubble" v-if="!showNotif">
+        <div class="robot-bubble hide-on-mobile" v-if="!showNotif">
           Je suis votre assistante pour vous aider à vous notifier de toutes activité dans ShiftUp
         </div>
       </div>
 
       <div v-if="!isRobotReady" class="robot-loader"></div>
-      <spline-viewer url="https://prod.spline.design/1NFsNvYihV-D5oUI/scene.splinecode" loading-anim-type="none"
-        events-target="global" @load="() => { isRobotReady = true; sessionStorage.setItem('robot_loaded', 'true'); }"
-        :class="{ 'is-ready': isRobotReady }" style="pointer-events: none"></spline-viewer>
+      <div class="spline-wrapper" @click.stop="showNotif = !showNotif" @touchstart.stop="showNotif = !showNotif"
+        style="pointer-events: auto; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+        <spline-viewer url="https://prod.spline.design/1NFsNvYihV-D5oUI/scene.splinecode" loading-anim-type="none"
+          events-target="global" @load="() => { isRobotReady = true; sessionStorage.setItem('robot_loaded', 'true'); }"
+          :class="{ 'is-ready': isRobotReady }" class="robot-spline-viewer"
+          style="pointer-events: none;"></spline-viewer>
+      </div>
     </div>
+
+    <Link href="/panier" class="cart-icon-wrapper-fixed profile-icon-wrapper" :class="{ 'is-visible': showFooter }"
+      :style="{ '--mouse-x': cartFlash.x, '--mouse-y': cartFlash.y, '--flash-opacity': cartFlash.opacity }"
+      @mousemove="handleFlashMove($event, 'cart')" @mouseleave="handleFlashLeave('cart')">
+      <div class="profile-icon"><i class="fas fa-shopping-basket"></i></div>
+      <span class="cart-label hide-on-mobile">Panier</span>
+    </Link>
 
     <Profil :is-open="isProfilOpen" :user="user" @close="isProfilOpen = false" />
     <LoginModal :is-open="isLoginOpen" :origin="loginButtonCoords" @close="isLoginOpen = false" />
@@ -123,12 +128,44 @@ const page = usePage();
 const user = computed(() => page.props.auth.user);
 const isRobotReady = ref(typeof window !== 'undefined' && sessionStorage.getItem('robot_loaded') === 'true');
 const showNotif = ref(false);
+const notifications = ref([]);
 
-const dummyNotifications = [
-  { message: "Bienvenue sur ShiftUp ! Explorez nos nouveaux séminaires.", time: "À l'instant", icon: "fas fa-star" },
-  { message: "Votre profil a été mis à jour avec succès.", time: "Il y a 2 heures", icon: "fas fa-user-check" },
-  { message: "Nouvelle offre exclusive : Pack Booster de Chiffre disponible.", time: "Il y a 1 jour", icon: "fas fa-rocket" }
-];
+const fetchNotifications = async () => {
+  if (!user.value) {
+    notifications.value = [];
+    return;
+  }
+  try {
+    const response = await fetch('/notifications', {
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      notifications.value = data;
+    } else if (response.status === 401) {
+      notifications.value = [];
+    }
+  } catch (error) {
+    console.error("Erreur lors du chargement des notifications", error);
+    notifications.value = [];
+  }
+};
+
+onMounted(() => {
+  if (user.value) {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 60000);
+    onBeforeUnmount(() => clearInterval(interval));
+  }
+});
+
+watch(user, (newUser) => {
+  if (newUser) fetchNotifications();
+});
 
 if (typeof window !== 'undefined' && !window.customElements.get('spline-viewer')) {
   const script = document.createElement('script');
@@ -158,6 +195,7 @@ const dynamicHomeLabel = computed(() => {
   if (currentPath === '/offres') return 'Offres';
   if (currentPath === '/live') return 'Live';
   if (currentPath === '/panier') return 'Mon Panier';
+  if (currentPath === '/articles-conseils') return 'Articles et Conseils';
 
 
   return 'Accueil';
@@ -204,9 +242,18 @@ const logoSrc = ref('/images/logo-site-blanc.png');
 const menuFlash = reactive({ x: '50%', y: '50%', opacity: 0 });
 const profileFlash = reactive({ x: '50%', y: '50%', opacity: 0 });
 const topFlash = reactive({ x: '50%', y: '50%', opacity: 0 });
+const cartFlash = reactive({ x: '50%', y: '50%', opacity: 0 });
 
 const isLightBackground = ref(false);
 const showFooter = ref(false);
+
+watch(showFooter, () => {
+  nextTick(() => {
+    updateBackground();
+    // Re-check after transition
+    setTimeout(updateBackground, 600);
+  });
+});
 
 const isProfilOpen = ref(false);
 const isLoginOpen = ref(false);
@@ -238,6 +285,7 @@ function handleFlashMove(event, target) {
   if (target === 'menu') state = menuFlash;
   else if (target === 'profile') state = profileFlash;
   else if (target === 'top') state = topFlash;
+  else if (target === 'cart') state = cartFlash;
 
   state.x = `${(event.clientX - rect.left) / rect.width * 100}%`;
   state.y = `${(event.clientY - rect.top) / rect.height * 100}%`;
@@ -248,6 +296,7 @@ function handleFlashLeave(target) {
   if (target === 'menu') menuFlash.opacity = 0;
   else if (target === 'profile') profileFlash.opacity = 0;
   else if (target === 'top') topFlash.opacity = 0;
+  else if (target === 'cart') cartFlash.opacity = 0;
 }
 
 function setActive(index) {
@@ -258,11 +307,15 @@ function setActive(index) {
 function updateBackground() {
   requestAnimationFrame(() => {
     const activeItem = document.querySelector(`.menu-items > a[data-index="${activeIndex.value}"]`);
-    const parent = activeItem ? activeItem.parentElement : null;
-    if (activeItem && parent && menuBackground.value) {
+    if (activeItem && menuBackground.value) {
+      const parent = menuBackground.value.parentElement;
       const rect = activeItem.getBoundingClientRect();
       const parentRect = parent.getBoundingClientRect();
-      menuBackground.value.style.left = `${rect.left - parentRect.left}px`;
+
+      const isMobile = window.innerWidth <= 768;
+      const xOffset = isMobile ? 0 : 0;
+
+      menuBackground.value.style.left = `${rect.left - parentRect.left + xOffset}px`;
       menuBackground.value.style.width = `${rect.width}px`;
       menuBackground.value.style.height = `${rect.height}px`;
       menuBackground.value.classList.add('active');
@@ -284,12 +337,16 @@ const initScrollLogic = async () => {
     if (t.vars.id === 'floating-menu-trigger') t.kill();
   });
 
+  const isMobile = window.innerWidth <= 768;
+  const startThreshold = isMobile ? "200px top" : "100px top";
+
   ScrollTrigger.create({
     id: 'floating-menu-trigger',
     trigger: "body",
-    start: "100px top",
-    endTrigger: "footer",
+    start: startThreshold,
+    endTrigger: ".footer",
     end: "top bottom-=100px",
+    onToggle: (self) => { showFooter.value = self.isActive; },
     onEnter: () => { showFooter.value = true; },
     onLeave: () => { showFooter.value = false; },
     onEnterBack: () => { showFooter.value = true; },
@@ -337,7 +394,6 @@ onMounted(async () => {
   window.addEventListener('resize', updateBackground);
   window.addEventListener('click', closeNotifOutside);
 
-  // Fallback: If Spline hasn't loaded after 6s, show it anyway or handle it
   setTimeout(() => {
     isRobotReady.value = true;
   }, 6000);
@@ -372,14 +428,22 @@ onBeforeUnmount(() => {
 });
 
 watch(() => page.url, () => {
+  showFooter.value = false;
   nextTick(async () => {
     forceRemoveSplineLogo();
-    await initScrollLogic();
+    setTimeout(async () => {
+      await initScrollLogic();
+    }, 100);
     setTimeout(() => {
       import("gsap/ScrollTrigger").then(({ ScrollTrigger }) => {
         ScrollTrigger.refresh();
       });
     }, 500);
+    setTimeout(() => {
+      import("gsap/ScrollTrigger").then(({ ScrollTrigger }) => {
+        ScrollTrigger.refresh();
+      });
+    }, 1200);
   });
 });
 </script>
@@ -425,15 +489,12 @@ watch(() => page.url, () => {
     0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
-/* Bordure lumineuse dynamique (Réactive à la souris) */
 .liquidGlass-wrapper::after {
   content: "";
   position: absolute;
   inset: -1px;
   border-radius: inherit;
-  /* S'adapte au container */
   padding: 1.2px;
-  /* Largeur de la micro-bordure dynamique */
   background: radial-gradient(100px circle at var(--mouse-x) var(--mouse-y),
       rgba(255, 255, 255, 0.9),
       transparent 100%);
@@ -496,17 +557,17 @@ watch(() => page.url, () => {
 
 .logo-image {
   width: 8vw;
-  height: 90%;
+  min-width: 80px;
+  height: auto;
   margin-top: 1vh;
   margin-left: 1vw;
   margin-right: 2vw;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .menu-background {
   position: absolute;
   top: 50%;
-  margin-left: 0.3rem;
   transform: translateY(-50%) scale(1);
   background: #202020;
   border-radius: 20px;
@@ -527,7 +588,6 @@ watch(() => page.url, () => {
   pointer-events: none;
 }
 
-/* Styles Footer menu */
 .footer-menu {
   position: fixed;
   bottom: 20px;
@@ -678,6 +738,58 @@ watch(() => page.url, () => {
   color: #333;
 }
 
+.cart-icon-wrapper-fixed {
+  position: fixed;
+  top: 4vh;
+  left: calc(69vw - 55px);
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(-50px) scale(0.8);
+  transition: opacity 0.5s ease, transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease;
+  pointer-events: none;
+  width: 55px;
+  height: 55px;
+  border-radius: 30px !important;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 15px;
+  overflow: hidden;
+}
+
+.cart-label {
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  pointer-events: none;
+  opacity: 0;
+  width: 0;
+  transform: translateX(-20px);
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
+}
+
+.cart-icon-wrapper-fixed:hover {
+  width: 125px;
+  background: linear-gradient(135deg, #1a73e8, #8A38F5) !important;
+}
+
+.cart-icon-wrapper-fixed:hover .cart-label {
+  opacity: 1;
+  width: auto;
+  margin-left: 12px;
+  transform: translateX(0);
+}
+
+.cart-icon-wrapper-fixed.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+
 
 
 .robot-container {
@@ -699,10 +811,25 @@ watch(() => page.url, () => {
 }
 
 
-.robot-container.is-visible {
+.robot-container.is-visible,
+.robot-container.always-visible-mobile {
   opacity: 1;
   transform: translateY(0) scale(1);
   pointer-events: auto;
+}
+
+@media (min-width: 769px) {
+  .robot-container.always-visible-mobile {
+    opacity: 0;
+    transform: translateY(50px) scale(0.8);
+    pointer-events: none;
+  }
+
+  .robot-container.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
 }
 
 .robot-container:hover {
@@ -721,6 +848,7 @@ watch(() => page.url, () => {
   align-items: end;
   justify-items: end;
   width: auto;
+  pointer-events: auto;
 }
 
 .robot-messages-area>* {
@@ -741,7 +869,7 @@ watch(() => page.url, () => {
   line-height: 1.2;
   box-shadow: 0 10px 25px rgba(138, 56, 245, 0.3);
   opacity: 0;
-  pointer-events: none;
+  pointer-events: auto;
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   transform: translateY(10px);
   position: relative;
@@ -800,5 +928,207 @@ spline-viewer.is-ready {
 .action-button:hover .char {
   animation: letter-fall 0.7s forwards;
   color: #8A38F5;
+}
+
+@media (max-width: 1024px) {
+  .menu-items>a {
+    font-size: 1rem;
+    padding: 0.6rem 1.2rem;
+  }
+
+  .logo-image {
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 768px) {
+  .liquidGlass-wrapper {
+    display: block;
+  }
+
+  .menu {
+    top: 15px;
+    width: 90%;
+    max-width: none;
+    justify-content: center;
+    border-radius: 30px;
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .menu.menu-shrunk-mobile {
+    width: 75%;
+    left: 5%;
+    transform: none;
+  }
+
+  .menu-items {
+    width: 100%;
+    gap: 0;
+    justify-content: space-between;
+  }
+
+  .user-avatar,
+  .user-avatar-placeholder {
+    display: none !important;
+  }
+
+  .menu-items>a {
+    font-size: 1.5rem;
+    padding: 0.8rem 1rem;
+    flex: none;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .menu-items>a.hide-on-mobile {
+    display: none;
+  }
+
+  .footer-menu.is-visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+
+  .footer-menu {
+    bottom: 10px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%) translateY(30px);
+    padding: 0;
+    gap: 3px;
+    width: auto;
+    max-width: 98vw;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .logo-image {
+    width: 120px;
+    min-width: 120px;
+    margin-right: 8px;
+  }
+
+  .action-buttons {
+    padding: 10px 20px !important;
+    gap: 15px;
+    flex: none;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+  }
+
+  .action-button {
+    font-size: 1.5rem;
+    height: 1.5rem;
+    line-height: 1.5rem;
+    font-weight: 400;
+  }
+
+  .cart-icon-wrapper-fixed {
+    top: 22px;
+    right: 5%;
+    left: auto !important;
+    width: 60px;
+    height: 60px;
+    border-radius: 50% !important;
+    display: flex;
+    align-items: center;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+
+  .cart-icon-wrapper-fixed.is-visible {
+    opacity: 1 !important;
+    transform: translateY(0) scale(1) !important;
+    pointer-events: auto !important;
+  }
+
+  .profile-icon-wrapper,
+  .top-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .profile-icon,
+  .top-icon {
+    font-size: 2rem;
+  }
+
+  .robot-container {
+    right: -5px;
+    bottom: 50px;
+    transform: none;
+  }
+
+  .robot-container.is-visible,
+  .robot-container.always-visible-mobile {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .robot-bubble.hide-on-mobile {
+    display: none;
+  }
+
+  .robot-spline-viewer,
+  .robot-messages-area {
+    pointer-events: auto;
+  }
+
+  spline-viewer {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .menu {
+    width: 90%;
+    border-radius: 25px;
+  }
+
+  .menu-items>a {
+    font-size: 1.1rem;
+    padding: 1rem 1.5rem;
+  }
+
+  .action-buttons {
+    padding: 15px 20px;
+    gap: 10px;
+  }
+
+  .action-button {
+    font-size: 1.1rem;
+    height: 1.6rem;
+    line-height: 1.6rem;
+  }
+
+  .profile-icon-wrapper,
+  .top-icon-wrapper {
+    width: 55px;
+    height: 55px;
+  }
+
+  .profile-icon,
+  .top-icon {
+    font-size: 1.3rem;
+  }
+
+  spline-viewer {
+    width: 150px;
+    height: 150px;
+  }
+
+  .robot-bubble {
+    bottom: 140px;
+  }
 }
 </style>

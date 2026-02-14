@@ -6,6 +6,10 @@ use App\Models\Consultation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use App\Notifications\ReponseAdminNotification;
+use App\Notifications\ActiviteAdminNotification;
+use Illuminate\Support\Facades\Notification;
+use App\Models\Utilisateur;
 
 class ConsultationController extends Controller
 {
@@ -52,6 +56,29 @@ class ConsultationController extends Controller
             'Statut' => 'Ouverte'
         ]);
 
+        // Notification Admin
+        $admins = Utilisateur::where('Role', 'admin')->get();
+        
+        \Log::info('Tentative d\'envoi de notification', [
+            'nombre_admins' => $admins->count(),
+            'admins' => $admins->map(fn($a) => ['id' => $a->IdUtilisateur, 'email' => $a->Email])->toArray()
+        ]);
+        
+        if ($admins->count() > 0) {
+            try {
+                Notification::send($admins, new ActiviteAdminNotification(
+                    "Nouvelle question posée : " . $validated['titre'],
+                    "Consultation",
+                    "/admin/consultations"
+                ));
+                \Log::info('Notification envoyée avec succès');
+            } catch (\Exception $e) {
+                \Log::error('Erreur lors de l\'envoi de notification: ' . $e->getMessage());
+            }
+        } else {
+            \Log::warning('Aucun admin trouvé pour recevoir la notification');
+        }
+
         return back()->with('success', 'Votre question a été envoyée au coach.');
     }
     public function storeResponse(Request $request)
@@ -79,8 +106,14 @@ class ConsultationController extends Controller
             // Link questions and close them
             $reponse->questions()->attach($validated['question_ids']);
             
-            Consultation::whereIn('IdConsultation', $validated['question_ids'])
-                ->update(['Statut' => 'Fermée']);
+            $consultations = Consultation::whereIn('IdConsultation', $validated['question_ids'])->get();
+            
+            foreach ($consultations as $consultation) {
+                $consultation->update(['Statut' => 'Fermée']);
+                if ($consultation->utilisateur) {
+                    $consultation->utilisateur->notify(new ReponseAdminNotification($consultation, $reponse));
+                }
+            }
 
             \DB::commit();
             return redirect()->route('admin.consultations')->with('success', 'La réponse à la consultation a été enregistrée.');

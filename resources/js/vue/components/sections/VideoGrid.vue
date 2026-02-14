@@ -5,45 +5,52 @@
 
                 <!-- Rangée du haut -->
                 <div class="grid-item">
-                    <video class="grid-video" :autoplay="gridItems[0].autoplay" :loop="gridItems[0].loop" muted playsinline :preload="gridItems[0].preload">
+                    <video class="grid-video" :autoplay="gridItems[0].autoplay" :loop="gridItems[0].loop" muted
+                        playsinline :preload="gridItems[0].preload">
                         <source :src="gridItems[0].src" type="video/mp4" />
                     </video>
                 </div>
 
                 <div class="grid-item">
-                    <video class="grid-video" :autoplay="gridItems[1].autoplay" :loop="gridItems[1].loop" muted playsinline :preload="gridItems[1].preload">
+                    <video class="grid-video" :autoplay="gridItems[1].autoplay" :loop="gridItems[1].loop" muted
+                        playsinline :preload="gridItems[1].preload">
                         <source :src="gridItems[1].src" type="video/mp4" />
                     </video>
                 </div>
 
                 <!-- Rangée du milieu -->
                 <div class="grid-item">
-                    <video class="grid-video" :autoplay="gridItems[2].autoplay" :loop="gridItems[2].loop" muted playsinline :preload="gridItems[2].preload">
+                    <video class="grid-video" :autoplay="gridItems[2].autoplay" :loop="gridItems[2].loop" muted
+                        playsinline :preload="gridItems[2].preload">
                         <source :src="gridItems[2].src" type="video/mp4" />
                     </video>
                 </div>
 
                 <div class="grid-item center-item">
-                    <video class="grid-video" :autoplay="gridItems[3].autoplay" :loop="gridItems[3].loop" muted playsinline :preload="gridItems[3].preload">
+                    <video class="grid-video" :autoplay="gridItems[3].autoplay" :loop="gridItems[3].loop" muted
+                        playsinline :preload="gridItems[3].preload">
                         <source :src="gridItems[3].src" type="video/mp4" />
                     </video>
                 </div>
 
                 <div class="grid-item">
-                    <video class="grid-video" :autoplay="gridItems[4].autoplay" :loop="gridItems[4].loop" muted playsinline :preload="gridItems[4].preload">
+                    <video class="grid-video" :autoplay="gridItems[4].autoplay" :loop="gridItems[4].loop" muted
+                        playsinline :preload="gridItems[4].preload">
                         <source :src="gridItems[4].src" type="video/mp4" />
                     </video>
                 </div>
 
                 <!-- Rangée du bas -->
                 <div class="grid-item">
-                    <video class="grid-video" :autoplay="gridItems[5].autoplay" :loop="gridItems[5].loop" muted playsinline :preload="gridItems[5].preload">
+                    <video class="grid-video" :autoplay="gridItems[5].autoplay" :loop="gridItems[5].loop" muted
+                        playsinline :preload="gridItems[5].preload">
                         <source :src="gridItems[5].src" type="video/mp4" />
                     </video>
                 </div>
 
                 <div class="grid-item">
-                    <video class="grid-video" :autoplay="gridItems[6].autoplay" :loop="gridItems[6].loop" muted playsinline :preload="gridItems[6].preload">
+                    <video class="grid-video" :autoplay="gridItems[6].autoplay" :loop="gridItems[6].loop" muted
+                        playsinline :preload="gridItems[6].preload">
                         <source :src="gridItems[6].src" type="video/mp4" />
                     </video>
                 </div>
@@ -60,7 +67,8 @@
                         d'aider les dirigeants de TPE et PME malgache
                     </span>
                     <span class="text-line">
-                        à trouver son <span class="highlight gt-alpina-font">feu sacré</span>, réaliser les  <span class="highlight gt-alpina-font">premières ventes</span>
+                        à trouver son <span class="highlight gt-alpina-font">feu sacré</span>, réaliser les <span
+                            class="highlight gt-alpina-font">premières ventes</span>
                     </span>
                     <span class="text-line">
                         et à devenir un <br>
@@ -71,7 +79,7 @@
         </div>
     </section>
 </template>
-  
+
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick } from "vue";
 
@@ -115,14 +123,14 @@ onMounted(async () => {
     const videos = sectionRef.value.querySelectorAll("video");
 
     videos[3].muted = true;
-    videos[3].play().catch(() => {});
+    videos[3].play().catch(() => { });
 
     ScrollTrigger.create({
         trigger: sectionRef.value,
         start: "top bottom+=50%", // Lance la lecture bien avant l'arrivée (50vh plus tôt)
         end: "bottom top-=600%",   // Garde la lecture même après la sortie (50vh plus loin)
-        onEnter: () => videos.forEach(v => v.play().catch(() => {})),
-        onEnterBack: () => videos.forEach(v => v.play().catch(() => {})),
+        onEnter: () => videos.forEach(v => v.play().catch(() => { })),
+        onEnterBack: () => videos.forEach(v => v.play().catch(() => { })),
         onLeave: () => videos.forEach(v => v.pause()),
         onLeaveBack: () => videos.forEach(v => v.pause()),
     });
@@ -132,7 +140,7 @@ onMounted(async () => {
         scrollTrigger: {
             trigger: sectionRef.value,
             start: "top top",
-            end: "+=550%", 
+            end: "+=550%",
             scrub: 1.2,
             pin: true,
             pinSpacing: true,
@@ -141,26 +149,25 @@ onMounted(async () => {
         },
     });
 
-    // 1. Zoom de la grille : S'étale sur toute la durée
     tl.fromTo(
         gridRef.value,
         { scale: 1.5, transformOrigin: "center center" },
-        { 
-            scale: 1, 
+        {
+            scale: 1,
             duration: textLines.length * 3,
-            ease: "power3.inOut" 
+            ease: "power3.inOut"
         },
         0
     );
     textLines.forEach((line, index) => {
         const startTime = index * 3.0;
-        tl.fromTo(line, 
-            { 
+        tl.fromTo(line,
+            {
                 opacity: 0,
                 "--progress": "0%",
                 y: 10
             },
-            { 
+            {
                 opacity: 1,
                 "--progress": "120%",
                 y: 0,
@@ -180,7 +187,7 @@ onMounted(async () => {
                 "--progress": "0%",
                 duration: 0.8,
                 ease: "power2.in"
-            }, startTime + 2.0); 
+            }, startTime + 2.0);
         }
     });
 
@@ -194,7 +201,7 @@ onBeforeUnmount(() => {
     }
 });
 </script>
-  
+
 <style scoped>
 .video-reveal-section {
     width: 100%;
@@ -217,7 +224,7 @@ onBeforeUnmount(() => {
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: 0.8fr 1.5fr 1.5fr;
     gap: 12px;
-    width:100%;
+    width: 100%;
     height: 140vh;
     will-change: transform;
     filter: brightness(1);
@@ -310,16 +317,14 @@ onBeforeUnmount(() => {
     width: 70%;
     opacity: 0;
     /* Effet de dégradé fluide */
-    -webkit-mask-image: linear-gradient(to right, 
-        rgba(0,0,0,1) 0%, 
-        rgba(0,0,0,1) calc(var(--progress) - 20%), 
-        rgba(0,0,0,0) var(--progress)
-    );
-    mask-image: linear-gradient(to right, 
-        rgba(0,0,0,1) 0%, 
-        rgba(0,0,0,1) calc(var(--progress) - 20%), 
-        rgba(0,0,0,0) var(--progress)
-    );
+    -webkit-mask-image: linear-gradient(to right,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 1) calc(var(--progress) - 20%),
+            rgba(0, 0, 0, 0) var(--progress));
+    mask-image: linear-gradient(to right,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 1) calc(var(--progress) - 20%),
+            rgba(0, 0, 0, 0) var(--progress));
     --progress: 0%;
 }
 
@@ -333,18 +338,39 @@ onBeforeUnmount(() => {
     font-style: italic;
 }
 
+@media (max-width: 1024px) {
+    .reveal-text {
+        font-size: 2.2em;
+    }
+}
+
 @media (max-width: 768px) {
     .grid-container {
-        height: 70vh;
-        gap: 8px;
+        height: 80vh;
+        gap: 6px;
+    }
+
+    .overlay-content {
+        width: 80%;
     }
 
     .reveal-text {
-        font-size: clamp(0.9rem, 3.5vw, 1.2rem);
+        font-size: 2.4em;
+        line-height: 1.1;
+    }
+
+    .text-line {
+        width: 100%;
     }
 
     .grid-item {
-        border-radius: 5px;
+        border-radius: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .reveal-text {
+        font-size: 2.6em;
     }
 }
 </style>

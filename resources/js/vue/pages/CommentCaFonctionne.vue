@@ -158,32 +158,45 @@ onMounted(async () => {
     ctx = gsap.context(() => {
         const scrollSection = scrollContainer.value;
         const track = trackRef.value;
+        const isMobile = window.innerWidth <= 768;
 
-        if (scrollSection && track) {
-            const baseCardWidth = window.innerWidth * 0.28;
-            const expansionDelta = window.innerWidth * (0.45 - 0.28);
-            const stableTrackWidth = (principles.length * baseCardWidth) + expansionDelta;
+        let cardWidth;
+        let expansionDelta = 0;
 
-            track.style.width = `${stableTrackWidth}px`;
-            const scrollDistance = stableTrackWidth - window.innerWidth;
-
-            gsap.to(track, {
-                x: -scrollDistance,
-                ease: "none",
-                scrollTrigger: {
-                    trigger: scrollSection,
-                    start: "top top",
-                    end: () => `+=${scrollDistance}`,
-                    pin: true,
-                    scrub: 1,
-                    anticipatePin: 1,
-                    invalidateOnRefresh: false
-                }
-            });
-
-            gsap.from('.impact-title', { y: 50, opacity: 0, duration: 1, ease: 'power3.out', delay: 0.2 });
-            gsap.from('.subtitle', { y: 30, opacity: 0, duration: 1, ease: 'power3.out', delay: 0.4 });
+        if (isMobile) {
+            // Mobile: 85vw, min-width 320px
+            const vw85 = window.innerWidth * 0.85;
+            cardWidth = Math.max(vw85, 320);
+        } else {
+            // Desktop: 28vw, min-width 400px
+            const vw28 = window.innerWidth * 0.27;
+            cardWidth = Math.max(vw28, 300);
+            const vw45 = window.innerWidth * 0.45;
+            expansionDelta = (window.innerWidth * 0.17);
         }
+
+        // Total width
+        const stableTrackWidth = (principles.length * cardWidth) + expansionDelta;
+
+        track.style.width = `${stableTrackWidth}px`;
+        const scrollDistance = stableTrackWidth - window.innerWidth;
+
+        gsap.to(track, {
+            x: -scrollDistance,
+            ease: "none",
+            scrollTrigger: {
+                trigger: scrollSection,
+                start: "top top",
+                end: () => `+=${scrollDistance}`,
+                pin: true,
+                scrub: 1,
+                anticipatePin: 1,
+                invalidateOnRefresh: true
+            }
+        });
+
+        gsap.from('.impact-title', { y: 50, opacity: 0, duration: 1, ease: 'power3.out', delay: 0.2 });
+        gsap.from('.subtitle', { y: 30, opacity: 0, duration: 1, ease: 'power3.out', delay: 0.4 });
     }, pageRef.value);
 });
 
@@ -219,9 +232,10 @@ onBeforeUnmount(() => {
     border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.back-link:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: translateX(-5px);
+@media (max-width: 768px) {
+    .back-link {
+        display: none !important;
+    }
 }
 
 .intro-section {

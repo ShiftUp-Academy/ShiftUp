@@ -23,14 +23,17 @@
                                     <i class="fas fa-bell-slash"></i>
                                     <p>Aucune nouvelle activité.</p>
                                 </div>
-                                <div v-else v-for="(notif, index) in notifications" :key="index" class="notif-item">
+                                <div v-else v-for="(notif, index) in notifications" :key="notif.Id"
+                                    :class="['notif-item', !notif.DateLecture ? 'unread' : '']"
+                                    @click="markAsRead(notif)">
                                     <div class="notif-icon">
-                                        <i :class="notif.icon || 'fas fa-info-circle'"></i>
+                                        <i :class="notif.Donnees.icone || 'fas fa-info-circle'"></i>
                                     </div>
                                     <div class="notif-body">
-                                        <p class="notif-text">{{ notif.message }}</p>
-                                        <span class="notif-time">{{ notif.time }}</span>
+                                        <p class="notif-text">{{ notif.Donnees.message }}</p>
+                                        <span class="notif-time">{{ formatDate(notif.DateCreation) }}</span>
                                     </div>
+                                    <div v-if="!notif.DateLecture" class="unread-dot"></div>
                                 </div>
                             </div>
 
@@ -61,7 +64,40 @@ const props = defineProps({
 });
 
 const activeTab = ref('notif');
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'refresh']);
+
+const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+
+    if (diffInSeconds < 60) return "À l'instant";
+    if (diffInSeconds < 3600) return `Il y a ${Math.floor(diffInSeconds / 60)} min`;
+    if (diffInSeconds < 86400) return `Il y a ${Math.floor(diffInSeconds / 3600)} h`;
+    return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+};
+
+const markAsRead = async (notif) => {
+    if (!notif.DateLecture) {
+        try {
+            await fetch(`/notifications/${notif.Id}/read`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+                    'Content-Type': 'application/json'
+                }
+            });
+            emit('refresh');
+        } catch (error) {
+            console.error("Erreur marquage lu", error);
+        }
+    }
+
+    if (notif.Donnees.lien) {
+        window.location.href = notif.Donnees.lien;
+    }
+};
 
 const beforeEnter = (el) => {
     gsap.set(el, {
@@ -226,7 +262,7 @@ const leave = (el, done) => {
     width: 34px;
     height: 34px;
     border-radius: 10px;
-    background: rgba(138, 56, 245, 0.2);
+    background: rgba(26, 26, 26, 0.2);
     color: #8A38F5;
     display: flex;
     align-items: center;
@@ -249,6 +285,19 @@ const leave = (el, done) => {
 .notif-time {
     font-size: 0.9rem;
     color: rgba(255, 255, 255, 0.729);
+}
+
+.notif-item.unread {
+    background: rgba(33, 33, 33, 0.632);
+}
+
+.unread-dot {
+    width: 8px;
+    height: 8px;
+    background: #8A38F5;
+    border-radius: 50%;
+    align-self: center;
+    box-shadow: 0 0 10px #8A38F5;
 }
 
 .bubble-tail {

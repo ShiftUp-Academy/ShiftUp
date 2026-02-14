@@ -1,8 +1,43 @@
 <template>
     <div class="temoignage-page">
         <ShaderBackground :colors="{ primary: '#4A1E82', secondary: '#3B1545', accent: '#250040', dark: '#050505' }">
-            <div class="split-container">
-                <div class="column text-column" @scroll="handleTextScroll" ref="textColumn" data-lenis-prevent>
+
+            <!-- VUE MOBILE : Liste unique mélangée -->
+            <div v-if="isMobile" class="mobile-container" @scroll="handleMobileScroll">
+                <div class="mobile-list">
+                    <TemoignageCard v-for="t in mobileTestimonials" :key="t.IdTemoignage" class="mobile-card"
+                        :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || 'Membre')"
+                        :avatar="t.utilisateur?.profil?.PhotoProfil" :role="t.utilisateur?.profil?.Metier"
+                        :text="t.ContenuTexte" :variant="t.Type !== 'Texte' ? 'media' : 'default'">
+
+                        <template #media v-if="t.Type !== 'Texte'">
+                            <div class="media-container mobile-media" v-if="t.Type === 'Photo'">
+                                <img :src="t.CheminFichier" :alt="'Témoignage'" loading="lazy" />
+                            </div>
+                            <div class="media-container video-container mobile-media" v-if="t.Type === 'Video'">
+                                <iframe v-if="isYoutube(t.CheminFichier)" :src="getYoutubeEmbed(t.CheminFichier)"
+                                    frameborder="0"
+                                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen>
+                                </iframe>
+                                <video v-else controls class="video-player">
+                                    <source :src="t.CheminFichier" type="video/mp4">
+                                    Votre navigateur ne supporte pas la vidéo.
+                                </video>
+                            </div>
+                        </template>
+                    </TemoignageCard>
+
+                    <div v-if="mobileTestimonials.length === 0" class="empty-state">
+                        <p>Aucun témoignage pour le moment.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VUE DESKTOP : 3 Colonnes -->
+            <div v-else class="split-container">
+                <div class="column text-column" @scroll="handleTextScroll" ref="textColumn" data-lenis-prevent
+                    @mouseenter="activeColumns.text = false" @mouseleave="activeColumns.text = true">
                     <div class="testimonials-wrapper" ref="textSet1">
                         <TemoignageCard v-for="t in textTestimonials" :key="t.IdTemoignage"
                             :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || 'Membre')"
@@ -21,9 +56,11 @@
                     </div>
                 </div>
 
-                <div class="column media-column" @scroll="handleMediaScroll" ref="mediaColumn" data-lenis-prevent>
-                    <div class="testimonials-wrapper" ref="mediaSet1">
-                        <TemoignageCard v-for="t in mediaTestimonials" :key="t.IdTemoignage"
+                <div class="column photo-column" @scroll="handlePhotoScroll" ref="photoColumn" data-lenis-prevent
+                    @mouseenter="activeColumns.photo = false" @mouseleave="activeColumns.photo = true">
+
+                    <div class="testimonials-wrapper" ref="photoSet1">
+                        <TemoignageCard v-for="t in photoTestimonials" :key="t.IdTemoignage"
                             :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || 'Membre')"
                             :avatar="t.utilisateur?.profil?.PhotoProfil" :role="t.utilisateur?.profil?.Metier"
                             :text="t.ContenuTexte" variant="media">
@@ -31,7 +68,35 @@
                                 <div class="media-container" v-if="t.Type === 'Photo'">
                                     <img :src="t.CheminFichier" :alt="'Témoignage'" loading="lazy" />
                                 </div>
-                                <div class="media-container video-container" v-else-if="t.Type === 'Video'">
+                            </template>
+                        </TemoignageCard>
+                    </div>
+                    <div class="testimonials-wrapper" ref="photoSet2" v-if="photoTestimonials.length > 0">
+                        <TemoignageCard v-for="t in photoTestimonials" :key="'clone-' + t.IdTemoignage"
+                            :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || 'Membre')"
+                            :avatar="t.utilisateur?.profil?.PhotoProfil" :role="t.utilisateur?.profil?.Metier"
+                            :text="t.ContenuTexte" variant="media">
+                            <template #media>
+                                <div class="media-container" v-if="t.Type === 'Photo'">
+                                    <img :src="t.CheminFichier" :alt="'Témoignage'" loading="lazy" />
+                                </div>
+                            </template>
+                        </TemoignageCard>
+                    </div>
+                    <div v-if="photoTestimonials.length === 0" class="empty-state">
+                        <p>Aucun témoignage photo pour le moment.</p>
+                    </div>
+                </div>
+
+                <div class="column video-column" @scroll="handleVideoScroll" ref="videoColumn" data-lenis-prevent
+                    @mouseenter="activeColumns.video = false" @mouseleave="activeColumns.video = true">
+                    <div class="testimonials-wrapper" ref="videoSet1">
+                        <TemoignageCard v-for="t in videoTestimonials" :key="t.IdTemoignage"
+                            :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || 'Membre')"
+                            :avatar="t.utilisateur?.profil?.PhotoProfil" :role="t.utilisateur?.profil?.Metier"
+                            :text="t.ContenuTexte" variant="media">
+                            <template #media>
+                                <div class="media-container video-container" v-if="t.Type === 'Video'">
                                     <iframe v-if="isYoutube(t.CheminFichier)" :src="getYoutubeEmbed(t.CheminFichier)"
                                         frameborder="0"
                                         allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
@@ -45,16 +110,13 @@
                             </template>
                         </TemoignageCard>
                     </div>
-                    <div class="testimonials-wrapper" ref="mediaSet2" v-if="mediaTestimonials.length > 0">
-                        <TemoignageCard v-for="t in mediaTestimonials" :key="'clone-' + t.IdTemoignage"
+                    <div class="testimonials-wrapper" ref="videoSet2" v-if="videoTestimonials.length > 0">
+                        <TemoignageCard v-for="t in videoTestimonials" :key="'clone-' + t.IdTemoignage"
                             :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || 'Membre')"
                             :avatar="t.utilisateur?.profil?.PhotoProfil" :role="t.utilisateur?.profil?.Metier"
                             :text="t.ContenuTexte" variant="media">
                             <template #media>
-                                <div class="media-container" v-if="t.Type === 'Photo'">
-                                    <img :src="t.CheminFichier" :alt="'Témoignage'" loading="lazy" />
-                                </div>
-                                <div class="media-container video-container" v-else-if="t.Type === 'Video'">
+                                <div class="media-container video-container" v-if="t.Type === 'Video'">
                                     <iframe v-if="isYoutube(t.CheminFichier)" :src="getYoutubeEmbed(t.CheminFichier)"
                                         frameborder="0"
                                         allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
@@ -68,8 +130,8 @@
                             </template>
                         </TemoignageCard>
                     </div>
-                    <div v-if="mediaTestimonials.length === 0" class="empty-state">
-                        <p>Aucun témoignage photo/vidéo pour le moment.</p>
+                    <div v-if="videoTestimonials.length === 0" class="empty-state">
+                        <p>Aucun témoignage vidéo pour le moment.</p>
                     </div>
                 </div>
             </div>
@@ -77,14 +139,14 @@
             <div class="submission-container">
                 <template v-if="!user">
                     <div @click="showLoginModal = true" class="submit-trigger">
-                        <LiquidGlass borderRadius="50px" class="submission-glass">
+                        <LiquidGlass borderRadius="50px" class="submission-glass" center>
                             <span class="prompt-text">Connectez-vous pour témoigner</span>
                         </LiquidGlass>
                     </div>
                 </template>
                 <template v-else>
                     <div @click="openSubmitModal" class="submit-trigger">
-                        <LiquidGlass borderRadius="50px" class="submission-glass">
+                        <LiquidGlass borderRadius="50px" class="submission-glass2" center>
                             <div class="trigger-content">
                                 <div class="user-avatar" v-if="user.profil?.PhotoProfil">
                                     <img :src="user.profil.PhotoProfil" alt="User">
@@ -159,7 +221,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { Link, usePage, useForm } from '@inertiajs/vue3';
 import LiquidGlass from '../components/ui/LiquidGlass.vue';
 import PremiumModal from '../components/ui/PremiumModal.vue';
@@ -205,16 +267,6 @@ const submitTestimonial = () => {
     });
 };
 
-const textTestimonials = computed(() => {
-    if (!props.temoignages) return [];
-    return props.temoignages.filter(t => t.Type === 'Texte');
-});
-
-const mediaTestimonials = computed(() => {
-    if (!props.temoignages) return [];
-    return props.temoignages.filter(t => ['Photo', 'Video'].includes(t.Type));
-});
-
 const formatDate = (dateString) => {
     if (!dateString) return '';
     return new Date(dateString).toLocaleDateString('fr-FR', {
@@ -240,32 +292,106 @@ const getYoutubeEmbed = (url) => {
     return `https://www.youtube.com/embed/${videoId}`;
 };
 
-// Infinite Scroll Logic
 const textColumn = ref(null);
 const textSet1 = ref(null);
-const mediaColumn = ref(null);
-const mediaSet1 = ref(null);
+const photoColumn = ref(null);
+const photoSet1 = ref(null);
+const videoColumn = ref(null);
+const videoSet1 = ref(null);
 
 const handleTextScroll = (e) => {
     if (!textSet1.value) return;
     const scrollTop = e.target.scrollTop;
     const set1Height = textSet1.value.clientHeight;
 
-    // Using a threshold slightly less than height to avoid glitches
     if (scrollTop >= set1Height) {
         e.target.scrollTop = scrollTop - set1Height;
     }
 };
 
-const handleMediaScroll = (e) => {
-    if (!mediaSet1.value) return;
+const handleMobileScroll = (e) => {
+    // Logique scroll mobile si besoin (infinite loading par ex)
+};
+
+const handlePhotoScroll = (e) => {
+    if (!photoSet1.value) return;
     const scrollTop = e.target.scrollTop;
-    const set1Height = mediaSet1.value.clientHeight;
+    const set1Height = photoSet1.value.clientHeight;
 
     if (scrollTop >= set1Height) {
         e.target.scrollTop = scrollTop - set1Height;
     }
 };
+
+const handleVideoScroll = (e) => {
+    if (!videoSet1.value) return;
+    const scrollTop = e.target.scrollTop;
+    const set1Height = videoSet1.value.clientHeight;
+
+    if (scrollTop >= set1Height) {
+        e.target.scrollTop = scrollTop - set1Height;
+    }
+};
+
+// Auto-scroll Animation Logic
+let animationFrame;
+const activeColumns = ref({
+    text: true,
+    photo: true,
+    video: true
+});
+
+const animate = () => {
+    if (activeColumns.value.text && textColumn.value && textTestimonials.value.length > 0) {
+        textColumn.value.scrollTop += 0.6;
+    }
+    if (activeColumns.value.photo && photoColumn.value && photoTestimonials.value.length > 0) {
+        photoColumn.value.scrollTop += 0.6;
+    }
+    if (activeColumns.value.video && videoColumn.value && videoTestimonials.value.length > 0) {
+        videoColumn.value.scrollTop += 0.6;
+    }
+    animationFrame = requestAnimationFrame(animate);
+};
+
+const isMobile = ref(false);
+
+const checkMobile = () => {
+    isMobile.value = window.innerWidth <= 768;
+};
+
+onMounted(() => {
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    animationFrame = requestAnimationFrame(animate);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('resize', checkMobile);
+    if (animationFrame) cancelAnimationFrame(animationFrame);
+});
+
+const mobileTestimonials = computed(() => {
+    if (!props.temoignages) return [];
+    const shuffled = [...props.temoignages].sort(() => 0.5 - Math.random());
+    return shuffled;
+});
+
+const textTestimonials = computed(() => {
+    if (!props.temoignages) return [];
+    return props.temoignages.filter(t => t.Type === 'Texte');
+});
+
+const photoTestimonials = computed(() => {
+    if (!props.temoignages) return [];
+    return props.temoignages.filter(t => t.Type === 'Photo');
+});
+
+const videoTestimonials = computed(() => {
+    if (!props.temoignages) return [];
+    return props.temoignages.filter(t => t.Type === 'Video');
+});
+
 </script>
 
 <style scoped>
@@ -281,7 +407,8 @@ const handleMediaScroll = (e) => {
     display: flex;
     flex-direction: column;
     overscroll-behavior: none;
-    background-color: #050505;
+    background-color: transparent;
+    /* Rend le Shader visible */
 }
 
 .split-container {
@@ -310,7 +437,8 @@ const handleMediaScroll = (e) => {
     padding-bottom: 20px;
 }
 
-.text-column {
+.text-column,
+.photo-column {
     border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -339,7 +467,7 @@ const handleMediaScroll = (e) => {
 }
 
 .column-header h2 {
-    font-size: 2.5rem;
+    font-size: 1.8rem;
     font-weight: 700;
     margin: 0;
     background: linear-gradient(90deg, #fff, #aaa);
@@ -498,23 +626,55 @@ const handleMediaScroll = (e) => {
 }
 
 @media (max-width: 768px) {
+    .temoignage-page {
+        overflow: hidden;
+        height: 100vh;
+    }
+
     .split-container {
-        flex-direction: column;
+        flex-direction: row;
+        height: 100vh;
+        width: 100vw;
+        overflow-x: auto;
+        padding-top: 80px;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
     }
 
     .column {
         height: auto;
-        min-height: 50vh;
-        padding: 20px;
+        min-width: 85vw;
+        max-width: 85vw;
+        padding: 20px 15px 120px 15px;
+        border-right: none;
+        border-bottom: none;
+        overflow-y: auto;
+        scroll-snap-align: center;
+        margin-right: 15px;
     }
 
-    .back-button-container {
-        position: static;
-        padding: 20px;
+    .column:first-child {
+        margin-left: 15px;
     }
 
-    .split-container {
-        padding-top: 0;
+    .submission-container {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 400px;
+        padding: 0;
+        z-index: 100;
+    }
+
+    .prompt-text,
+    .trigger-text {
+        font-size: 0.9rem;
+    }
+
+    .author-name {
+        font-size: 0.85rem;
     }
 }
 
@@ -535,6 +695,14 @@ const handleMediaScroll = (e) => {
 .submission-glass {
     height: 60px;
     width: 100%;
+    transition: transform 0.3s, box-shadow 0.3s;
+    pointer-events: auto;
+}
+
+.submission-glass2 {
+    height: 60px;
+    width: 100%;
+    /* padding-top removed for better centering with flex */
     transition: transform 0.3s, box-shadow 0.3s;
     pointer-events: auto;
 }
@@ -639,7 +807,7 @@ const handleMediaScroll = (e) => {
 
 .type-label {
     font-size: 0.9rem;
-    color: #888;
+    color: #a2a2a2;
 }
 
 .type-selectors {
@@ -722,5 +890,133 @@ const handleMediaScroll = (e) => {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+}
+
+@media (max-width: 768px) {
+    .temoignage-page {
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .mobile-container {
+        height: 100%;
+        width: 100%;
+        overflow-y: auto;
+        padding-top: 100px;
+        padding-bottom: 120px;
+        -webkit-overflow-scrolling: touch;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .mobile-list {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        width: 100%;
+        padding: 0 2px;
+    }
+
+    .mobile-card {
+        width: 100%;
+        max-width: 95%;
+        margin: 0 auto;
+    }
+
+    .mobile-media {
+        max-height: 300px !important;
+        margin-top: 15px;
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .split-container {
+        display: none !important;
+    }
+
+    .submission-container {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 85%;
+        max-width: 350px;
+        padding-top: 3px;
+        padding: 0;
+        font-size: 1.2em;
+        z-index: 1000;
+    }
+
+    /* --- Personnalisation Mobile --- */
+
+    .mobile-card :deep(.temoignage-card) {
+        padding: 20px !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    /* Remove hover effects on mobile */
+    .mobile-card :deep(.temoignage-card:hover),
+    .mobile-card :deep(.temoignage-card:focus),
+    .mobile-card :deep(.temoignage-card:active),
+    .mobile-card:hover,
+    .mobile-card:focus,
+    .mobile-card:active {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Nom de l'auteur */
+    .mobile-card :deep(.author-name) {
+        font-size: 0.9rem !important;
+        /* Ajuster la taille du nom */
+        line-height: 1.2;
+    }
+
+    /* Rôle de l'auteur (ex: CEO) */
+    .mobile-card :deep(.author-role) {
+        font-size: 0.7rem !important;
+    }
+
+    /* Texte principal (Type: Texte) */
+    .mobile-card :deep(.testimonial-text.text-mode) {
+        font-size: 0.95rem !important;
+        /* Ajuster la taille du texte témoignage */
+        line-height: 1.2;
+    }
+
+    /* Texte légende (Type: Média) */
+    .mobile-card :deep(.testimonial-text.media-mode) {
+        font-size: 0.85rem !important;
+        line-height: 1.1;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-bottom: 10px !important;
+    }
+
+    .mobile-card :deep(.author-avatar) {
+        width: 35px;
+        height: 35px;
+    }
+
+    .mobile-card :deep(.avatar-wrapper) {
+        width: 35px;
+        height: 35px;
+    }
+
+    .prompt-text,
+    .trigger-text {
+        font-size: 0.95rem;
+        width: 95%;
+        margin-top: 0;
+        padding-top: 0;
+        line-height: 1.2;
+    }
+
+    .author-name {
+        font-size: 0.95rem !important;
+    }
 }
 </style>

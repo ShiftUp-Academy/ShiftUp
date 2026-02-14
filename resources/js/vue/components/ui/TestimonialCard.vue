@@ -55,7 +55,8 @@ function handleFlashLeave() {
 .testimonial-card {
   position: relative;
   background-color: #111;
-  width: 30vw;
+  width: 400px;
+  max-width: 90vw;
   overflow: hidden;
   padding: 40px;
   height: 100%;
@@ -86,6 +87,10 @@ function handleFlashLeave() {
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
+  aspect-ratio: 1 / 1;
+  /* Assure que c'est toujours carré/rond */
+  min-width: 50px;
+  /* Empêche l'écrasement flex */
 }
 
 .avatar {
@@ -95,24 +100,26 @@ function handleFlashLeave() {
 }
 
 .author-name {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 600;
-  margin: 0;
+  line-height: 1.1;
+  /* Compact pour les noms longs */
+  margin: 0 0 2px 0;
   color: #fff;
 }
 
 .author-role {
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   color: #888;
   display: block;
 }
 
 .testimonial-text {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   line-height: 1.4;
   color: #9c9c9c;
   margin: 0;
-  max-height: 200px;
+  max-height: 250px;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -150,5 +157,16 @@ function handleFlashLeave() {
   mask-composite: exclude;
   opacity: var(--flash-opacity, 0);
   transition: opacity 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .testimonial-card {
+    padding: 30px 20px;
+    width: 370px;
+  }
+
+  .testimonial-text {
+    font-size: 1.1rem;
+  }
 }
 </style>

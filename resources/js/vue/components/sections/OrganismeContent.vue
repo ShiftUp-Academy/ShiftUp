@@ -2,33 +2,35 @@
   <section id="organisme-content" class="organisme-content no-global-reveal">
     <div class="content-container">
       <h2 class="impact-title">
-        Nous atteindrons cet objectif en partageant des conseils, stratégies, ressources et outils concrets sur tous les médias nécessaires pour créer ce « déclic » chez les chefs d’entreprise et les entrepreneurs en herbe
+        Nous atteindrons cet objectif en partageant des conseils, stratégies, ressources et outils concrets sur tous les
+        médias nécessaires pour créer ce « déclic » chez les chefs d’entreprise et les entrepreneurs en herbe
       </h2>
-      
+
       <div class="supporting-text">
         <p>
-          La seule façon d’être libre c’est d’avoir une entreprise qui a un système en place et qui génère des ventes en pilote automatique, sans votre intervention.
+          La seule façon d’être libre c’est d’avoir une entreprise qui a un système en place et qui génère des ventes en
+          pilote automatique, sans votre intervention.
         </p>
         <p>
-          Pour cela, il faut apporter davantage de valeur que quiconque sur votre marché – et il faut mettre en place quelques systèmes simples pour vous libérer du temps et pouvoir le consacrer à votre famille et à vos passions.
+          Pour cela, il faut apporter davantage de valeur que quiconque sur votre marché – et il faut mettre en place
+          quelques systèmes simples pour vous libérer du temps et pouvoir le consacrer à votre famille et à vos
+          passions.
         </p>
         <p class="highlight-intro">
           Les cinq atouts qui feront le succès de notre Organisme sont les suivants :
         </p>
       </div>
 
-      <div class="assets-grid" ref="gridRef" @mousemove="handleCardMouseMove($event, idx)" @mouseleave="handleCardMouseLeave(idx)">
-        <div v-for="(asset, idx) in assets" :key="idx" 
-             class="asset-card" 
-             @mousemove="handleCardMouseMove($event, idx)"
-             @mouseleave="handleCardMouseLeave(idx)"
-             :style="{ 
-               '--gradient-start': asset.gradient[0],
-               '--gradient-end': asset.gradient[1],
-               '--mouse-x': cardStates[idx].x + 'px',
-               '--mouse-y': cardStates[idx].y + 'px',
-               '--opacity': cardStates[idx].opacity
-             }">
+      <div class="assets-grid" ref="gridRef" @mousemove="handleCardMouseMove($event, idx)"
+        @mouseleave="handleCardMouseLeave(idx)">
+        <div v-for="(asset, idx) in assets" :key="idx" class="asset-card" @mousemove="handleCardMouseMove($event, idx)"
+          @mouseleave="handleCardMouseLeave(idx)" :style="{
+            '--gradient-start': asset.gradient[0],
+            '--gradient-end': asset.gradient[1],
+            '--mouse-x': cardStates[idx].x + 'px',
+            '--mouse-y': cardStates[idx].y + 'px',
+            '--opacity': cardStates[idx].opacity
+          }">
           <div class="card-header">
             <div class="number-circle">{{ idx + 1 }}</div>
           </div>
@@ -190,10 +192,10 @@ const splitText = (text) => {
 /* ASSETS GRID */
 .assets-grid {
   display: flex;
-    grid-template-columns: repeat(5, 2fr);
-    gap: 15px;
-    margin-top: 2vh;
-    flex-direction: row;
+  grid-template-columns: repeat(5, 2fr);
+  gap: 15px;
+  margin-top: 2vh;
+  flex-direction: row;
 }
 
 .asset-card {
@@ -216,15 +218,15 @@ const splitText = (text) => {
 
 .number-circle {
   width: 40px;
-    height: 40px;
-    background-color: #000000;
-    color: #ffffff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    font-weight: 600;
+  height: 40px;
+  background-color: #000000;
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .asset-text {
@@ -253,11 +255,9 @@ const splitText = (text) => {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(
-    300px circle at var(--mouse-x) var(--mouse-y),
-    rgba(0, 0, 0, 0.25),
-    transparent 70%
-  );
+  background: radial-gradient(300px circle at var(--mouse-x) var(--mouse-y),
+      rgba(0, 0, 0, 0.25),
+      transparent 70%);
   opacity: var(--opacity);
   z-index: 1;
   transition: opacity 0.3s ease;
@@ -265,17 +265,57 @@ const splitText = (text) => {
 
 /* RESPONSIVE */
 @media (max-width: 1440px) {
-  .assets-grid { grid-template-columns: repeat(3, 1fr); }
+  .assets-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 @media (max-width: 1024px) {
-  .impact-title { font-size: 2rem; width: 100%; }
-  .assets-grid { grid-template-columns: repeat(2, 1fr); }
+  .impact-title {
+    font-size: 2rem;
+    width: 100%;
+  }
+
+  .assets-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
-  .impact-title { font-size: 1.8rem; }
-  .assets-grid { grid-template-columns: 1fr; }
-  .asset-card { padding: 1.5rem; }
+  .impact-title {
+    font-size: 1.8rem;
+  }
+
+  .supporting-text p {
+  line-height: 1.3;
+}
+
+  .assets-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .number-circle {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 1vh;
+    font-size: 1.2rem;
+  }
+
+  .asset-card {
+    padding: 1.5rem;
+    width: 100%;
+    height: auto;
+  }
+
+  .bold-intro {
+    font-size: 1.2rem;
+  }
+  .asset-text {
+    font-size: 1.2rem;
+  }
+
+  .assets-grid {
+    flex-direction: column;
+  }
 }
 </style>

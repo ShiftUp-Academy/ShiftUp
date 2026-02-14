@@ -9,7 +9,8 @@
             <div class="hero-content">
                 <h1 class="hover-title">
                     <span v-for="(char, index) in titleChars" :key="index" class="char"
-                        :ref="el => charRefs[index] = el" :style="{ fontWeight: 300 }">
+                        :class="{ 'break-word': char === ' ' }" :ref="el => charRefs[index] = el"
+                        :style="{ fontWeight: 300 }">
                         {{ char === ' ' ? '&nbsp;' : char }}
                     </span>
                 </h1>
@@ -372,7 +373,7 @@ const closeReservationModal = () => {
     cursor: default;
     user-select: none;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
     color: #ffffff;
 }
@@ -724,24 +725,125 @@ const closeReservationModal = () => {
 }
 
 @media (max-width: 768px) {
-    .offer-summary {
-        flex-direction: column;
+    .hero-section {
         height: auto;
-        padding: 30px 20px;
+        min-height: 40vh;
+        width: 90%;
+        margin: 0 auto;
+        padding-top: 5vh;
+        margin-top: 10vh;
+        margin-bottom: 5vh;
+    }
+
+    .hero-video-bg {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 30%;
+        min-width: 290px;
+        z-index: 0;
+        pointer-events: none;
     }
 
     .hover-title {
+        font-size: 3rem;
+        width: 100% !important;
+        margin: 0 auto 20px auto;
+        font-weight: 600 !important;
+        flex-wrap: wrap !important;
+        padding: 0 20px;
+        line-height: 1.2;
+    }
+
+    .break-word {
+        flex-basis: 100%;
+        height: 0;
+    }
+
+    .page-subtitle {
+        font-size: 1rem;
+        padding: 0 10vw;
+    }
+
+    .offers-list {
+        max-width: 97%;
+    }
+
+    .offer-item {
+        border-radius: 30px;
+    }
+
+    .offer-summary {
+        flex-direction: column;
+        height: auto;
+        text-align: center;
+        padding: 30px 30px;
+        align-items: stretch;
+    }
+
+    .offer-title {
+        font-size: 1.6rem;
+        text-align: center;
+    }
+
+    .offer-desc {
+        font-size: 0.95rem;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .offer-badges {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .offer-footer {
+        position: static;
+        margin-top: 20px;
+        align-items: center;
+        transform: none;
+        top: auto;
+    }
+
+    .offer-meta-footer {
+        align-items: center;
+        width: 100%;
+    }
+
+    .offer-total-price {
         font-size: 2.5rem;
+        align-items: center;
+    }
+
+    .price-label {
+        width: auto;
+        text-align: center;
+    }
+
+    .offer-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .cart-btn,
+    .buy-btn-premium {
+        width: 100% !important;
+        justify-content: center;
     }
 
     .items-grid {
         grid-template-columns: 1fr;
     }
 
-    /* Responsive layout for new grid */
     .content-grid-container {
         flex-direction: column;
-        gap: 30px;
+        gap: 20px;
+    }
+
+    .details-inner {
+        padding: 20px;
     }
 
     .column-header {
@@ -756,33 +858,6 @@ const closeReservationModal = () => {
         width: 38px;
         height: 38px;
         font-size: 1rem;
-    }
-
-    .offer-meta-footer {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        text-align: center;
-    }
-
-    .offer-footer {
-        position: static;
-        margin-top: 20px;
-        align-items: center;
-        transform: none;
-        top: auto;
-    }
-
-    .offer-actions {
-        flex-direction: column;
-        width: 100%;
-        gap: 10px;
-    }
-
-    .cart-btn,
-    .buy-btn-premium {
-        width: 100%;
-        justify-content: center;
     }
 }
 

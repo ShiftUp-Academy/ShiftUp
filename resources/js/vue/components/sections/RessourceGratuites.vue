@@ -1,9 +1,7 @@
 <template>
   <section class="resources-section" ref="sectionRef" @mousemove="handleFlashMove" @mouseleave="handleFlashLeave">
-    <!-- Dynamic Spreading Fog Overlay -->
     <div class="spreading-fog" ref="fogRef"></div>
 
-    <!-- Global Section Flashlight -->
     <div class="section-flashlight"></div>
 
     <div class="container">
@@ -15,8 +13,9 @@
           @reset="resetFilters" />
       </div>
 
-      <div class="resources-grid" ref="gridRef">
-        <ResourceCard v-for="(resource, index) in resources" :key="index" v-bind="resource" />
+      <div :class="['resources-grid', { 'is-hovered': isGridHovered }]" ref="gridRef">
+        <ResourceCard v-for="(resource, index) in resources" :key="index" v-bind="resource"
+          @mouseenter="isGridHovered = true" @mouseleave="isGridHovered = false" />
       </div>
     </div>
   </section>
@@ -41,13 +40,10 @@ let bounds = null;
 function handleFlashMove(event) {
   if (!sectionRef.value) return;
 
-  // Cache bounds if needed, or get them if invalid (though getBoundingClientRect is fast enough usually, 
-  // caching on scroll might be better but let's just optimize the write first)
   const rect = event.currentTarget.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
 
-  // Direct DOM update to bypass Vue reactivity overhead
   sectionRef.value.style.setProperty('--mouse-x', `${x}px`);
   sectionRef.value.style.setProperty('--mouse-y', `${y}px`);
 
@@ -66,6 +62,7 @@ function handleFlashLeave() {
 
 const searchValue = ref('');
 const selectedCategory = ref(null);
+const isGridHovered = ref(false);
 const filteredSuggestions = ref([]);
 
 const suggestions = [
@@ -133,6 +130,7 @@ onMounted(async () => {
       scrollTrigger: {
         trigger: sectionRef.value,
         start: "top 70%",
+        toggleActions: "play none none reverse"
       }
     });
   }
@@ -159,8 +157,9 @@ onMounted(async () => {
       transparent 80%);
   opacity: var(--flash-opacity, 0);
   transition: opacity 0.5s ease;
-  will-change: opacity, transform;
-  /* Hardware acceleration */
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  /* Force GPU */
 }
 
 .spreading-fog {
@@ -171,15 +170,14 @@ onMounted(async () => {
   height: 120vh;
   background: linear-gradient(to bottom,
       transparent 0%,
-      rgba(0, 0, 0, 0.05) 15%,
-      rgba(0, 0, 0, 0.2) 35%,
-      rgba(0, 0, 0, 0.5) 55%,
-      rgba(0, 0, 0, 0.8) 80%,
+      rgba(0, 0, 0, 0.2) 40%,
       #050505 100%);
+  /* Simplified gradient */
   pointer-events: none;
   z-index: -1;
-  transform: translateY(0);
+  transform: translateY(0) translateZ(0);
   margin-top: -30vh;
+  will-change: transform;
 }
 
 .container {
@@ -205,8 +203,9 @@ onMounted(async () => {
   margin: 0;
 }
 
-.resources-grid:has(.image-container:hover) .program-card:not(:has(.image-container:hover)) {
-  filter: opacity(0.7) grayscale(0.5) brightness(0.9) sepia(0.2) hue-rotate(220deg) blur(1px);
+.resources-grid.is-hovered .program-card:not(:hover) {
+  filter: grayscale(0.5) sepia(0.2) hue-rotate(220deg) brightness(0.8) blur(1px);
+  opacity: 0.6;
 }
 
 .resources-grid {
@@ -236,7 +235,7 @@ onMounted(async () => {
 
   .resources-grid {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 15px;
   }
 }
 </style>
