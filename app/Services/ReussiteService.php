@@ -50,6 +50,7 @@ class ReussiteService
             $contextId = null;
 
             if ($actionType === 'lecon_terminee' && isset($valeurs['lesson_id'])) $contextId = $valeurs['lesson_id'];
+            if ($actionType === 'chapitre_fini' && isset($valeurs['theme_id'])) $contextId = $valeurs['theme_id'];
             if ($actionType === 'etape_passee' && isset($valeurs['step_id'])) $contextId = $valeurs['step_id'];
             if ($actionType === 'offre_achetee' && isset($valeurs['offer_id'])) $contextId = $valeurs['offer_id'];
 
@@ -75,6 +76,7 @@ class ReussiteService
                     break;
                     
                 case 'lecon_terminee':
+                case 'chapitre_fini':
                 case 'etape_passee':
                 case 'reservation_evenement':
                 case 'temoignage_laisse':
@@ -142,6 +144,7 @@ class ReussiteService
     {
         return match ($actionType) {
             'lecon_terminee' => \App\Models\Lecon::class,
+            'chapitre_fini' => \App\Models\Theme::class,
             'etape_passee' => \App\Models\Etape::class,
             'offre_achetee' => \App\Models\Offre::class,
             default => null,
@@ -155,6 +158,10 @@ class ReussiteService
             if ($typeAction === 'lecon_terminee') {
                 $lecon = \App\Models\Lecon::find($contextId);
                 return $lecon ? $lecon->Titre : null;
+            }
+            if ($typeAction === 'chapitre_fini') {
+                $theme = \App\Models\Theme::find($contextId);
+                return $theme ? $theme->Titre : null;
             }
             if ($typeAction === 'etape_passee') {
                 $etape = \App\Models\Etape::find($contextId);
