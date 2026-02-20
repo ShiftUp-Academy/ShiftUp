@@ -13,6 +13,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 import IntroLoader from '../components/ui/IntroLoader.vue';
 import PageTransitionOverlay from '../components/ui/PageTransitionOverlay.vue';
+import RewardNotification from '../components/ui/RewardNotification.vue';
 
 const toast = useToast();
 const page = usePage();
@@ -320,6 +321,7 @@ unbindTransitionFinish = router.on('finish', (event) => {
   <div class="min-h-screen relative bg-[#FDFDFC] dark:bg-[#0a0a0a]">
     <IntroLoader v-if="showIntro" @complete="onIntroComplete" />
     <PageTransitionOverlay ref="transitionRef" />
+    <RewardNotification />
     <Toast />
 
     <div class="custom-scroll-cursor" ref="cursorRef">

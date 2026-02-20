@@ -20,6 +20,10 @@ class Utilisateur extends Authenticatable
         'MotDePasseHash',
         'GoogleId',
         'Role',
+        'DerniereConnexion',
+        'Newsletter',
+        'PermissionsModerateur',
+        'Points',
     ];
 
     protected $hidden = [
@@ -29,6 +33,9 @@ class Utilisateur extends Authenticatable
     protected $casts = [
         'DateCreation' => 'datetime',
         'DateMiseAJour' => 'datetime',
+        'DerniereConnexion' => 'datetime',
+        'Newsletter' => 'boolean',
+        'PermissionsModerateur' => 'array',
     ];
 
     public function getAuthPassword()
@@ -86,50 +93,33 @@ class Utilisateur extends Authenticatable
         return $this->hasMany(ProgressionUtilisateur::class, 'IdUtilisateur', 'IdUtilisateur');
     }
 
-    /**
-     * Badges/Achievements earned by this user.
-     */
     public function badges()
     {
-        return $this->belongsToMany(Reussite::class, 'badges_utilisateurs', 'IdUtilisateur', 'IdReussite')
-                    ->withTimestamps();
+        return $this->belongsToMany(Reussite::class, 'user_reussites', 'user_id', 'reussite_id')
+                    ->withPivot(['date_obtention', 'context_type', 'context_id'])
+                    ->withTimestamps('created_at', 'updated_at');
     }
 
-    /**
-     * User's shopping cart.
-     */
     public function panier()
     {
         return $this->hasOne(Panier::class, 'IdUtilisateur', 'IdUtilisateur');
     }
 
-    /**
-     * User's purchase history.
-     */
     public function commandes()
     {
         return $this->hasMany(Commande::class, 'IdUtilisateur', 'IdUtilisateur');
     }
 
-    /**
-     * Surcharger la relation de notification pour utiliser les colonnes en français.
-     */
     public function notifications()
     {
         return $this->morphMany(Notification::class, 'Destinataire', 'TypeDestinataire', 'IdDestinataire')
                     ->orderBy('DateCreation', 'desc');
     }
 
-    /**
-     * Route notifications for the mail channel.
-     *
-     * @return  array<string, string>|string
-     */
     public function routeNotificationForMail($notification)
     {
-        $emails = [$this->Email]; // Email de connexion
+        $emails = [$this->Email];
 
-        // Ajouter l'email de contact du profil s'il existe et est différent
         if ($this->profil && !empty($this->profil->EmailContact) && $this->profil->EmailContact !== $this->Email) {
             $emails[] = $this->profil->EmailContact;
         }

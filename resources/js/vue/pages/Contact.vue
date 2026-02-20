@@ -115,6 +115,7 @@
         </ShaderBackground>
       </div>
     </div>
+    <Toast />
   </div>
 </template>
 
@@ -122,10 +123,14 @@
 import { ref, reactive, onMounted } from 'vue';
 import { gsap } from 'gsap';
 import ShaderBackground from '../components/ui/ShaderBackground.vue';
+import axios from 'axios';
+import Toast from 'primevue/toast';
+import { useToast } from 'primevue/usetoast';
 
 const contactImg = '/images/contact/Contact.png';
 const logoSrc = '/images/logo-site-blanc.png';
 
+const toast = useToast();
 const isLoading = ref(false);
 const paperBubble = ref(null);
 const bubbleWrapper = ref(null);
@@ -168,13 +173,28 @@ onMounted(() => {
   }
 });
 
-const submitForm = () => {
+const submitForm = async () => {
   isLoading.value = true;
-  setTimeout(() => {
-    isLoading.value = false;
-    alert("Merci ! Nous reviendrons vers vous très prochainement.");
+  try {
+    const response = await axios.post('/contact/send', form);
+    toast.add({
+      severity: 'success',
+      summary: 'Succès',
+      detail: response.data.message || "Message envoyé avec succès !",
+      life: 5000
+    });
     Object.assign(form, { nom: '', prenom: '', sujet: '', email: '', message: '' });
-  }, 1500);
+  } catch (error) {
+    console.error("Error sending contact email", error);
+    toast.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: error.response?.data?.message || "Une erreur est survenue lors de l'envoi du message.",
+      life: 5000
+    });
+  } finally {
+    isLoading.value = false;
+  }
 };
 </script>
 
@@ -545,7 +565,7 @@ const submitForm = () => {
 
 @media (max-width: 1024px) {
   .contact-page {
-    flex-direction: column;
+    flex-direction: column-reverse;
     height: auto;
     overflow-y: auto;
     padding-top: 100px;

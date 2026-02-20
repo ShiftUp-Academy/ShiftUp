@@ -26,6 +26,7 @@ class HandleInertiaRequests extends Middleware
                 'warning' => $request->session()->get('warning'),
                 'info' => $request->session()->get('info'),
                 'Bonjour' => $request->session()->get('Bonjour'),
+                'new_achievements' => $request->session()->get('new_achievements'),
             ],
         ]);
     }

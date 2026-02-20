@@ -96,7 +96,7 @@
       </div>
 
       <div v-if="!isRobotReady" class="robot-loader"></div>
-      <div class="spline-wrapper" @click.stop="showNotif = !showNotif" @touchstart.stop="showNotif = !showNotif"
+      <div class="spline-wrapper" @click.stop="showNotif = !showNotif"
         style="pointer-events: auto; cursor: pointer; display: flex; align-items: center; justify-content: center;">
         <spline-viewer url="https://prod.spline.design/1NFsNvYihV-D5oUI/scene.splinecode" loading-anim-type="none"
           events-target="global" @load="() => { isRobotReady = true; sessionStorage.setItem('robot_loaded', 'true'); }"
@@ -196,6 +196,9 @@ const dynamicHomeLabel = computed(() => {
   if (currentPath === '/live') return 'Live';
   if (currentPath === '/panier') return 'Mon Panier';
   if (currentPath === '/articles-conseils') return 'Articles et Conseils';
+  if (currentPath === '/reservations') return 'Mes réservations';
+  if (currentPath === '/politique-de-confidentialite') return 'Politique de confidentialité';
+
 
 
   return 'Accueil';
@@ -250,7 +253,6 @@ const showFooter = ref(false);
 watch(showFooter, () => {
   nextTick(() => {
     updateBackground();
-    // Re-check after transition
     setTimeout(updateBackground, 600);
   });
 });
@@ -429,6 +431,7 @@ onBeforeUnmount(() => {
 
 watch(() => page.url, () => {
   showFooter.value = false;
+  showNotif.value = false;
   nextTick(async () => {
     forceRemoveSplineLogo();
     setTimeout(async () => {
@@ -740,11 +743,11 @@ watch(() => page.url, () => {
 
 .cart-icon-wrapper-fixed {
   position: fixed;
-  top: 4vh;
-  left: calc(69vw - 55px);
+  bottom: 25px;
+  left: 5vw;
   z-index: 1000;
   opacity: 0;
-  transform: translateY(-50px) scale(0.8);
+  transform: translateY(50px) scale(0.8);
   transition: opacity 0.5s ease, transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease;
   pointer-events: none;
   width: 55px;
@@ -788,9 +791,6 @@ watch(() => page.url, () => {
   transform: translateY(0) scale(1);
   pointer-events: auto;
 }
-
-
-
 
 .robot-container {
   width: auto;
@@ -1028,6 +1028,7 @@ spline-viewer.is-ready {
 
   .cart-icon-wrapper-fixed {
     top: 22px;
+    bottom: auto;
     right: 5%;
     left: auto !important;
     width: 60px;
@@ -1037,6 +1038,7 @@ spline-viewer.is-ready {
     align-items: center;
     justify-content: center !important;
     padding: 0 !important;
+    transform: translateY(-50px) scale(0.8);
   }
 
   .cart-icon-wrapper-fixed.is-visible {

@@ -6,22 +6,7 @@
 
         <div class="bento-grid" ref="bentoGrid">
 
-            <div class="card card-testimonials">
-                <div class="card-bg-container">
-                    <img :src="imgTestimonials" class="card-img" />
-                    <div class="overlay-base"></div>
-                    <div class="overlay-hover"></div>
-                </div>
-                <div class="card-body body-testimonials">
-                    <h2 class="card-title-temoignage">Témoignages</h2>
-                    <p class="card-desc-temoignage">Êtes-vous satisfait de notre accompagnement ? Témoignez votre
-                        avancée.
-                    </p>
-                    <PremiumButton style="width: 10vw; margin-top: -2vh;" class="mobile-temoignage-btn"
-                        href="/temoignages" text="Témoigner" />
-                </div>
-            </div>
-
+            <!-- 1. Catégories de programme -->
             <div class="card card-categories">
                 <div class="card-bg-container">
                     <img :src="imgCategoriesBg" class="card-img blur-effect" />
@@ -43,18 +28,7 @@
                 </div>
             </div>
 
-            <Link href="/articles-conseils" class="card card-articles" @mousemove="moveCursor"
-                @mouseenter="showCursor('#f7b455')" @mouseleave="hideCursor">
-                <div class="card-bg-container">
-                    <img :src="imgArticles" class="card-img" />
-                    <div class="overlay-base"></div>
-                    <div class="overlay-hover"></div>
-                </div>
-                <div class="card-body center-all">
-                    <h2 class="card-title">Articles et conseils</h2>
-                </div>
-            </Link>
-
+            <!-- 2. Coaching -->
             <Link href="/coaching" class="card card-coaching" @mousemove="moveCursor"
                 @mouseenter="showCursor('#a71543')" @mouseleave="hideCursor">
                 <div class="card-bg-container">
@@ -67,6 +41,7 @@
                 </div>
             </Link>
 
+            <!-- 3. Live -->
             <Link href="/live" class="card card-live" @mousemove="moveCursor" @mouseenter="onLiveHoverCustom"
                 @mouseleave="onLiveLeaveCustom">
                 <div class="card-bg-container">
@@ -82,6 +57,37 @@
                 </div>
             </Link>
 
+            <!-- 4. Articles et conseils -->
+            <Link href="/articles-conseils" class="card card-articles" @mousemove="moveCursor"
+                @mouseenter="showCursor('#f7b455')" @mouseleave="hideCursor">
+                <div class="card-bg-container">
+                    <img :src="imgArticles" class="card-img" />
+                    <div class="overlay-base"></div>
+                    <div class="overlay-hover"></div>
+                </div>
+                <div class="card-body center-all">
+                    <h2 class="card-title">Articles et conseils</h2>
+                </div>
+            </Link>
+
+            <!-- 5. Témoignages -->
+            <div class="card card-testimonials">
+                <div class="card-bg-container">
+                    <img :src="imgTestimonials" class="card-img" />
+                    <div class="overlay-base"></div>
+                    <div class="overlay-hover"></div>
+                </div>
+                <div class="card-body body-testimonials">
+                    <h2 class="card-title-temoignage">Témoignages</h2>
+                    <p class="card-desc-temoignage">Êtes-vous satisfait de notre accompagnement ? Témoignez votre
+                        avancée.
+                    </p>
+                    <PremiumButton style="width: 10vw; margin-top: -2vh;" class="mobile-temoignage-btn"
+                        href="/temoignages" text="Témoigner" />
+                </div>
+            </div>
+
+            <!-- 6. L'organisme -->
             <Link href="/organisme" class="card card-organisme" @mousemove="moveCursor"
                 @mouseenter="showCursor('#1A888D')" @mouseleave="hideCursor">
                 <div class="card-bg-container">

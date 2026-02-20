@@ -6,13 +6,13 @@
         <div class="footer-section">
           <h3 class="section-title">Rubrique</h3>
           <ul class="section-list">
-            <li v-for="link in linksRubrique" :key="link">
-              <a href="#" class="link animated-link">
-                <span v-for="(char, i) in splitText(link)" :key="i" class="char"
+            <li v-for="link in linksRubrique" :key="link.label">
+              <Link :href="link.url" class="link animated-link">
+                <span v-for="(char, i) in splitText(link.label)" :key="i" class="char"
                   :style="{ 'animation-delay': `${i * 0.02}s` }">
                   {{ char === ' ' ? '\u00A0' : char }}
                 </span>
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
@@ -20,13 +20,13 @@
         <div class="footer-section">
           <h3 class="section-title">Clients</h3>
           <ul class="section-list">
-            <li v-for="link in linksClients" :key="link">
-              <a href="#" class="link animated-link">
-                <span v-for="(char, i) in splitText(link)" :key="i" class="char"
+            <li v-for="link in linksClients" :key="link.label">
+              <Link :href="link.url" class="link animated-link">
+                <span v-for="(char, i) in splitText(link.label)" :key="i" class="char"
                   :style="{ 'animation-delay': `${i * 0.02}s` }">
                   {{ char === ' ' ? '\u00A0' : char }}
                 </span>
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
@@ -51,9 +51,9 @@
           En vous inscrivant ici vous recevrez les conseils de Nantenaina par email, via newsletter
         </p>
 
-        <form class="email-input-group" @submit.prevent>
-          <input type="email" placeholder="Votre adresse email ici" class="email-input" />
-          <button type="submit" class="submit-btn">
+        <form class="email-input-group" @submit.prevent="submitNewsletter">
+          <input type="email" v-model="form.email" placeholder="Votre adresse email ici" class="email-input" required />
+          <button type="submit" class="submit-btn" :disabled="form.processing">
             <svg viewBox="0 0 24 24" class="submit-icon-svg" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
@@ -61,7 +61,8 @@
         </form>
 
         <p class="newsletter-disclaimer">
-          En vous inscrivant, vous acceptez notre <a href="#">Politique de Confidentialité</a>.
+          En vous inscrivant, vous acceptez notre <Link href="/politique-de-confidentialite">Politique de
+            Confidentialité</Link>.
           Désabonnement possible à tout moment.
         </p>
       </div>
@@ -69,7 +70,7 @@
 
     <div class="footer-bottom">
       <div class="copyright">
-        © 2005—2025 ShiftUp Academy® | ANTANANARIVO
+        ©2026 ShiftUp Academy® | ANTANANARIVO
       </div>
 
       <div class="social-links">
@@ -98,7 +99,21 @@
 </template>
 
 <script setup>
-// Fonction pour transformer le texte en tableau de caractères pour l'animation
+import { Link, useForm } from '@inertiajs/vue3';
+
+const form = useForm({
+  email: ''
+});
+
+const submitNewsletter = () => {
+  form.post('/newsletter/subscribe', {
+    preserveScroll: true,
+    onSuccess: () => {
+      form.reset();
+    }
+  });
+};
+
 const splitText = (text) => text.split('');
 
 const scrollToTop = () => {
@@ -109,14 +124,19 @@ const scrollToTop = () => {
   }
 };
 
-// Listes de liens pour l'affichage dynamique
 const linksRubrique = [
-  "Notre mission", "L'organisme", "L'équipe",
-  "Nous rejoindre ?", "Articles et conseils", "Contactez nous"
+  { label: "Témoignages", url: "/temoignages" },
+  { label: "L'organisme", url: "/organisme" },
+  { label: "Comment ShiftUp fonctionne?", url: "/comment-ca-fonctionne" },
+  { label: "Articles et conseils", url: "/articles-conseils" },
+  { label: "Contactez nous", url: "/contact" }
 ];
 
 const linksClients = [
-  "Se connecter", "Politique de confidentialité", "Mention légale"
+  { label: "Nos programmes", url: "/programmes" },
+  { label: "Nos Coachings", url: "/coaching" },
+  { label: "Nos offres", url: "/offres" },
+  { label: "Politique de confidentialité", url: "/politique-de-confidentialite" }
 ];
 </script>
 
@@ -142,7 +162,6 @@ const linksClients = [
   gap: 2rem;
 }
 
-/* Newsletter Style */
 .footer-newsletter {
   display: flex;
   flex-direction: column;

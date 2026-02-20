@@ -51,10 +51,10 @@
         <transition name="dropdown-anim">
           <div v-show="dropdownOpen" class="profile-dropdown" @click.stop>
             <div class="dropdown-menu-list">
-              <div class="dropdown-item">
+              <Link href="/admin/reussites" class="dropdown-item" @click="dropdownOpen = false">
                 <i class="fas fa-trophy item-icon"></i>
                 <span>Gérer les réussites</span>
-              </div>
+              </Link>
               <Link href="/admin/categories" class="dropdown-item" @click="dropdownOpen = false">
                 <i class="fas fa-tags item-icon"></i>
                 <span>Gérer les Catégories</span>
@@ -63,6 +63,10 @@
                 <i class="fas fa-trash-alt item-icon"></i>
                 <span>Corbeille</span>
               </div>
+              <Link href="/admin/utilisateurs" class="dropdown-item" @click="dropdownOpen = false">
+                <i class="fas fa-history item-icon"></i>
+                <span>Historique des transactions</span>
+              </Link>
               <div class="dropdown-divider"></div>
               <div class="dropdown-item danger" @click="handleLogout">
                 <i class="fas fa-sign-out-alt item-icon"></i>
@@ -255,6 +259,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 12px;
   padding: 10px 15px;
+  line-height: 1.1;
   border-radius: 8px;
   color: #444;
   font-size: 0.95rem;

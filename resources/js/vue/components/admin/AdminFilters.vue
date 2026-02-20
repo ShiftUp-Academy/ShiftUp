@@ -1,32 +1,16 @@
 <template>
   <div class="filters-bar">
     <div class="search-wrapper">
-      <InputText 
-        v-model="search" 
-        placeholder="recherche par mot clé" 
-        class="search-input-pv" 
-      />
+      <InputText v-model="search" placeholder="recherche par mot clé" class="search-input-pv" />
     </div>
-    
-    <div class="date-inputs">
-      <DatePicker 
-        v-model="dateStart" 
-        placeholder="date début" 
-        dateFormat="dd/mm/yy"
-        showIcon
-        iconDisplay="input"
-        class="date-picker-pv"
-      />
-      <DatePicker 
-        v-model="dateEnd" 
-        placeholder="date fin" 
-        dateFormat="dd/mm/yy"
-        showIcon
-        iconDisplay="input"
-        class="date-picker-pv"
-      />
+
+    <div class="date-inputs" v-if="showDates">
+      <DatePicker v-model="dateStart" placeholder="date début" dateFormat="dd/mm/yy" showIcon iconDisplay="input"
+        class="date-picker-pv" />
+      <DatePicker v-model="dateEnd" placeholder="date fin" dateFormat="dd/mm/yy" showIcon iconDisplay="input"
+        class="date-picker-pv" />
     </div>
-    
+
     <button class="refresh-btn" @click="$emit('refresh')">
       <i class="fas fa-sync-alt"></i>
     </button>
@@ -42,6 +26,10 @@ const props = defineProps({
   modelValue: {
     type: Object,
     default: () => ({ search: '', dateStart: null, dateEnd: null })
+  },
+  showDates: {
+    type: Boolean,
+    default: true
   }
 });
 

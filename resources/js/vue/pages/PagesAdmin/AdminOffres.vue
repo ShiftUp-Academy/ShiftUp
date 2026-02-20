@@ -520,10 +520,9 @@ const deleteOffer = (offre) => {
 }
 
 .page-title {
-  font-size: 2.5rem;
-  font-weight: 800;
+  font-size: 3rem;
+  font-weight: 600;
   margin: 0;
-  color: #111;
 }
 
 .header-actions {

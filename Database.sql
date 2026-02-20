@@ -4,7 +4,10 @@ CREATE TABLE Utilisateurs
     Email VARCHAR(255) UNIQUE NOT NULL,
     MotDePasseHash VARCHAR(255) NULL,
     GoogleId VARCHAR(255) UNIQUE NULL, 
-    Role VARCHAR(50) DEFAULT 'utilisateur' CHECK (Role IN ('utilisateur', 'admin')),
+    Role VARCHAR(50) DEFAULT 'utilisateur' CHECK (Role IN ('utilisateur', 'admin', 'moderateur')),
+    PermissionsModerateur JSONB DEFAULT NULL,
+    DerniereConnexion TIMESTAMP NULL,
+    Newsletter BOOLEAN DEFAULT FALSE,
     DateCreation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     DateMiseAJour TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -27,14 +30,18 @@ CREATE TABLE ProfilsUtilisateurs
 
 CREATE TABLE ReseauxSociaux 
 (
-    IdRéseauSocial BIGSERIAL PRIMARY KEY,
+    IdReseauSocial BIGSERIAL PRIMARY KEY,
     IdUtilisateur BIGINT NOT NULL REFERENCES ProfilsUtilisateurs(IdProfil) ON DELETE CASCADE,
     Nom VARCHAR(30),
     Lien TEXT
 );
 
+CREATE TABLE NewsletterSubscriptions (
+    IdSubscription BIGSERIAL PRIMARY KEY,
+    Email VARCHAR(255) UNIQUE NOT NULL,
+    DateSouscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IdxEmailUtilisateur ON Utilisateurs(Email);
 CREATE INDEX IdxGoogleIdUtilisateur ON Utilisateurs(GoogleId);
-
-
-
+CREATE INDEX IdxEmailSubscription ON NewsletterSubscriptions(Email);

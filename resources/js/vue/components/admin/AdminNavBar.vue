@@ -1,18 +1,13 @@
 <template>
   <div class="nav-bar-container">
     <div class="nav-links" ref="navLinks">
-      <Link
-        v-for="item in menuItems"
-        :key="item.name"
-        :href="item.route"
-        class="nav-item"
-        :class="{ active: page?.url?.startsWith(item.route) }"
-      >
+      <Link v-for="item in menuItems" :key="item.name" :href="item.route" class="nav-item"
+        :class="{ active: page?.url?.startsWith(item.route) }">
         {{ item.label }}
       </Link>
       <div class="sliding-line" ref="slidingLine"></div>
     </div>
-    
+
     <a href="/" target="_blank" class="visit-site">
       VISITER LE SITEWEB ↗
     </a>
@@ -20,32 +15,46 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, watch } from 'vue';
+import { ref, onMounted, nextTick, watch, computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 
 const page = usePage();
 const slidingLine = ref(null);
 const navLinks = ref(null);
 
-const menuItems = [
-  { name: 'programmes', label: 'PROGRAMMES', route: '/admin/programmes' },
-  { name: 'consultations', label: 'CONSULTATION', route: '/admin/consultations' },
-  { name: 'lives', label: 'LIVES', route: '/admin/lives' },
-  { name: 'coachings', label: 'COACHINGS', route: '/admin/coachings' },
-  { name: 'offres', label: 'OFFRES', route: '/admin/offres' },
-  { name: 'utilisateurs', label: 'UTILISATEURS', route: '/admin/utilisateurs' },
-  { name: 'temoignages', label: 'TÉMOIGNAGE', route: '/admin/temoignages' },
-];
+const menuItems = computed(() => {
+  const allItems = [
+    { name: 'programmes', label: 'PROGRAMMES', route: '/admin/programmes' },
+    { name: 'consultations', label: 'CONSULTATION', route: '/admin/consultations' },
+    { name: 'lives', label: 'LIVES', route: '/admin/lives' },
+    { name: 'coachings', label: 'COACHINGS', route: '/admin/coachings' },
+    { name: 'offres', label: 'OFFRES', route: '/admin/offres' },
+    { name: 'utilisateurs', label: 'UTILISATEURS', route: '/admin/utilisateurs' },
+    { name: 'temoignages', label: 'TÉMOIGNAGE', route: '/admin/temoignages' },
+  ];
+
+  const user = page.props.auth.user;
+  if (!user) return [];
+  if (user.Role === 'admin') return allItems;
+
+  if (user.Role === 'moderateur') {
+    const permissions = user.PermissionsModerateur || [];
+    // We use the 'name' to match permissions (e.g., 'programmes')
+    return allItems.filter(item => permissions.includes(item.name));
+  }
+
+  return [];
+});
 
 const moveLine = (target) => {
   if (!target || !slidingLine.value) return;
-  
+
   const parentRect = navLinks.value.getBoundingClientRect();
   const targetRect = target.getBoundingClientRect();
-  
+
   const left = targetRect.left - parentRect.left;
   const width = targetRect.width;
-  
+
   slidingLine.value.style.width = `${width}px`;
   slidingLine.value.style.transform = `translateX(${left}px)`;
   slidingLine.value.style.opacity = '1';
@@ -101,7 +110,8 @@ watch(() => page.url, () => {
   position: relative;
 }
 
-.nav-item:hover, .nav-item.active {
+.nav-item:hover,
+.nav-item.active {
   color: #000;
   font-weight: 700;
 }

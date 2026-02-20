@@ -36,10 +36,10 @@
       <div class="menu-column border-left col-3">
         <div class="vertical-title full-center cube-scene">
           <div class="cube-container">
-            <Link href="#" class="cube-face face-front" @click="closeMenu">
+            <Link href="/mes-reussites" class="cube-face face-front" @click="closeMenu">
               <span class="rotate-text">REUSSITES</span>
             </Link>
-            <Link href="#" class="cube-face face-right" @click="closeMenu">
+            <Link href="/mes-reussites" class="cube-face face-right" @click="closeMenu">
               <span class="rotate-text bold-italic">REUSSITES</span>
             </Link>
           </div>
@@ -49,11 +49,11 @@
       <div class="menu-column border-left col-4">
         <div class="vertical-title full-center cube-scene">
           <div class="cube-container">
-            <Link href="#" class="cube-face face-front" @click="closeMenu">
-              <span class="rotate-text">COACHINGS</span>
+            <Link href="/reservations" class="cube-face face-front" @click="closeMenu">
+              <span class="rotate-text">RESERVATIONS</span>
             </Link>
-            <Link href="#" class="cube-face face-right" @click="closeMenu">
-              <span class="rotate-text bold-italic">COACHINGS</span>
+            <Link href="/reservations" class="cube-face face-right" @click="closeMenu">
+              <span class="rotate-text bold-italic">RESERVATIONS</span>
             </Link>
           </div>
         </div>
@@ -69,9 +69,13 @@
             <div class="action-link" @click="logout">
               SE DÉCONNECTER <span class="arrow">&rarr;</span>
             </div>
-            <Link href="/admin/programmes" v-if="user.Role === 'admin'" class="action-link dashboard-link"
-              @click="closeMenu">
+            <Link href="/admin/programmes" v-if="user.Role === 'admin' || user.Role === 'moderateur'"
+              class="action-link dashboard-link" @click="closeMenu">
               DASHBOARD <span class="arrow">&rarr;</span>
+            </Link>
+            <Link href="/admin/utilisateurs" v-if="user.Role === 'admin' || user.Role === 'moderateur'"
+              class="action-link" @click="closeMenu">
+              HISTORIQUE TRANSACTION <span class="arrow">&rarr;</span>
             </Link>
           </div>
         </div>

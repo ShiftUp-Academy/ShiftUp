@@ -26,11 +26,14 @@ CREATE INDEX idx_dispo_heure_debut ON DisponibiliteCoaching(HeureDebut);
 CREATE TABLE ReservationCoaching
 (
     IdReservation BIGSERIAL PRIMARY KEY,
-    IdUtilisateur BIGINT NOT NULL,
+    IdUtilisateur BIGINT NOT NULL REFERENCES Utilisateurs(IdUtilisateur) ON DELETE CASCADE,
     IdTypeCoaching BIGINT REFERENCES TypeDeCoaching(IdTypeCoaching),
     IdDisponibilite BIGINT REFERENCES DisponibiliteCoaching(IdDisponibilite) ON DELETE SET NULL,
+    HeureDebutReservation TIME,
     StatutReservation VARCHAR(50) DEFAULT 'En attente' CHECK (StatutReservation IN ('En attente', 'Confirmé', 'Annulé', 'Terminé')),
     NoteUtilisateur TEXT,
+    LienVideoReplay TEXT,
+    StatutReplay VARCHAR(50) DEFAULT 'Indisponible' CHECK (StatutReplay IN ('Indisponible', 'Disponible')),
     DateCreation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     DateMiseAJour TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

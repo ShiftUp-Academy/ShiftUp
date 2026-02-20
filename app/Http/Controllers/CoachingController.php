@@ -115,6 +115,10 @@ class CoachingController extends Controller
             $admin->notify(new \App\Notifications\CoachingReservationNotification($reservation, 'admin'));
         }
 
+        // Débloquer les réussites
+        $reussiteService = app(\App\Services\ReussiteService::class);
+        $reussiteService->checkAndUnlock(auth()->user(), 'reservation_evenement');
+
         return back()->with('success', 'Votre demande de coaching a été envoyée avec succès.');
     }
 

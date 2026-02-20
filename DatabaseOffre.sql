@@ -23,3 +23,10 @@ CREATE TABLE IF NOT EXISTS "OffreCoachings" (
     "IdTypeCoaching" BIGINT NOT NULL REFERENCES "TypeDeCoaching"("IdTypeCoaching") ON DELETE CASCADE,
     "ReductionSpecifique" DECIMAL(5, 2) DEFAULT NULL
 );
+
+CREATE TABLE IF NOT EXISTS "OffresUtilisateurs" (
+    "IdOffreUtilisateur" BIGSERIAL PRIMARY KEY,
+    "IdOffre" BIGINT NOT NULL REFERENCES "Offres"("IdOffre") ON DELETE CASCADE,
+    "IdUtilisateur" BIGINT NOT NULL REFERENCES "Utilisateurs"("IdUtilisateur") ON DELETE CASCADE,
+    "DateAttribution" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

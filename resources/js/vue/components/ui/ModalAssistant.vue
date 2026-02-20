@@ -1,7 +1,7 @@
 <template>
     <Transition @before-enter="beforeEnter" @enter="enter" @leave="leave" :css="false">
-        <div v-if="isOpen" class="modal-notif-wrapper" @click.stop ref="wrapperRef">
-            <LiquidGlass border-radius="30px 30px 0 30px" class="glass-container">
+        <div v-if="isOpen" class="modal-notif-wrapper" @click="$emit('close')" ref="wrapperRef">
+            <LiquidGlass border-radius="30px 30px 0 30px" class="glass-container" @click.stop>
                 <div class="modal-content">
                     <div class="modal-header">
                         <div class="toggle-container">

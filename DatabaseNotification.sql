@@ -1,13 +1,13 @@
 CREATE TABLE notifications (
-    id UUID PRIMARY KEY,
-    type VARCHAR(255) NOT NULL,
-    notifiable_type VARCHAR(255) NOT NULL,
-    notifiable_id BIGINT NOT NULL,
-    data TEXT NOT NULL,
-    read_at TIMESTAMP WITH TIME ZONE NULL,
-    created_at TIMESTAMP WITH TIME ZONE NULL,
-    updated_at TIMESTAMP WITH TIME ZONE NULL
+    Id UUID PRIMARY KEY,
+    Type VARCHAR(255) NOT NULL,
+    TypeDestinataire VARCHAR(255) NOT NULL,
+    IdDestinataire BIGINT NOT NULL,
+    Donnees TEXT NOT NULL,
+    DateLecture TIMESTAMP NULL,
+    DateCreation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    DateMiseAJour TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX notifications_notifiable_type_notifiable_id_index 
-ON notifications (notifiable_type, notifiable_id);
+CREATE INDEX notifications_destinataire_index 
+ON notifications (TypeDestinataire, IdDestinataire);

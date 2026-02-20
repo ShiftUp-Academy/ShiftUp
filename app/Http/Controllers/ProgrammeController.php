@@ -192,11 +192,9 @@ class ProgrammeController extends Controller
             abort(404);
         }
 
-        // If it's a local file path (starts with /storage/)
         if (str_starts_with($lesson->Contenu, '/storage/')) {
             $relativePath = str_replace('/storage/', '', $lesson->Contenu);
             
-            // Check in public disk
             if (Storage::disk('public')->exists($relativePath)) {
                 if ($request->has('download')) {
                     return Storage::disk('public')->download($relativePath);
@@ -208,7 +206,6 @@ class ProgrammeController extends Controller
             }
         }
 
-        // Fallback for external URLs or if file not found in storage
         return redirect($lesson->Contenu);
     }
 
@@ -249,6 +246,30 @@ class ProgrammeController extends Controller
                 'DateCompletion' => $request->est_termine ? now() : null
             ]
         );
+
+        if ($request->est_termine) {
+            $user = Utilisateur::find($userId);
+            $reussiteService = app(\App\Services\ReussiteService::class);
+            
+            $actionType = null;
+            $valeurs = [];
+            
+            if ($request->entite_type === 'Lecon') {
+                $actionType = 'lecon_terminee';
+                $valeurs = ['lesson_id' => $request->entite_id];
+            } elseif ($request->entite_type === 'Etape') {
+                $actionType = 'etape_passee';
+                $valeurs = ['step_id' => $request->entite_id];
+            }
+            
+            if ($actionType) {
+                $reussiteService->checkAndUnlock($user, $actionType, $valeurs);
+            }
+        }
+
+        if ($request->header('X-Inertia') || !$request->wantsJson()) {
+            return back();
+        }
 
         return response()->json(['success' => true, 'data' => $avancement]);
     }

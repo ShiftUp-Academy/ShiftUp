@@ -131,10 +131,10 @@
                                             </h4>
                                             <div class="lesson-meta-info">
                                                 <span><i class="fas fa-layer-group"></i> {{ (lesson.etapes?.length || 0)
-                                                }} étape(s)</span>
+                                                    }} étape(s)</span>
                                                 <span><i class="fas fa-history"></i> {{ lesson.DelaiDrop ?
                                                     lesson.DelaiDrop + 'h' : '0h'
-                                                }}</span>
+                                                    }}</span>
                                             </div>
                                         </div>
                                         <div class="lesson-action-icon">
@@ -167,25 +167,33 @@
                     <div class="fs-lesson-title-floating">{{ currentLesson?.Titre }}</div>
                 </div>
 
-                <!-- Main Content -->
                 <div class="fs-content-container" @scroll="handleScroll">
 
-                    <!-- Lesson Content (Video/Text) -->
                     <div v-if="!showSteps" class="fs-lesson-view fade-in">
                         <div class="fs-lesson-wrapper relative-wrapper">
 
-                            <!-- Actions Overlay (Top Left) -->
                             <div class="fs-actions-overlay">
                                 <a v-if="isPdfLesson" :href="pdfDownloadUrl" class="premium-btn-link fade-in" download
                                     target="_blank">
                                     <i class="fas fa-download mr-2"></i> Télécharger le PDF
                                 </a>
 
-                                <PremiumButton v-if="canProceedToSteps" class="fade-in" @click="proceedToSteps"
-                                    :style="{ '--btn-bg': 'rgba(0,0,0,0.6)', '--btn-gradient': 'linear-gradient(90deg, #8A38F5, #5e22ab)' }">
-                                    {{ (!currentLesson?.etapes?.length) ? 'Poser une question' : 'Passer aux étapes' }}
-                                    <i class="fas fa-arrow-right ml-2"></i>
-                                </PremiumButton>
+                                <div v-if="canProceedToSteps" class="fs-completion-actions fade-in">
+                                    <template v-if="!currentLesson?.etapes?.length">
+                                        <PremiumButton @click="openAskQuestionModal"
+                                            :style="{ '--btn-bg': 'rgba(0,0,0,0.6)', '--btn-gradient': 'linear-gradient(90deg, #8A38F5, #5e22ab)' }">
+                                            Poser une question
+                                            <i class="fas fa-question-circle ml-2"></i>
+                                        </PremiumButton>
+                                    </template>
+                                    <template v-else>
+                                        <PremiumButton @click="proceedToSteps"
+                                            :style="{ '--btn-bg': 'rgba(0,0,0,0.6)', '--btn-gradient': 'linear-gradient(90deg, #8A38F5, #5e22ab)' }">
+                                            Passer aux étapes
+                                            <i class="fas fa-arrow-right ml-2"></i>
+                                        </PremiumButton>
+                                    </template>
+                                </div>
                             </div>
 
                             <LessonContentPlayer v-if="currentLesson" :lesson="currentLesson" :fullScreenMode="true"
@@ -246,14 +254,18 @@
                                 </div>
                             </div>
                         </div>
-                        <div v-else-if="currentLesson?.etapes?.length === 0" class="empty-steps">
-                            <p>Cette leçon ne contient pas d'étapes supplémentaires.</p>
-                        </div>
 
                         <div class="fs-action-footer">
                             <button v-if="hasNextStep" class="fs-next-btn" @click="nextStep">
                                 Passer à l'étape suivante <i class="fas fa-arrow-right"></i>
                             </button>
+                            <div v-else class="fs-final-actions">
+                                <PremiumButton @click="openAskQuestionModal" :disabled="!isStepValidated"
+                                    :style="{ '--btn-bg': 'rgba(0,0,0,0.6)', '--btn-gradient': 'linear-gradient(90deg, #8A38F5, #5e22ab)' }">
+                                    Poser une question
+                                    <i class="fas fa-question-circle ml-2"></i>
+                                </PremiumButton>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -723,15 +735,20 @@ const markLessonComplete = () => {
         lessonProgress.value[lessonId].EstTermine = true;
 
         // Persist to backend
-        axios.post('/progress/mark', {
+        router.post('/progress/mark', {
             entite_id: lessonId,
             entite_type: 'Lecon',
             est_termine: true
-        }).catch(err => {
-            console.error('Failed to save progress', err);
+        }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                closeLessonModal();
+            },
+            onError: (errors) => {
+                console.error('Failed to save progress', errors);
+            }
         });
     }
-    closeLessonModal();
 };
 
 // Hover Effect Logic
@@ -1388,6 +1405,41 @@ onMounted(() => {
 
 .step-view {
     animation: fadeIn 0.3s ease;
+}
+
+.fs-completion-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.fs-simple-complete-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    backdrop-filter: blur(5px);
+}
+
+.fs-simple-complete-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: white;
+}
+
+.fs-simple-complete-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.fs-final-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    width: 100%;
 }
 
 @keyframes fadeIn {

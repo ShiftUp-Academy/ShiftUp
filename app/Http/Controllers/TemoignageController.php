@@ -49,6 +49,11 @@ class TemoignageController extends Controller
 
         $temoignage->save();
 
+        // Débloquer les réussites
+        $reussiteService = app(\App\Services\ReussiteService::class);
+        $user = \App\Models\Utilisateur::find($temoignage->IdUtilisateur);
+        $reussiteService->checkAndUnlock($user, 'temoignage_laisse');
+
         // Notification Admin
         $admins = \App\Models\Utilisateur::where('Role', 'admin')->get();
         Notification::send($admins, new ActiviteAdminNotification(
