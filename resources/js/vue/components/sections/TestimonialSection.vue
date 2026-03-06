@@ -32,6 +32,7 @@
       <div class="set-wrapper" ref="set1Ref">
         <div class="testimonial-wrapper" v-for="t in finalTestimonials" :key="t.IdTemoignage || t.id">
           <TestimonialCard
+            @clickProfile="t.utilisateur ? openProfile(t.utilisateur.IdUtilisateur) : null"
             :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || t.fallbackName || $t('Member'))"
             :role="t.utilisateur?.profil?.Metier || (t.fallbackRole ? $t(t.fallbackRole) : $t('Member'))"
             :avatar="t.utilisateur?.profil?.PhotoProfil || t.fallbackAvatar || '/images/placeholder.jpg'"
@@ -43,6 +44,7 @@
       <div class="set-wrapper" ref="set2Ref" v-if="finalTestimonials.length > 0">
         <div class="testimonial-wrapper" v-for="t in finalTestimonials" :key="'clone-' + (t.IdTemoignage || t.id)">
           <TestimonialCard
+            @clickProfile="t.utilisateur ? openProfile(t.utilisateur.IdUtilisateur) : null"
             :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || t.fallbackName || $t('Member'))"
             :role="t.utilisateur?.profil?.Metier || (t.fallbackRole ? $t(t.fallbackRole) : $t('Member'))"
             :avatar="t.utilisateur?.profil?.PhotoProfil || t.fallbackAvatar || '/images/placeholder.jpg'"
@@ -51,6 +53,7 @@
       </div>
     </div>
 
+    <PublicProfileModal :isOpen="showPublicProfile" :userId="selectedUserId" @close="showPublicProfile = false" />
   </section>
 </template>
 
@@ -63,6 +66,7 @@ const page = usePage();
 const $t = (key) => page.props.translations?.[key] || key;
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import TestimonialCard from '../ui/TestimonialCard.vue';
+import PublicProfileModal from '../ui/PublicProfileModal.vue';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -72,6 +76,16 @@ const props = defineProps({
     default: () => []
   }
 });
+
+const showPublicProfile = ref(false);
+const selectedUserId = ref(null);
+
+const openProfile = (userId) => {
+  if (userId) {
+    selectedUserId.value = userId;
+    showPublicProfile.value = true;
+  }
+};
 
 const fallbackTestimonials = [
   {

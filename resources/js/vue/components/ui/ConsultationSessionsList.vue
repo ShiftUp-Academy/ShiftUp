@@ -8,7 +8,7 @@
       <div class="main-content scrollable" data-lenis-prevent>
         <div v-for="(item, index) in sessions" :key="index" class="session-item">
           <div class="item-header">{{ $t('Consultations.the_questions') }}</div>
-          <div class="author-row">
+          <div class="author-row" @click="openProfile()" style="cursor: pointer;">
             <img :src="getAuthorAvatar()" :alt="getAuthorName()" class="avatar" />
             <span class="author-name">{{ getAuthorName() }}</span>
           </div>
@@ -26,15 +26,28 @@
         </div>
       </div>
     </div>
+
+    <PublicProfileModal :isOpen="showPublicProfile" :userId="selectedUserId" @close="showPublicProfile = false" />
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { usePage } from '@inertiajs/vue3';
+import PublicProfileModal from './PublicProfileModal.vue';
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
+
+const showPublicProfile = ref(false);
+const selectedUserId = ref(null);
+
+const openProfile = () => {
+  if (user.value?.IdUtilisateur) {
+    selectedUserId.value = user.value.IdUtilisateur;
+    showPublicProfile.value = true;
+  }
+};
 
 const props = defineProps({
   sessions: {

@@ -378,7 +378,7 @@ const startSwipeHintTimer = () => {
   };
 
   triggerHint();
-  swipeHintInterval = setInterval(triggerHint, 100000);
+  swipeHintInterval = setInterval(triggerHint, 60000);
 };
 
 const currentLocale = computed(() => page.props.locale || 'fr');
@@ -1308,7 +1308,7 @@ spline-viewer.is-ready {
 
 .robot-notif-badge {
   position: absolute;
-  top: 15vh;
+  top: 17vh;
   right: 2vw;
   background: linear-gradient(135deg, #1a73e8, #8A38F5);
   color: white;
@@ -1323,7 +1323,6 @@ spline-viewer.is-ready {
   justify-content: center;
   box-shadow: 0 4px 10px rgba(26, 115, 232, 0.4);
   z-index: 20;
-  border: 2px solid #000;
 }
 
 .scale-enter-active,
@@ -1530,15 +1529,15 @@ spline-viewer.is-ready {
     pointer-events: auto;
   }
 
-  /* Specific mobile positioning for badge - separated to ensure visibility */
   .robot-notif-badge {
     position: absolute !important;
-    top: -5px !important;
+    top: -6vh !important;
     right: 5px !important;
     min-width: 20px !important;
     height: 20px !important;
     font-size: 0.75rem !important;
     padding: 2px !important;
+    border: none !important;
     display: flex !important;
     z-index: 9999 !important;
     background: linear-gradient(135deg, #1a73e8, #8A38F5) !important;
@@ -1634,7 +1633,6 @@ spline-viewer.is-ready {
     transform: none !important;
     z-index: 9999 !important;
     box-shadow: 0 4px 10px rgba(138, 56, 245, 0.5) !important;
-    border: 1.5px solid #171717 !important;
   }
 }
 

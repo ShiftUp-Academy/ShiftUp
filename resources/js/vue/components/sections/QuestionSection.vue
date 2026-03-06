@@ -26,7 +26,7 @@
       <div v-if="isSearching" class="questions-list">
         <div v-for="(item, index) in filteredQuestions" :key="index" class="session-item full-page-item">
           <div class="item-header">{{ $t('QuestionSection.les_questions') }}</div>
-          <div class="author-row">
+          <div class="author-row" @click="openProfile(item)" style="cursor: pointer;">
             <img :src="getAuthorAvatar(item)" :alt="getAuthorName(item)" class="avatar" />
             <div class="author-info">
               <span class="author-name">{{ getAuthorName(item) }}</span>
@@ -60,6 +60,7 @@
         </p>
       </div>
     </div>
+    <PublicProfileModal :isOpen="showPublicProfile" :userId="selectedUserId" @close="showPublicProfile = false" />
   </section>
 </template>
 
@@ -68,6 +69,7 @@ import { ref, reactive, computed } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import AutoComplete from 'primevue/autocomplete';
 import Select from 'primevue/select';
+import PublicProfileModal from '../ui/PublicProfileModal.vue';
 
 const page = usePage();
 const $t = (key) => page.props.translations?.[key] || key;
@@ -84,6 +86,19 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['view-detail']);
+
+const showPublicProfile = ref(false);
+const selectedUserId = ref(null);
+
+const openProfile = (item) => {
+  if (item.questionsLibres && item.questionsLibres.length > 0) {
+    const userId = item.questionsLibres[0].IdUtilisateur;
+    if (userId) {
+      selectedUserId.value = userId;
+      showPublicProfile.value = true;
+    }
+  }
+};
 
 const filters = reactive({
   search: '',

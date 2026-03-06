@@ -3,7 +3,7 @@
     :style="{ '--mouse-x': flash.x, '--mouse-y': flash.y, '--flash-opacity': flash.opacity }">
     <!-- Contenu Principal -->
     <div class="card-content">
-      <div class="author-info">
+      <div class="author-info" @click="emit('clickProfile')" style="cursor: pointer;">
         <div class="avatar-wrapper">
           <img :src="avatar" :alt="name" class="avatar" />
           <div class="avatar-border-glow"></div>
@@ -35,6 +35,8 @@ defineProps({
   avatar: String,
   text: String,
 });
+
+const emit = defineEmits(['clickProfile']);
 
 const flash = reactive({ x: '50%', y: '50%', opacity: 0 });
 const cardRef = ref(null);

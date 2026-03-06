@@ -1,6 +1,6 @@
 <template>
     <Teleport to="body">
-        <div ref="profileOverlay" class="public-profile-overlay" :class="{ 'is-open': isOpen }">
+        <div ref="profileOverlay" class="public-profile-overlay" :class="{ 'is-open': isOpen }" data-lenis-prevent>
             <div class="global-close-btn" @click="emit('close')">
                 <i class="fa-solid fa-times"></i>
             </div>
@@ -11,7 +11,7 @@
             </div>
 
             <div v-else-if="userData" class="menu-columns">
-                <div class="menu-column user-profile-column animation-slide-up">
+                <div class="menu-column user-profile-column animation-slide-up" data-lenis-prevent>
                     <div class="profile-header-section">
                         <div class="avatar-container">
                             <img v-if="userData.profil?.PhotoProfil" :src="userData.profil.PhotoProfil" alt="Avatar"
@@ -73,7 +73,7 @@
                                 <span class="rotate-text">{{ $t('PublicProfile.Testimonials') }}</span>
                             </div>
                             <div class="cube-face face-right">
-                                <div class="scrollable-content">
+                                <div class="scrollable-content" data-lenis-prevent>
                                     <div class="testimonials-list" v-if="userData.temoignages?.length > 0">
                                         <div v-for="t in userData.temoignages" :key="t.IdTemoignage"
                                             class="mini-testimonial-card">
@@ -81,7 +81,17 @@
                                                 <span class="testimonial-date">{{ formatDate(t.DateCreation) }}</span>
                                             </div>
                                             <p class="testimonial-text">{{ t.ContenuTexte }}</p>
-                                        </div>
+                                            <div v-if="t.Type === 'Video' || t.Type === 'Photo'" class="testimonial-media">
+                                                <template v-if="t.Type === 'Video'">
+                                                    <iframe v-if="isYoutube(t.CheminFichier)" :src="getYoutubeEmbed(t.CheminFichier)" frameborder="0" allowfullscreen class="media-preview"></iframe>
+                                                    <video v-else controls class="media-preview">
+                                                        <source :src="t.CheminFichier" type="video/mp4" />
+                                                    </video>
+                                                </template>
+                                                <div v-else-if="t.Type === 'Photo'" class="image-preview">
+                                                    <img :src="t.CheminFichier" alt="Témoignage Media" loading="lazy" />
+                                                </div>
+                                            </div>                                        </div>
                                     </div>
                                     <div v-else class="empty-column-state">
                                         <p>{{ $t('PublicProfile.NoTestimonials') }}</p>
@@ -100,13 +110,15 @@
                                 <span class="rotate-text">{{ $t('PublicProfile.Badges') }}</span>
                             </div>
                             <div class="cube-face face-right">
-                                <div class="scrollable-content">
+                                <div class="scrollable-content" data-lenis-prevent>
                                     <div class="badges-grid" v-if="userData.reussites?.length > 0">
-                                        <div v-for="r in userData.reussites" :key="r.id" class="mini-badge-card">
-                                            <div class="badge-visual">
+                                        <div v-for="r in userData.reussites" :key="r.id" class="mini-badge-card" @mousemove="handleFlash($event)" @mouseleave="clearFlash($event)">
+                                            <div class="flash-effect"></div>
+                                            <div class="video-circle-wrapper">
                                                 <video v-if="r.video_link" :src="r.video_link" autoplay loop muted
-                                                    playsinline></video>
-                                                <i v-else class="fas fa-medal"></i>
+                                                    playsinline class="badge-video-circle"></video>
+                                                <i v-else class="fas fa-medal fallback-medal"></i>
+                                                <div v-if="r.video_link" class="glow-ring"></div>
                                             </div>
                                             <div class="badge-info">
                                                 <span class="badge-name">{{ r.nom }}</span>
@@ -170,6 +182,8 @@ const fetchProfile = async (id) => {
 
 watch(() => props.isOpen, async (newVal) => {
     if (newVal) {
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
         if (props.userId) {
             fetchProfile(props.userId);
         }
@@ -188,6 +202,8 @@ watch(() => props.isOpen, async (newVal) => {
             );
         }
     } else {
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
         if (profileOverlay.value) {
             gsap.to(profileOverlay.value, {
                 height: 0,
@@ -225,6 +241,39 @@ const formatDate = (dateString) => {
     }
 };
 
+const isYoutube = (url) => {
+    if (!url) return false;
+    return url.includes('youtube.com') || url.includes('youtu.be');
+};
+
+const handleFlash = (e) => {
+    const card = e.currentTarget;
+    const flash = card.querySelector('.flash-effect');
+    if (!flash) return;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    flash.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255, 255, 255, 0.2), transparent 40%)`;
+};
+
+const clearFlash = (e) => {
+    const card = e.currentTarget;
+    const flash = card.querySelector('.flash-effect');
+    if (!flash) return;
+    flash.style.background = 'transparent';
+};
+
+const getYoutubeEmbed = (url) => {
+    if (!url) return '';
+    let videoId = '';
+    if (url.includes('youtu.be')) {
+        videoId = url.split('/').pop();
+    } else if (url.includes('v=')) {
+        videoId = url.split('v=')[1].split('&')[0];
+    }
+    return `https://www.youtube.com/embed/${videoId}`;
+};
+
 const handleOutsideClick = (event) => {
     if (!props.isOpen) return;
     // Si on clique sur le fond de l'overlay (qui est à height: 85vh)
@@ -239,6 +288,8 @@ onMounted(() => {
 
 onUnmounted(() => {
     window.removeEventListener('mousedown', handleOutsideClick);
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
 });
 </script>
 
@@ -352,10 +403,11 @@ onUnmounted(() => {
 
 .face-right {
     transform: rotateY(90deg) translateZ(60px);
-    padding: 40px 30px;
+    padding: 20px 10px;
     background-color: transparent;
     justify-content: flex-start;
     align-items: stretch;
+    box-sizing: border-box;
 }
 
 .menu-column:hover .cube-container {
@@ -373,7 +425,6 @@ onUnmounted(() => {
     color: #000;
 }
 
-/* Testimonials Hover Colors */
 .col-testimonials:hover {
     background-color: #1A237E !important;
 }
@@ -393,12 +444,10 @@ onUnmounted(() => {
 
 .col-testimonials .mini-testimonial-card {
     border-bottom: 1px solid #ffffffcd;
-    /* White horizontal line */
     padding-bottom: 20px;
     margin-bottom: 10px;
 }
 
-/* Badges Hover Colors */
 .col-badges:hover {
     background-color: #8A38F5 !important;
 }
@@ -411,41 +460,79 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
-    padding: 20px;
+    padding: 20px !important;
     background: #000;
-    /* Black cards */
     border-radius: 35px;
-    /* 35px radius */
     width: 100%;
-    margin-bottom: 15px;
+    margin-top: 1vh;
+    margin-bottom: 1vh;
     transition: transform 0.3s;
+    position: relative;
+    overflow: hidden;
 }
 
-.mini-badge-card:hover {
-    transform: translateY(-5px);
+.flash-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    transition: background 0.1s;
+    z-index: 0;
 }
 
-.badge-visual {
+.video-circle-wrapper {
+    position: relative;
+    z-index: 1;
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    overflow: hidden;
-    background: #111;
+    position: relative;
     flex-shrink: 0;
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: 1px solid #333;
 }
 
-.badge-visual video {
+.badge-video-circle {
     width: 100%;
     height: 100%;
+    border-radius: 50%;
     object-fit: cover;
+    z-index: 2;
+    position: relative;
+}
+
+.glow-ring {
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #F7B455, #00D2FF);
+    z-index: 1;
+    opacity: 0.5;
+    filter: blur(12px);
+}
+
+.fallback-medal {
+    font-size: 2rem;
+    color: #fff;
+    z-index: 2;
+}
+
+
+.badge-info {
+    margin-top: 15px;
+    position: relative;
+    z-index: 1;
 }
 
 .badge-name {
     font-size: 1rem;
-    font-weight: 700;
-    color: #FFF;
+    font-weight: 400;
+    color: #FFF !important;
     text-transform: uppercase;
     text-align: center;
 }
@@ -457,15 +544,6 @@ onUnmounted(() => {
     scroll-behavior: smooth;
     scrollbar-width: thin;
     scrollbar-color: #8A38F5 transparent;
-}
-
-.menu-column.user-profile-column::-webkit-scrollbar {
-    width: 6px;
-}
-
-.menu-column.user-profile-column::-webkit-scrollbar-thumb {
-    background: #8A38F5;
-    border-radius: 10px;
 }
 
 .profile-header-section {
@@ -518,8 +596,8 @@ onUnmounted(() => {
 }
 
 .separator-line {
-    height: 1px;
-    background-color: #212121;
+    height: 0.5px;
+    background-color: #5d5c5c;
     margin: 1.5rem 0;
     width: 100%;
 }
@@ -574,12 +652,16 @@ onUnmounted(() => {
 
 .scrollable-content {
     width: 100%;
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     scroll-behavior: smooth;
-    padding-right: 5px;
+    padding: 0 10px 40px;
     scrollbar-width: thin;
     scrollbar-color: #8A38F5 transparent;
+    pointer-events: auto;
+    box-sizing: border-box;
 }
 
 .scrollable-content::-webkit-scrollbar {
@@ -601,122 +683,123 @@ onUnmounted(() => {
     filter: grayscale(0.5);
 }
 
-.testimonials-list,
-.badges-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+.testimonial-media {
+    margin-top: 15px;
+    border-radius: 12px;
+    overflow: hidden;
+    width: 100%;
+    background: #000;
 }
 
-.mini-testimonial-card {
-    border-bottom: 2px solid #000;
-    padding-bottom: 15px;
+.media-preview {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    display: block;
 }
 
-.testimonial-date {
-    font-size: 0.9rem;
-    color: #666;
-}
-
-.testimonial-text {
-    font-size: 1.1rem;
-    color: inherit;
-    /* Fallback to parent color (white in hover) */
-    margin-top: 10px;
-    line-height: 1.4;
-}
-
-.mini-badge-card {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding: 10px;
-    border: 1px solid transparent;
-    transition: 0.3s;
-}
-
-.mini-badge-card:hover {
-    background: rgba(0, 0, 0, 0.05);
-}
-
-.badge-visual {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
+.image-preview {
+    width: 100%;
+    max-height: 250px;
+    border-radius: 12px;
     overflow: hidden;
     background: #000;
-    flex-shrink: 0;
-    border: 2px solid #000;
 }
 
-.badge-visual video {
+.image-preview img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
 }
 
-.badge-name {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #000;
-    text-transform: uppercase;
-}
+
 
 .empty-column-state {
     text-align: center;
-    color: #999;
+    color: #ffffff;
+    align-content: center;
+    align-items: center;
     font-size: 1rem;
-    padding-top: 40px;
-    font-style: italic;
 }
 
 @media (max-width: 992px) {
     .menu-columns {
         flex-direction: column;
         overflow-y: auto;
+        height: 100vh;
+        -webkit-overflow-scrolling: touch;
     }
 
     .menu-column {
         flex: none;
         width: 100%;
-        min-height: 300px;
+        min-height: auto;
         border-left: none;
-        border-bottom: 1px solid #000;
-        padding: 40px 20px;
+        border-bottom: 1px solid #ccc;
+        padding: 30px 20px;
+    }
+
+    .menu-column.user-profile-column {
+        padding-top: 100px;
+        padding-bottom: 40px;
     }
 
     .rotate-text {
         writing-mode: horizontal-tb;
         transform: none;
-        font-size: 2rem;
+        font-size: 2.2rem;
+        text-align: center;
+        width: 100%;
+    }
+
+    .cube-scene {
+        perspective: none;
+        height: auto;
+        display: block;
     }
 
     .cube-container {
-        height: 100px;
+        height: auto !important;
+        transform: none !important;
+        position: relative;
+    }
+
+    .cube-face {
+        position: relative;
+        height: auto;
+        transform: none !important;
+    }
+
+    .face-front {
+        margin-bottom: 20px;
+        align-items: center;
+        justify-content: center;
         width: 100%;
     }
 
     .face-right {
-        transform: rotateX(-90deg) translateZ(50px);
-    }
-
-    .face-front {
-        transform: rotateX(0deg) translateZ(50px);
+        padding: 0;
+        background: transparent !important;
     }
 
     .menu-column:hover .cube-container {
-        transform: rotateX(90deg);
+        transform: none !important;
+    }
+
+    .scrollable-content {
+        height: auto;
+        overflow: visible;
+        padding: 0;
     }
 
     .public-profile-overlay {
-        height: auto !important;
+        height: 100vh !important;
         max-height: 0;
         transition: max-height 0.8s ease;
     }
 
     .public-profile-overlay.is-open {
         max-height: 100vh;
-        overflow-y: auto;
     }
 }
 </style>

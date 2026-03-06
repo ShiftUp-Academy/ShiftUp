@@ -8,7 +8,7 @@
       <div class="main-content scrollable" data-lenis-prevent>
         <div v-for="(item, index) in consultations" :key="index" class="replay-item">
           <div class="item-header">{{ $t('Consultations.the_questions') }}</div>
-          <div class="author-row">
+          <div class="author-row" @click="openProfile(item.questions)" style="cursor: pointer;">
             <img :src="getAuthorAvatar(item.questions)" :alt="getAuthorName(item.questions)" class="avatar" />
             <span class="author-name">{{ getAuthorName(item.questions) }}</span>
           </div>
@@ -23,16 +23,31 @@
         </div>
       </div>
     </div>
+    <PublicProfileModal :isOpen="showPublicProfile" :userId="selectedUserId" @close="showPublicProfile = false" />
   </div>
 </template>
 
 <script setup>
+import { computed, ref } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+import PublicProfileModal from './PublicProfileModal.vue';
+
 const props = defineProps({
   consultations: {
     type: Array,
     default: () => []
   }
 });
+
+const showPublicProfile = ref(false);
+const selectedUserId = ref(null);
+
+const openProfile = (questions) => {
+  if (questions && questions.length > 0 && questions[0].IdUtilisateur) {
+    selectedUserId.value = questions[0].IdUtilisateur;
+    showPublicProfile.value = true;
+  }
+};
 
 const emit = defineEmits(['view-detail']);
 
