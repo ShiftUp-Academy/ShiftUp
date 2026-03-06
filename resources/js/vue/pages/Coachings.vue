@@ -472,9 +472,10 @@ const getReplayFlashStyle = (id) => {
 }
 
 .h-category {
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.4);
-    font-weight: 500;
+    font-size: 1rem;
+    width: 10vw;
+    color: rgb(255, 255, 255);
+    font-weight: 300;
 }
 
 .h-action {
@@ -485,17 +486,16 @@ const getReplayFlashStyle = (id) => {
 }
 
 .archive-card-new {
-    background-color: #000;
+    background: linear-gradient(135deg, #202020 0%, #1A888D 50%, #F7B455 100%);
     padding: 30px 40px;
     border-radius: 0 !important;
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.05);
     transition: transform 0.3s ease;
 }
 
 .archive-card-new:hover {
-    border-color: rgba(255, 255, 255, 0.267);
+    border-color: rgba(255, 255, 255, 0.74);
 }
 
 .archive-card-new .archive-icon {
@@ -511,8 +511,8 @@ const getReplayFlashStyle = (id) => {
 }
 
 .archive-card-new .h-action {
-    color: #fff;
-    opacity: 0.6;
+    color: #000000;
+    font-weight: 500;
 }
 
 .flashlight-overlay {

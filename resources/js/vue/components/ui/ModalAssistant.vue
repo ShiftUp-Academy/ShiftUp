@@ -7,11 +7,11 @@
                         <div class="toggle-container">
                             <button :class="['toggle-bt', activeTab === 'assistant' ? 'active' : '']"
                                 @click="activeTab = 'assistant'">
-                                Assistant
+                                {{ $t('ModalAssistant.Assistant') }}
                             </button>
                             <button :class="['toggle-bt', activeTab === 'notif' ? 'active' : '']"
                                 @click="activeTab = 'notif'">
-                                Notification
+                                {{ $t('ModalAssistant.Notification') }}
                             </button>
                         </div>
                     </div>
@@ -21,16 +21,17 @@
                             <div v-if="activeTab === 'notif'" key="notif" class="notifications-list custom-scrollbar">
                                 <div v-if="notifications.length === 0" class="empty-state">
                                     <i class="fas fa-bell-slash"></i>
-                                    <p>Aucune nouvelle activité.</p>
+                                    <p>{{ $t('ModalAssistant.AucuneActivite') }}</p>
                                 </div>
                                 <div v-else v-for="(notif, index) in notifications" :key="notif.Id"
                                     :class="['notif-item', !notif.DateLecture ? 'unread' : '']"
+                                    :title="!notif.DateLecture ? $t('ModalAssistant.NonLu') : $t('ModalAssistant.DejaLu')"
                                     @click="markAsRead(notif)">
                                     <div class="notif-icon">
                                         <i :class="notif.Donnees.icone || 'fas fa-info-circle'"></i>
                                     </div>
                                     <div class="notif-body">
-                                        <p class="notif-text">{{ notif.Donnees.message }}</p>
+                                        <p class="notif-text">{{ getTranslatedMessage(notif.Donnees.message) }}</p>
                                         <span class="notif-time">{{ formatDate(notif.DateCreation) }}</span>
                                     </div>
                                     <div v-if="!notif.DateLecture" class="unread-dot"></div>
@@ -52,6 +53,7 @@
 <script setup>
 import { ref } from 'vue';
 import { gsap } from 'gsap';
+import { usePage } from '@inertiajs/vue3';
 import LiquidGlass from './LiquidGlass.vue';
 import ChatAssistant from './ChatAssistant.vue';
 
@@ -63,6 +65,9 @@ const props = defineProps({
     }
 });
 
+const page = usePage();
+const $t = (key) => page.props.translations?.[key] || key;
+
 const activeTab = ref('notif');
 const emit = defineEmits(['close', 'refresh']);
 
@@ -72,10 +77,10 @@ const formatDate = (dateString) => {
     const now = new Date();
     const diffInSeconds = Math.floor((now - date) / 1000);
 
-    if (diffInSeconds < 60) return "À l'instant";
-    if (diffInSeconds < 3600) return `Il y a ${Math.floor(diffInSeconds / 60)} min`;
-    if (diffInSeconds < 86400) return `Il y a ${Math.floor(diffInSeconds / 3600)} h`;
-    return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+    if (diffInSeconds < 60) return $t('ModalAssistant.ALInstant');
+    if (diffInSeconds < 3600) return $t('ModalAssistant.IlYAMin').replace(':min', Math.floor(diffInSeconds / 60));
+    if (diffInSeconds < 86400) return $t('ModalAssistant.IlYAH').replace(':h', Math.floor(diffInSeconds / 3600));
+    return date.toLocaleDateString(page.props.locale === 'en' ? 'en-US' : (page.props.locale === 'mg' ? 'mg-MG' : 'fr-FR'), { day: 'numeric', month: 'short' });
 };
 
 const markAsRead = async (notif) => {
@@ -97,6 +102,54 @@ const markAsRead = async (notif) => {
     if (notif.Donnees.lien) {
         window.location.href = notif.Donnees.lien;
     }
+};
+
+const getTranslatedMessage = (msg) => {
+    if (!msg) return '';
+
+    // "Nouveau programme : Titre"
+    let match = msg.match(/^Nouveau (.*?) : (.*)$/);
+    if (match) {
+        const typeOrig = match[1].trim();
+        const typeTr = page.props.translations?.[`ModAssistantMsg.Type_${typeOrig.toLowerCase()}`] || typeOrig; 
+        let translated = page.props.translations?.['ModAssistantMsg.NouveauContenu'] || `Nouveau ${typeTr} : :titre`;
+        return translated.replace(':type', typeTr).replace(':titre', match[2].trim());
+    }
+
+    // "Nouvelle réservation de Jean pour Coaching"
+    match = msg.match(/^Nouvelle réservation de (.*?) pour (.*)$/);
+    if (match) {
+        let translated = page.props.translations?.['ModAssistantMsg.NouvelleReservationAdmin'] || 'Nouvelle réservation de :nom pour :type';
+        return translated.replace(':nom', match[1].trim()).replace(':type', match[2].trim());
+    }
+
+    // "Votre réservation pour Coaching est enregistrée."
+    match = msg.match(/^Votre réservation pour (.*?) est enregistrée\.$/);
+    if (match) {
+        let translated = page.props.translations?.['ModAssistantMsg.VotreReservation'] || 'Votre réservation pour :type est enregistrée.';
+        return translated.replace(':type', match[1].trim());
+    }
+
+    // "L'admin a répondu à votre question : Titre"
+    match = msg.match(/^L'admin a répondu à votre question : (.*)$/);
+    if (match) {
+        let translated = page.props.translations?.['ModAssistantMsg.ReponseAdmin'] || "L'admin a répondu à votre question : :titre";
+        return translated.replace(':titre', match[1].trim());
+    }
+
+    // "Votre étape "Titre" a été validée."
+    match = msg.match(/^Votre étape "(.*?)" a été (validée|rejetée)\.$/);
+    if (match) {
+        const statusOrig = match[2];
+        const statusTr = statusOrig === 'validée' ? 
+            (page.props.translations?.['ModAssistantMsg.Validee'] || 'validée') : 
+            (page.props.translations?.['ModAssistantMsg.Rejetee'] || 'rejetée');
+        
+        let translated = page.props.translations?.['ModAssistantMsg.EtapeValidation'] || 'Votre étape ":titre" a été :statut.';
+        return translated.replace(':titre', match[1].trim()).replace(':statut', statusTr);
+    }
+
+    return msg;
 };
 
 const beforeEnter = (el) => {
