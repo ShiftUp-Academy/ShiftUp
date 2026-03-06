@@ -4,21 +4,21 @@
       <div class="filter-item search-wrapper">
         <AutoComplete :modelValue="searchValue" @update:modelValue="$emit('update:searchValue', $event)"
           :suggestions="suggestions" @complete="$emit('complete', $event)"
-          @item-select="$emit('select-suggestion', $event.value)" placeholder="recherchez par mot clé"
+          @item-select="$emit('select-suggestion', $event.value)" :placeholder="$t('SearchPlaceholder')"
           class="search-autocomplete full-width-prime" />
       </div>
 
       <div class="filter-item category-wrapper">
         <FloatLabel variant="on" class="full-width-float">
           <Select :modelValue="selectedCategory" @update:modelValue="$emit('update:selectedCategory', $event)"
-            inputId="category_label" placeholder="Catégorie" :options="categories" optionLabel="name" editable
+            inputId="category_label" :placeholder="$t('Category')" :options="categories" optionLabel="name" editable
             class="search-select full-width-prime" />
         </FloatLabel>
       </div>
     </div>
 
     <div class="actions-wrapper">
-      <button class="reset-button" @click="$emit('reset')" title="Réinitialiser">
+      <button class="reset-button" @click="$emit('reset')" :title="$t('Reset')">
         <svg viewBox="0 0 24 24" fill="none" class="reset-icon">
           <path
             d="M4 4V9H4.58152M19.9381 11C19.446 7.05361 16.0796 4 12 4C8.64262 4 5.76829 6.06817 4.58152 9M4.58152 9H9M20 20V15H19.4185M19.4185 15C18.2317 17.9318 15.3574 20 12 20C7.92038 20 4.55399 16.9464 4.06189 13M19.4185 15H15"
@@ -27,11 +27,11 @@
       </button>
 
       <button class="text-reset-button" @click="$emit('reset')">
-        ACTUALISER
+        {{ $t('Refresh') }}
       </button>
 
       <button v-if="showViewAll" class="view-all-button" @click="$emit('view-all')">
-        <span class="btn-text">TOUT VOIR</span>
+        <span class="btn-text">{{ $t('ViewAll') }}</span>
         <svg viewBox="0 0 24 24" fill="none" class="arrow-icon">
           <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round" />

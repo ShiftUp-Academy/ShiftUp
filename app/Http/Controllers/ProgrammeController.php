@@ -8,7 +8,17 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use App\Models\Utilisateur;
-use App\Notifications\NouveauContenuNotification;
+use App\Models\ReponseEtapeUtilisateur;
+use App\Models\DetailReponseUtilisateur;
+use App\Models\Etape;
+use App\Models\Live;
+use App\Models\Consultation;
+use App\Models\Offre;
+use App\Models\Temoignage;
+use App\Models\TypeDeCoaching;
+use App\Models\ReponseConsultation;
+use App\Models\Categorie;
+use App\Models\Reussite;
 use Illuminate\Support\Facades\Notification;
 
 class ProgrammeController extends Controller
@@ -47,7 +57,8 @@ class ProgrammeController extends Controller
 
         return Inertia::render('PagesAdmin/AdminProgrammes', [
             'programmes' => $programmes,
-            'categories' => $categories
+            'categories' => $categories,
+            'pendingValidationsCount' => \App\Models\ReponseEtapeUtilisateur::where('StatutValidation', 'Attente')->count()
         ]);
     }
 
@@ -905,6 +916,7 @@ class ProgrammeController extends Controller
             ->get()
             ->map(function ($p) {
                 $p->trash_status = 'deleted_program';
+                $p->display_title = $p->Titre;
                 return $p;
             });
 
@@ -919,6 +931,7 @@ class ProgrammeController extends Controller
             ->map(function ($p) {
                 $p->trash_status = 'has_deleted_content';
                 $p->deleted_lessons_count = $p->lecons->count();
+                $p->display_title = $p->Titre;
                 return $p;
             });
 
@@ -933,16 +946,81 @@ class ProgrammeController extends Controller
             ->map(function ($p) {
                 $p->trash_status = 'has_deleted_content';
                 $p->deleted_themes_count = $p->themes->count();
+                $p->display_title = $p->Titre;
                 return $p;
-            }); 
+            });
+        
         $merged = $deletedPrograms
             ->concat($programsWithDeletedLessons)
             ->concat($programsWithDeletedThemes)
             ->unique('IdProgrammeFormation')
             ->values();
 
-        return response()->json($merged);
+
+        $deletedLives = Live::onlyTrashed()->with('auteur')->get()->map(function($item) {
+            $item->trash_type = 'live';
+            $item->display_title = $item->Titre;
+            return $item;
+        });
+
+        $deletedConsultations = Consultation::onlyTrashed()->with('utilisateur.profil')->get()->map(function($item) {
+            $item->trash_type = 'consultation';
+            $item->display_title = $item->Titre;
+            return $item;
+        });
+
+        $deletedRentrees = ReponseConsultation::onlyTrashed()->with('categorie')->get()->map(function($item) {
+            $item->trash_type = 'consultation_reponse';
+            $item->display_title = "[Archive] " . $item->Titre;
+            return $item;
+        });
+
+        $deletedConsultations = $deletedConsultations->concat($deletedRentrees);
+
+        $deletedOffres = Offre::onlyTrashed()->get()->map(function($item) {
+            $item->trash_type = 'offre';
+            $item->display_title = $item->Titre;
+            return $item;
+        });
+
+        $deletedTemoignages = Temoignage::onlyTrashed()->with('utilisateur.profil')->get()->map(function($item) {
+            $item->trash_type = 'temoignage';
+            $prenom = $item->utilisateur && $item->utilisateur->profil ? $item->utilisateur->profil->Prenom : 'Inconnu';
+            $item->display_title = "Témoignage de " . $prenom;
+            return $item;
+        });
+
+        $deletedCoachings = TypeDeCoaching::onlyTrashed()->get()->map(function($item) {
+            $item->trash_type = 'coaching';
+            $item->display_title = $item->NomDeType;
+            return $item;
+        });
+
+        $deletedCategories = Categorie::onlyTrashed()->get()->map(function($item) {
+            $item->trash_type = 'categorie';
+            $item->display_title = "Catégorie: " . $item->Nom;
+            return $item;
+        });
+
+        $deletedReussites = Reussite::onlyTrashed()->get()->map(function($item) {
+            $item->trash_type = 'reussite';
+            $item->display_title = "Réussite: " . $item->nom;
+            return $item;
+        });
+
+        return response()->json([
+            'programs' => $merged,
+            'lives' => $deletedLives,
+            'consultations' => $deletedConsultations,
+            'offres' => $deletedOffres,
+            'temoignages' => $deletedTemoignages,
+            'coachings' => $deletedCoachings,
+            'categories' => $deletedCategories,
+            'reussites' => $deletedReussites,
+        ]);
     }
+
+
 
 
 
@@ -977,8 +1055,152 @@ class ProgrammeController extends Controller
                 $step->restore();
                 return back()->with('success', 'L\'étape a été restaurée.');
 
+            case 'live':
+                Live::onlyTrashed()->findOrFail($id)->restore();
+                return back()->with('success', 'Le live a été restauré.');
+
+            case 'consultation':
+                Consultation::onlyTrashed()->findOrFail($id)->restore();
+                return back()->with('success', 'La consultation a été restaurée.');
+
+            case 'offre':
+                Offre::onlyTrashed()->findOrFail($id)->restore();
+                return back()->with('success', 'L\'offre a été restaurée.');
+
+            case 'temoignage':
+                Temoignage::onlyTrashed()->findOrFail($id)->restore();
+                return back()->with('success', 'Le témoignage a été restauré.');
+
+            case 'coaching':
+                TypeDeCoaching::onlyTrashed()->findOrFail($id)->restore();
+                return back()->with('success', 'Le type de coaching a été restauré.');
+
+            case 'consultation_reponse':
+                ReponseConsultation::onlyTrashed()->findOrFail($id)->restore();
+                return back()->with('success', 'L\'archive de consultation a été restaurée.');
+
+            case 'categorie':
+                \App\Models\Categorie::onlyTrashed()->findOrFail($id)->restore();
+                return back()->with('success', 'La catégorie a été restaurée.');
+
+            case 'reussite':
+                \App\Models\Reussite::onlyTrashed()->findOrFail($id)->restore();
+                return back()->with('success', 'La réussite a été restaurée.');
+
+
             default:
-                return back()->with('error', 'Type élément inconnu.');
+                return back()->with('error', 'Type inconnu.');
         }
+    }
+
+    public function getPendingSubmissions()
+    {
+        $submissions = ReponseEtapeUtilisateur::with([
+            'utilisateur.profil',
+            'etape.lecon.theme.programme',
+            'details.question'
+        ])
+        ->where('StatutValidation', 'Attente')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+        return response()->json($submissions);
+    }
+
+    public function validateSubmission(Request $request, $id)
+    {
+        $submission = ReponseEtapeUtilisateur::with(['etape', 'utilisateur'])->findOrFail($id);
+        
+        $request->validate([
+            'StatutValidation' => 'required|in:Validé,Rejeté',
+            'ReponseAdmin' => 'nullable|string'
+        ]);
+
+        $submission->update([
+            'StatutValidation' => $request->StatutValidation,
+            'ReponseAdmin' => $request->ReponseAdmin,
+            'DateValidation' => now()
+        ]);
+
+        if ($request->StatutValidation === 'Validé') {
+            // Attribution des points
+            if ($submission->etape->PointsOfferts > 0) {
+                $submission->utilisateur->increment('Points', $submission->etape->PointsOfferts);
+            }
+
+            // Marquer l'avancement comme terminé
+            \App\Models\Avancement::updateOrCreate(
+                [
+                    'IdUtilisateur' => $submission->IdUtilisateur,
+                    'EntiteId' => $submission->IdEtape,
+                    'EntiteType' => \App\Models\Etape::class
+                ],
+                [
+                    'EstTermine' => true,
+                    'DateCompletion' => now()
+                ]
+            );
+
+            // Vérifier si la leçon est terminée
+            $lesson = $submission->etape->lecon;
+            $allStepsCount = $lesson->etapes()->where('Statut', 'Publié')->count();
+            $completedStepsCount = \App\Models\Avancement::where('IdUtilisateur', $submission->IdUtilisateur)
+                ->where('EntiteType', \App\Models\Etape::class)
+                ->whereIn('EntiteId', $lesson->etapes()->pluck('IdEtape'))
+                ->where('EstTermine', true)
+                ->count();
+
+            if ($allStepsCount === $completedStepsCount) {
+                 \App\Models\Avancement::updateOrCreate(
+                    [
+                        'IdUtilisateur' => $submission->IdUtilisateur,
+                        'EntiteId' => $lesson->IdLecon,
+                        'EntiteType' => \App\Models\Lecon::class
+                    ],
+                    [
+                        'EstTermine' => true,
+                        'DateCompletion' => now()
+                    ]
+                );
+            }
+        }
+
+        // Envoyer la notification
+        $submission->utilisateur->notify(new StepValidationNotification(
+            $submission->etape,
+            $request->ReponseAdmin,
+            $request->StatutValidation
+        ));
+
+        return back()->with('success', 'La réponse a été ' . strtolower($request->StatutValidation) . 'e.');
+    }
+
+    public function submitStepResponse(Request $request, $id)
+    {
+        $etape = Etape::findOrFail($id);
+        
+        $request->validate([
+            'responses' => 'required|array'
+        ]);
+
+        $submission = ReponseEtapeUtilisateur::create([
+            'IdUtilisateur' => Auth::id(),
+            'IdEtape' => $id,
+            'StatutValidation' => 'Attente'
+        ]);
+
+        foreach ($request->responses as $questionId => $responseText) {
+            DetailReponseUtilisateur::create([
+                'IdReponse' => $submission->IdReponse,
+                'IdQuestion' => $questionId,
+                'TexteReponse' => $responseText
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Votre réponse a été envoyée pour validation.',
+            'submission' => $submission
+        ]);
     }
 }

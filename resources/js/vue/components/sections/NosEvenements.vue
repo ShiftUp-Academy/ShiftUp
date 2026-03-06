@@ -4,27 +4,25 @@
     <div ref="cursorRef" class="fb-isolated-marquee-cursor">
       <div class="marquee-wrapper">
         <div class="marquee-content">
-          <span v-for="n in 4" :key="n"><i class="fab fa-facebook"></i> VOIR LA PAGE FACEBOOK &nbsp;</span>
+          <span v-for="n in 4" :key="n"><i class="fab fa-facebook"></i> {{ $t('NosEvenements.voir_la_page') }}</span>
         </div>
       </div>
     </div>
 
     <ShaderBackground :colors="themeColors" class="list-container">
       <div class="sidebar">
-        <h2 class="sidebar-title">NOS EVENEMENTS</h2>
+        <h2 class="sidebar-title">{{ $t('NosEvenements.nos_evenements') }}</h2>
         <p class="description-text">
-          Multipliez Votre Chiffre est un workshop intensif de 3 jours conçu comme un "MBA accéléré" pour
-          entrepreneurs. Apprenez à maîtriser les 5 piliers de la croissance pour passer du rôle d'exécutant à
-          celui de leader stratégique. Repartez avec un plan concret pour booster vos bénéfices de 30 % à 300 % et
-          piloter votre entreprise en toute sérénité.
+          {{ $t('NosEvenements.multipliez_votre_chiffre') }}
         </p>
       </div>
 
       <div class="main-content scrollable" data-lenis-prevent @click.stop>
         <div v-for="(item, index) in videoSessions" :key="index" class="session-item">
           <div class="item-header">
-            <span>SÉQUENCE {{ index + 1 }}</span>
-            <span class="category-tag">catégorie : <span class="category-name">{{ item.category }}</span></span>
+            <span>{{ $t('Sequence') }} {{ index + 1 }}</span>
+            <span class="category-tag">{{ $t('NosEvenements.catgorie') }} <span class="category-name">{{
+              $t(item.category) }}</span></span>
           </div>
 
           <div class="video-wrapper" @mouseenter="onVideoEnter" @mouseleave="onVideoLeave">
@@ -44,7 +42,7 @@
           <div class="item-footer">
             <a :href="item.videoUrl" target="_blank" class="session-link" @click.stop @mouseenter="onLinkEnter"
               @mouseleave="onLinkLeave">
-              VOIR LA SESSION
+              {{ $t('Coachings.voir_la_session') }}
               <img :src="ArrowIcon" alt="Flèche" class="arrow-icon" />
             </a>
           </div>
@@ -55,7 +53,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { gsap } from 'gsap';
 import ArrowIcon from '../../../assets/images/fleche-lien.svg';
 import ShaderBackground from '../ui/ShaderBackground.vue';
@@ -68,17 +66,17 @@ const isCursorForcedHidden = ref(false);
 const videoSessions = [
   {
     videoUrl: 'https://www.facebook.com/nante.randria.gel/videos/387180633829552/?t=18',
-    category: 'Finances',
+    category: 'Categories.finances',
     thumbnail: 'https://res.cloudinary.com/dzgdjei0h/image/upload/v1767346336/s%C3%A9minaire_3_vchxqz.jpg'
   },
   {
     videoUrl: 'https://www.facebook.com/nante.randria.gel/videos/736429424790754/?t=48',
-    category: 'Entrepreneuriat',
+    category: 'Categories.entrepreneuriat',
     thumbnail: 'https://res.cloudinary.com/dzgdjei0h/image/upload/v1767346253/s%C3%A9minaire_1_szvxfh.jpg'
   },
   {
     videoUrl: 'https://www.facebook.com/nante.randria.gel/videos/1426325668316950/?t=83',
-    category: 'Développement',
+    category: 'Categories.developpement',
     thumbnail: 'https://res.cloudinary.com/dzgdjei0h/image/upload/v1767346335/s%C3%A9minaire_2_zutvnp.jpg'
   }
 ];

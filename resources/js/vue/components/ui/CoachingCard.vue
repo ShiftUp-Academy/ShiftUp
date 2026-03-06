@@ -18,7 +18,7 @@
                     </div>
                     <div class="details">
                         <span class="trainer-name">{{ trainerName }}</span>
-                        <span class="label">Coach Formateur</span>
+                        <span class="label">{{ $t('CoachingCard.coach_formateur') }}</span>
                     </div>
                 </div>
 
@@ -27,7 +27,7 @@
                         -{{ Number(reduction) }}%
                     </div>
                     <PremiumButton class="reserve-btn" @click="$emit('reserve')">
-                        Réserver
+                        {{ $t('CoachingCard.reserver') }}
                     </PremiumButton>
                 </div>
             </div>

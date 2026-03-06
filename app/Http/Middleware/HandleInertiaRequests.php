@@ -28,6 +28,11 @@ class HandleInertiaRequests extends Middleware
                 'Bonjour' => $request->session()->get('Bonjour'),
                 'new_achievements' => $request->session()->get('new_achievements'),
             ],
+            'locale' => app()->getLocale(),
+            'translations' => array_merge(
+                is_file(lang_path(app()->getLocale() . '.json')) ? json_decode(file_get_contents(lang_path(app()->getLocale() . '.json')), true) : [],
+                is_file(lang_path('php_' . app()->getLocale() . '.php')) ? include lang_path('php_' . app()->getLocale() . '.php') : []
+            ),
         ]);
     }
 }

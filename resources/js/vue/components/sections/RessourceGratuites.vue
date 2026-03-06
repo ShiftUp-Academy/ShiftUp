@@ -6,7 +6,8 @@
 
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Nos ressources <br />gratuites</h2>
+        <h2 class="section-title">{{ $t('RessourceGratuites.nos_ressources') }} <br />{{
+          $t('RessourceGratuites.gratuites') }}</h2>
 
         <SectionFilters v-model:searchValue="searchValue" v-model:selectedCategory="selectedCategory"
           :categories="categories" :suggestions="filteredSuggestions" @complete="searchSuggestions"
@@ -22,13 +23,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, reactive } from 'vue';
+import { ref, onMounted, nextTick, reactive, computed } from 'vue';
 import ResourceCard from '../ui/ResourceCard.vue';
 import SectionFilters from '../ui/SectionFilters.vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { usePage } from '@inertiajs/vue3';
 
 gsap.registerPlugin(ScrollTrigger);
+
+const page = usePage();
+const $t = (key) => page.props.translations?.[key] || key;
 
 const sectionRef = ref(null);
 const fogRef = ref(null);
@@ -65,23 +70,23 @@ const selectedCategory = ref(null);
 const isGridHovered = ref(false);
 const filteredSuggestions = ref([]);
 
-const suggestions = [
-  'Guide Marketing Digital',
-  'Template Montage CapCut',
-  'Ebook Entrepreneuriat',
-  'Checklist SEO 2025',
-  'Pack Icons Business'
-];
+const suggestions = computed(() => [
+  $t('Suggestions.guide_marketing'),
+  $t('Suggestions.template_montage'),
+  $t('Suggestions.ebook_entrepreneuriat'),
+  $t('Suggestions.checklist_seo'),
+  $t('Suggestions.pack_icons')
+]);
 
-const categories = [
-  { name: 'guides', code: 'GUI' },
-  { name: 'templates', code: 'TPL' },
-  { name: 'outils', code: 'TL' }
-];
+const categories = computed(() => [
+  { name: $t('Categories.guides'), code: 'GUI' },
+  { name: $t('Categories.templates'), code: 'TPL' },
+  { name: $t('Categories.outils'), code: 'TL' }
+]);
 
 const searchSuggestions = (event) => {
   const query = event.query.toLowerCase();
-  filteredSuggestions.value = suggestions.filter(item =>
+  filteredSuggestions.value = suggestions.value.filter(item =>
     item.toLowerCase().includes(query)
   );
 };

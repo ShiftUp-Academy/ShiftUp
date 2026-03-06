@@ -35,7 +35,6 @@ class ReservationController extends Controller
 
         // 3. Lives (Upcoming)
         $lives = Live::where('Statut', 'Publié')
-            ->where('DateFin', '>=', now())
             ->with('categorie')
             ->orderBy('DateDebut', 'asc')
             ->get();

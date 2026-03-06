@@ -11,15 +11,14 @@
     <div class="content-wrapper">
       <div class="hero-section">
         <h1 class="page-title animate-title">
-          <span class="glow-text">Vos réussites</span>
+          <span class="glow-text">{{ $t('UserReussites.vos_russites') }}</span>
         </h1>
-        <p class="subtitle animate-fade-in">Votre parcours de transformation mérite d'être célébré. Voici vos badges et
-          trophées débloqués.</p>
+        <p class="subtitle animate-fade-in">{{ $t('UserReussites.votre_parcours_de') }}</p>
 
         <div class="points-summary animate-fade-in" v-if="totalPoints >= 0">
           <div class="points-card">
             <span class="points-count">{{ Math.floor(animatedPoints) }}</span>
-            <span class="points-label">POINTS CUMULÉS</span>
+            <span class="points-label">{{ $t('UserReussites.points_cumuls') }}</span>
           </div>
         </div>
       </div>
@@ -49,7 +48,8 @@
                 <div class="badge-footer">
                   <span class="date-info">
                     <i class="far fa-calendar-check meta-icon"></i>
-                    Obtenu le {{ formatDate(reussite.pivot?.date_obtention || reussite.created_at) }}
+                    {{ $t('UserReussites.obtenu_le') }} {{ formatDate(reussite.pivot?.date_obtention ||
+                    reussite.created_at) }}
                   </span>
                   <div class="type-pill">
                     <i :class="getActionIcon(reussite.type_action)"></i>
@@ -67,9 +67,10 @@
             <div class="empty-visual">
               <i class="fas fa-award"></i>
             </div>
-            <h2>Pas encore de badges ?</h2>
-            <p>La persévérance est la clé. Terminez vos premières leçons pour débloquer votre collection !</p>
-            <PremiumButton text="COMMENCER MAINTENANT" @click="$inertia.visit('/programmes')" width="280" />
+            <h2>{{ $t('UserReussites.pas_encore_de') }}</h2>
+            <p>{{ $t('UserReussites.la_persvrance_est') }}</p>
+            <PremiumButton :text="$t('UserReussites.commencer_maintenant')" @click="$inertia.visit('/programmes')"
+              width="280" />
           </div>
         </LiquidGlass>
       </div>
@@ -78,10 +79,15 @@
 </template>
 
 <script setup>
-import { defineProps, ref, onMounted, watch } from 'vue';
+import { defineProps, ref, onMounted, watch, computed } from 'vue';
 import { gsap } from 'gsap';
+import { usePage } from '@inertiajs/vue3';
 import LiquidGlass from '../components/ui/LiquidGlass.vue';
 import PremiumButton from '../components/ui/PremiumButton.vue';
+
+const page = usePage();
+const $t = (key) => page.props.translations[key] || key;
+const currentLocale = computed(() => page.props.locale || 'fr');
 
 const props = defineProps({
   reussitesObtenues: {
@@ -114,9 +120,9 @@ watch(() => props.totalPoints, (newVal) => {
 });
 
 const formatDate = (dateString) => {
-  if (!dateString) return 'Récemment';
+  if (!dateString) return $t('UserReussites.recemment');
   const date = new Date(dateString);
-  return date.toLocaleDateString('fr-FR', {
+  return date.toLocaleDateString(currentLocale.value, {
     day: 'numeric',
     month: 'long',
     year: 'numeric'

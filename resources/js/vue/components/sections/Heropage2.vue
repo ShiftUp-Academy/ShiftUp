@@ -14,7 +14,7 @@
                     <svg class="highlight-svg" viewBox="0 0 1000 200">
                         <text x="50%" y="70%" dominant-baseline="middle" text-anchor="middle" class="svg-text"
                             fill="#FFFFFF">
-                            Libre
+                            {{ $t('Heropage.libre') }}
                         </text>
                     </svg>
                 </div>
@@ -28,7 +28,7 @@
                 <div class="video-overlay" ref="videoOverlayRef">
                     <div class="scroll-indicator">
                         <div class="scroll-pill">
-                            <span class="scroll-text">FAITES DÉFILER</span>
+                            <span class="scroll-text">{{ $t('Heropage2.faites_dfiler') }}</span>
                             <div class="mouse-icon">
                                 <span class="wheel"></span>
                             </div>
@@ -42,19 +42,22 @@
         </div>
 
         <div class="custom-cursor" ref="cursorRef" @click="handleCursorClick">
-            <span ref="cursorTextRef">VOIR PROGRAMME</span>
+            <span ref="cursorTextRef">{{ $t('Heropage2.voir_programme') }}</span>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { router } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import ShaderBackground from '../ui/ShaderBackground.vue';
 
 gsap.registerPlugin(ScrollTrigger);
+
+const page = usePage();
+const $t = (key) => page.props.translations[key] ?? key;
 
 const themeColors = {
     primary: '#202020',
@@ -63,12 +66,28 @@ const themeColors = {
     dark: '#000000'
 };
 const heroVideoSrc = "https://res.cloudinary.com/dzgdjei0h/video/upload/v1766751142/Shift_Up_1_Workflow_1_lzre8i.mp4";
-const fullTitle = 'Propulsez votre entreprise au niveau supérieur et devenez un entrepreneur';
-const bogartWords = ['votre', 'entreprise', 'devenez', 'un', 'entrepreneur'];
-const titleWords = fullTitle.trim().split(/\s+/).map(word => ({
-    text: word,
-    isBogart: bogartWords.includes(word.toLowerCase())
-}));
+
+const titleWords = computed(() => {
+    const fullTitle = $t('Heropage2.title') !== 'Heropage2.title'
+        ? $t('Heropage2.title')
+        : 'Propulsez votre entreprise au niveau supérieur et devenez un entrepreneur';
+
+    const bogartString = $t('Heropage2.bogart_words') !== 'Heropage2.bogart_words'
+        ? $t('Heropage2.bogart_words')
+        : 'votre, entreprise, devenez, un, entrepreneur';
+
+    const bogartWords = bogartString.split(',').map(w => w.trim().toLowerCase());
+
+    return fullTitle.trim().split(/\s+/).map(word => {
+        const cleanWord = word.replace(/[.,!?;:]/g, "").toLowerCase();
+        return {
+            text: word,
+            isBogart: bogartWords.includes(cleanWord)
+        };
+    });
+});
+
+const splitText = (text) => text.split('');
 
 const rootRef = ref(null);
 const cursorRef = ref(null);
@@ -180,10 +199,10 @@ const handleGlobalMouseMove = (e) => {
     if (newMode !== currentMode) {
         currentMode = newMode;
         if (currentMode === 'evenements') {
-            cursorTextRef.value.textContent = 'VOIR LES ÉVÈNEMENTS';
+            cursorTextRef.value.textContent = $t('Heropage2.voir_les_evenements');
             gsap.to(cursorRef.value, { backgroundColor: '#000', duration: 0.2 });
         } else {
-            cursorTextRef.value.textContent = 'VOIR NOS PROGRAMMES';
+            cursorTextRef.value.textContent = $t('Heropage2.voir_nos_programmes');
             gsap.to(cursorRef.value, { backgroundColor: '#8A38F5', duration: 0.2 });
         }
     }

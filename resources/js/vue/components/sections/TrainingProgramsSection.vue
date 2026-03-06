@@ -7,7 +7,7 @@
 
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Les listes des <br />Programmes de formation</h2>
+        <h2 class="section-title">{{ $t('TrainingProgramsSection.les_listes_des') }} <br />{{ $t('TrainingProgramsSection.programmes_de_formation') }}</h2>
 
         <SectionFilters v-model:searchValue="searchValue" v-model:selectedCategory="selectedCategory"
           :categories="categories" :suggestions="filteredSuggestions" @complete="searchSuggestions"

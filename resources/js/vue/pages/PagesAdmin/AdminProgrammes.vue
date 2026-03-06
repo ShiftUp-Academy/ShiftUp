@@ -22,6 +22,10 @@
           <button class="toggle-btn" :class="{ active: subTab === 'lessons' }" @click="setSubTab('lessons')">
             Programme de séminaire
           </button>
+          <button class="toggle-btn" :class="{ active: subTab === 'submissions' }" @click="setSubTab('submissions')">
+            Validations
+            <span v-if="pendingValidationsCount > 0" class="tab-badge">{{ pendingValidationsCount }}</span>
+          </button>
           <div class="toggle-indicator" ref="indicator" :style="indicatorStyle"></div>
         </div>
       </div>
@@ -29,23 +33,52 @@
 
     <div class="contentArea">
       <transition mode="out-in" @before-enter="beforeContentEnter" @enter="enterContent">
-        <div :key="activeTab" class="tab-content">
-          <template v-for="tab in ['left', 'right']" :key="tab">
-            <div v-if="activeTab === tab" class="tab-pane">
-              <div v-if="(tab === 'left' ? publishedProgrammes : unpublishedProgrammes).length > 0"
-                class="programmes-grid">
-                <ProgrammeCard v-for="prog in (tab === 'left' ? publishedProgrammes : unpublishedProgrammes)"
-                  :key="prog.IdProgrammeFormation" :programme="prog" @click="openProgramDetails"
-                  @duplicate="duplicateProgram" @edit="editProgram" @delete="deleteProgram" />
+        <div :key="subTab === 'submissions' ? 'submissions' : activeTab" class="tab-main-view">
+          <div v-if="subTab !== 'submissions'" class="tab-content">
+            <template v-for="tab in ['left', 'right']" :key="tab">
+              <div v-if="activeTab === tab" class="tab-pane">
+                <div v-if="(tab === 'left' ? publishedProgrammes : unpublishedProgrammes).length > 0"
+                  class="programmes-grid">
+                  <ProgrammeCard v-for="prog in (tab === 'left' ? publishedProgrammes : unpublishedProgrammes)"
+                    :key="prog.IdProgrammeFormation" :programme="prog" @click="openProgramDetails"
+                    @duplicate="duplicateProgram" @edit="editProgram" @delete="deleteProgram" />
+                </div>
+                <div v-else class="empty-state">
+                  <p>Aucun programme {{ tab === 'left' ? 'publié' : 'dépublié' }} pour le moment.</p>
+                </div>
               </div>
-              <div v-else class="empty-state">
-                <p>Aucun programme {{ tab === 'left' ? 'publié' : 'dépublié' }} pour le moment.</p>
+            </template>
+          </div>
+
+          <div v-else class="submissions-container">
+            <div v-if="submissions.length > 0" class="submissions-list">
+              <div v-for="sub in submissions" :key="sub.IdReponse" class="submission-card" @click="openSubmission(sub)">
+                <div class="sub-user-info">
+                  <img :src="sub.utilisateur?.profil?.Avatar || '/images/default-avatar.png'" class="sub-avatar" />
+                  <div>
+                    <div class="sub-user-name">{{ sub.utilisateur?.profil?.Prenom }} {{ sub.utilisateur?.profil?.Nom }}
+                    </div>
+                    <div class="sub-date">{{ formatDate(sub.created_at) }}</div>
+                  </div>
+                </div>
+                <div class="sub-context">
+                  <div class="sub-program">{{ sub.etape?.lecon?.theme?.programme?.Titre }}</div>
+                  <div class="sub-step">{{ sub.etape?.Titre }}</div>
+                </div>
+                <div class="sub-action">
+                  <button class="view-sub-btn">Répondre</button>
+                </div>
               </div>
             </div>
-          </template>
+            <div v-else class="empty-state">
+              <i class="fas fa-check-double mb-4 text-4xl opacity-20"></i>
+              <p>Toutes les réponses ont été validées ! 🎉</p>
+            </div>
+          </div>
         </div>
       </transition>
     </div>
+
 
     <ModalProgramDetails :isOpen="!!selectedProgram" :program="selectedProgram" @close="selectedProgramId = null"
       @edit-program="editProgram(selectedProgram)" @create-lesson="openCreateLessonModal"
@@ -62,6 +95,9 @@
     <ModalStep :isOpen="showStepModal" :lessonId="currentLessonIdForStep" :stepToEdit="editingStep"
       :defaultOrder="nextStepOrder" @close="showStepModal = false" />
 
+    <ModalValidationStep :isOpen="showValidationModal" :submission="selectedSubmission"
+      @close="showValidationModal = false" @success="fetchSubmissions" />
+
     <ModalCreateProgramme v-if="subTab === 'categories'" :isOpen="showCreateModal" :categories="categories"
       :programToEdit="editingProgram" @close="showCreateModal = false" />
 
@@ -77,6 +113,8 @@
 import { ref, computed, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
+import axios from 'axios';
+
 import AdminFilters from '../../components/admin/AdminFilters.vue';
 import StatusToggle from '../../components/ui/StatusToggle.vue';
 import PremiumButton from '../../components/ui/PremiumButton.vue';
@@ -88,11 +126,13 @@ import ModalProgramDetails from '../../components/admin/ComposantModalProgramme/
 import ModalTheme from '../../components/admin/ComposantModalProgramme/ModalTheme.vue';
 import ModalLesson from '../../components/admin/ComposantModalProgramme/ModalLesson.vue';
 import ModalStep from '../../components/admin/ComposantModalProgramme/ModalStep.vue';
+import ModalValidationStep from '../../components/admin/ComposantModalProgramme/ModalValidationStep.vue';
 import ProgrammeCard from '../../components/admin/ProgrammeCard.vue';
 
 const props = defineProps({
   programmes: Array,
-  categories: Array
+  categories: Array,
+  pendingValidationsCount: Number
 });
 
 const filters = ref({ search: '', dateStart: null, dateEnd: null });
@@ -214,6 +254,31 @@ const openEditStepModal = (step) => {
   showStepModal.value = true;
 };
 
+// SUBMISSIONS logic
+const submissions = ref([]);
+const showValidationModal = ref(false);
+const selectedSubmission = ref(null);
+
+const fetchSubmissions = async () => {
+  try {
+    const response = await axios.get('/admin/programmes/submissions');
+    submissions.value = response.data;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const openSubmission = (sub) => {
+  selectedSubmission.value = sub;
+  showValidationModal.value = true;
+};
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+};
+
 // CONFIRM MODAL STATE
 const confirmData = ref({
   isOpen: false,
@@ -262,17 +327,24 @@ const openCreateModal = () => {
 
 const setSubTab = (newTab) => {
   subTab.value = newTab;
+  if (newTab === 'submissions') fetchSubmissions();
   animateIndicator(newTab);
 };
 
-const indicatorStyle = computed(() => ({
-  left: subTab.value === 'categories' ? '4px' : '50%'
-}));
+const indicatorStyle = computed(() => {
+  if (subTab.value === 'categories') return { left: '4px', width: 'calc(33.33% - 4px)' };
+  if (subTab.value === 'lessons') return { left: '33.33%', width: 'calc(33.33% - 4px)' };
+  return { left: '66.66%', width: 'calc(33.33% - 4px)' };
+});
 
 const animateIndicator = (tab) => {
   if (!indicator.value) return;
+  let targetLeft = '4px';
+  if (tab === 'lessons') targetLeft = '33.33%';
+  if (tab === 'submissions') targetLeft = '66.66%';
+
   gsap.to(indicator.value, {
-    left: tab === 'categories' ? '4px' : '50%',
+    left: targetLeft,
     duration: 0.4,
     ease: "power3.out"
   });
@@ -333,7 +405,7 @@ onMounted(() => {
   border-radius: 15px;
   position: relative;
   padding: 4px;
-  width: 500px;
+  width: 700px;
 }
 
 .toggle-btn {
@@ -359,12 +431,22 @@ onMounted(() => {
 .toggle-indicator {
   position: absolute;
   top: 4px;
-  width: calc(50% - 4px);
+  width: calc(33.33% - 4px);
   bottom: 4px;
   background: #fff;
   border-radius: 11px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   z-index: 1;
+}
+
+.tab-badge {
+  background: #ef4444;
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 8px;
+  font-weight: 800;
 }
 
 .contentArea {
@@ -752,6 +834,82 @@ onMounted(() => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.submissions-container {
+  padding: 20px 0;
+}
+
+.submissions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.submission-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #eee;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submission-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  border-color: #8A38F5;
+}
+
+.sub-user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+
+.sub-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.sub-user-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.sub-date {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.sub-context {
+  flex: 2;
+}
+
+.sub-program {
+  font-weight: 600;
+  color: #8A38F5;
+}
+
+.sub-step {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.view-sub-btn {
+  background: #1c1c1c;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
 }
 
 .existing-steps-list {

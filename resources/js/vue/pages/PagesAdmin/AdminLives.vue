@@ -42,6 +42,9 @@
                   <button class="edit-btn" @click="openEditModal(live)">
                     <i class="fas fa-pen"></i> Modifier
                   </button>
+                  <button class="delete-btn-simple" @click="deleteLive(live)">
+                    <i class="fas fa-trash"></i>
+                  </button>
                 </div>
               </div>
 
@@ -136,6 +139,8 @@
       </form>
     </PremiumModal>
 
+    <ConfirmModal :isOpen="confirmData.isOpen" :title="confirmData.title" :message="confirmData.message"
+      :type="confirmData.type" @confirm="onModalConfirm" @cancel="confirmData.isOpen = false" />
     <Toast />
   </div>
 </template>
@@ -148,6 +153,7 @@ import StatusToggle from '../../components/ui/StatusToggle.vue';
 import PremiumButton from '../../components/ui/PremiumButton.vue';
 import PremiumModal from '../../components/ui/PremiumModal.vue';
 import PremiumSlideToggle from '../../components/ui/PremiumSlideToggle.vue';
+import ConfirmModal from '../../components/ui/ConfirmModal.vue';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
@@ -246,6 +252,39 @@ const toggleStatus = (live) => {
       toast.add({ severity: 'success', summary: 'Statut mis à jour', life: 2000 });
     }
   });
+};
+
+// CONFIRM MODAL STATE
+const confirmData = ref({
+  isOpen: false,
+  title: '',
+  message: '',
+  type: 'danger',
+  action: null
+});
+
+const triggerConfirm = (title, message, type, action) => {
+  confirmData.value = { isOpen: true, title, message, type, action };
+};
+
+const onModalConfirm = () => {
+  if (confirmData.value.action) confirmData.value.action();
+  confirmData.value.isOpen = false;
+};
+
+const deleteLive = (live) => {
+  triggerConfirm(
+    "Supprimer le live",
+    `Voulez-vous vraiment supprimer le live "${live.Titre}" ?`,
+    'danger',
+    () => {
+      router.delete('/admin/lives/' + live.IdLive, {
+        onSuccess: () => {
+          toast.add({ severity: 'info', summary: 'Supprimé', detail: "Le live a été supprimé", life: 3000 });
+        }
+      });
+    }
+  );
 };
 
 const formatLocalDate = (dateStr) => {
@@ -391,6 +430,26 @@ const enter = (el, done) => {
 
 .edit-btn:hover {
   background: #333;
+}
+
+.delete-btn-simple {
+  background: none;
+  border: 1px solid #eee;
+  color: #ef4444;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  margin-left: 10px;
+}
+
+.delete-btn-simple:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
 }
 
 .empty-state {

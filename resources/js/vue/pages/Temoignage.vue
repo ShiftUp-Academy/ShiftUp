@@ -6,9 +6,10 @@
             <div v-if="isMobile" class="mobile-container" @scroll="handleMobileScroll">
                 <div class="mobile-list">
                     <TemoignageCard v-for="t in mobileTestimonials" :key="t.IdTemoignage" class="mobile-card"
-                        :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || 'Membre')"
+                        :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || $t('Temoignage.Membre'))"
                         :avatar="t.utilisateur?.profil?.PhotoProfil" :role="t.utilisateur?.profil?.Metier"
-                        :text="t.ContenuTexte" :variant="t.Type !== 'Texte' ? 'media' : 'default'">
+                        :userId="t.IdUtilisateur" @open-profile="openPublicProfile" :text="t.ContenuTexte"
+                        :variant="t.Type !== 'Texte' ? 'media' : 'default'">
 
                         <template #media v-if="t.Type !== 'Texte'">
                             <div class="media-container mobile-media" v-if="t.Type === 'Photo'">
@@ -22,48 +23,47 @@
                                 </iframe>
                                 <video v-else controls class="video-player">
                                     <source :src="t.CheminFichier" type="video/mp4">
-                                    Votre navigateur ne supporte pas la vidéo.
+                                    {{ $t('Temoignage.votre_navigateur_ne') }}
                                 </video>
                             </div>
                         </template>
                     </TemoignageCard>
 
                     <div v-if="mobileTestimonials.length === 0" class="empty-state">
-                        <p>Aucun témoignage pour le moment.</p>
+                        <p>{{ $t('Temoignage.AucunTemoignage') }}</p>
                     </div>
                 </div>
             </div>
 
             <!-- VUE DESKTOP : 3 Colonnes -->
             <div v-else class="split-container">
-                <div class="column text-column" @scroll="handleTextScroll" ref="textColumn" data-lenis-prevent
-                    @mouseenter="activeColumns.text = false" @mouseleave="activeColumns.text = true">
+                <div class="column text-column" @scroll="handleTextScroll" ref="textColumn" data-lenis-prevent>
                     <div class="testimonials-wrapper" ref="textSet1">
                         <TemoignageCard v-for="t in textTestimonials" :key="t.IdTemoignage"
-                            :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || 'Membre')"
+                            :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || $t('Temoignage.Membre'))"
                             :avatar="t.utilisateur?.profil?.PhotoProfil" :role="t.utilisateur?.profil?.Metier"
-                            :text="t.ContenuTexte" />
+                            :userId="t.IdUtilisateur" @open-profile="openPublicProfile" :text="t.ContenuTexte" />
                     </div>
 
                     <div class="testimonials-wrapper" ref="textSet2" v-if="textTestimonials.length > 0">
                         <TemoignageCard v-for="t in textTestimonials" :key="'clone-' + t.IdTemoignage"
-                            :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || 'Membre')"
+                            :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || $t('Temoignage.Membre'))"
                             :avatar="t.utilisateur?.profil?.PhotoProfil" :role="t.utilisateur?.profil?.Metier"
-                            :text="t.ContenuTexte" />
+                            :userId="t.IdUtilisateur" @open-profile="openPublicProfile" :text="t.ContenuTexte" />
                     </div>
                     <div v-if="textTestimonials.length === 0" class="empty-state">
-                        <p>Aucun témoignage écrit pour le moment.</p>
+                        <p>{{ $t('Temoignage.AucunEcrit') }}</p>
                     </div>
                 </div>
 
-                <div class="column photo-column" @scroll="handlePhotoScroll" ref="photoColumn" data-lenis-prevent
-                    @mouseenter="activeColumns.photo = false" @mouseleave="activeColumns.photo = true">
+                <div class="column photo-column" @scroll="handlePhotoScroll" ref="photoColumn" data-lenis-prevent>
 
                     <div class="testimonials-wrapper" ref="photoSet1">
                         <TemoignageCard v-for="t in photoTestimonials" :key="t.IdTemoignage"
-                            :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || 'Membre')"
+                            :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || $t('Temoignage.Membre'))"
                             :avatar="t.utilisateur?.profil?.PhotoProfil" :role="t.utilisateur?.profil?.Metier"
-                            :text="t.ContenuTexte" variant="media">
+                            :userId="t.IdUtilisateur" @open-profile="openPublicProfile" :text="t.ContenuTexte"
+                            variant="media">
                             <template #media>
                                 <div class="media-container" v-if="t.Type === 'Photo'">
                                     <img :src="t.CheminFichier" :alt="'Témoignage'" loading="lazy" />
@@ -73,9 +73,10 @@
                     </div>
                     <div class="testimonials-wrapper" ref="photoSet2" v-if="photoTestimonials.length > 0">
                         <TemoignageCard v-for="t in photoTestimonials" :key="'clone-' + t.IdTemoignage"
-                            :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || 'Membre')"
+                            :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || $t('Temoignage.Membre'))"
                             :avatar="t.utilisateur?.profil?.PhotoProfil" :role="t.utilisateur?.profil?.Metier"
-                            :text="t.ContenuTexte" variant="media">
+                            :userId="t.IdUtilisateur" @open-profile="openPublicProfile" :text="t.ContenuTexte"
+                            variant="media">
                             <template #media>
                                 <div class="media-container" v-if="t.Type === 'Photo'">
                                     <img :src="t.CheminFichier" :alt="'Témoignage'" loading="lazy" />
@@ -84,17 +85,17 @@
                         </TemoignageCard>
                     </div>
                     <div v-if="photoTestimonials.length === 0" class="empty-state">
-                        <p>Aucun témoignage photo pour le moment.</p>
+                        <p>{{ $t('Temoignage.AucunPhoto') }}</p>
                     </div>
                 </div>
 
-                <div class="column video-column" @scroll="handleVideoScroll" ref="videoColumn" data-lenis-prevent
-                    @mouseenter="activeColumns.video = false" @mouseleave="activeColumns.video = true">
+                <div class="column video-column" @scroll="handleVideoScroll" ref="videoColumn" data-lenis-prevent>
                     <div class="testimonials-wrapper" ref="videoSet1">
                         <TemoignageCard v-for="t in videoTestimonials" :key="t.IdTemoignage"
-                            :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || 'Membre')"
+                            :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || $t('Temoignage.Membre'))"
                             :avatar="t.utilisateur?.profil?.PhotoProfil" :role="t.utilisateur?.profil?.Metier"
-                            :text="t.ContenuTexte" variant="media">
+                            :userId="t.IdUtilisateur" @open-profile="openPublicProfile" :text="t.ContenuTexte"
+                            variant="media">
                             <template #media>
                                 <div class="media-container video-container" v-if="t.Type === 'Video'">
                                     <iframe v-if="isYoutube(t.CheminFichier)" :src="getYoutubeEmbed(t.CheminFichier)"
@@ -112,9 +113,10 @@
                     </div>
                     <div class="testimonials-wrapper" ref="videoSet2" v-if="videoTestimonials.length > 0">
                         <TemoignageCard v-for="t in videoTestimonials" :key="'clone-' + t.IdTemoignage"
-                            :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || 'Membre')"
+                            :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || $t('Temoignage.Membre'))"
                             :avatar="t.utilisateur?.profil?.PhotoProfil" :role="t.utilisateur?.profil?.Metier"
-                            :text="t.ContenuTexte" variant="media">
+                            :userId="t.IdUtilisateur" @open-profile="openPublicProfile" :text="t.ContenuTexte"
+                            variant="media">
                             <template #media>
                                 <div class="media-container video-container" v-if="t.Type === 'Video'">
                                     <iframe v-if="isYoutube(t.CheminFichier)" :src="getYoutubeEmbed(t.CheminFichier)"
@@ -131,21 +133,21 @@
                         </TemoignageCard>
                     </div>
                     <div v-if="videoTestimonials.length === 0" class="empty-state">
-                        <p>Aucun témoignage vidéo pour le moment.</p>
+                        <p>{{ $t('Temoignage.AucunVideo') }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="submission-container">
+            <div class="submission-container" @click="!user ? (showLoginModal = true) : openSubmitModal()">
                 <template v-if="!user">
-                    <div @click="showLoginModal = true" class="submit-trigger">
+                    <div class="submit-trigger">
                         <LiquidGlass borderRadius="50px" class="submission-glass" center>
-                            <span class="prompt-text">Connectez-vous pour témoigner</span>
+                            <span class="prompt-text">{{ $t('Temoignage.LoginToSubmit') }}</span>
                         </LiquidGlass>
                     </div>
                 </template>
                 <template v-else>
-                    <div @click="openSubmitModal" class="submit-trigger">
+                    <div class="submit-trigger">
                         <LiquidGlass borderRadius="50px" class="submission-glass2" center>
                             <div class="trigger-content">
                                 <div class="user-avatar" v-if="user.profil?.PhotoProfil">
@@ -154,7 +156,7 @@
                                 <div class="user-avatar placeholder" v-else>
                                     {{ user.profil?.Prenom?.[0] || 'U' }}
                                 </div>
-                                <span class="trigger-text">Partagez votre expérience</span>
+                                <span class="trigger-text">{{ $t('Temoignage.ShareExperience') }}</span>
                                 <div class="trigger-icons">
                                     <i class="fas fa-image"></i>
                                     <i class="fas fa-video"></i>
@@ -165,28 +167,28 @@
                 </template>
             </div>
 
-            <PremiumModal :isOpen="showSubmitModal" header="Publier un témoignage" @close="closeSubmitModal" dark
-                width="600px">
+            <PremiumModal :isOpen="showSubmitModal" :header="$t('Temoignage.ModalHeader')" @close="closeSubmitModal"
+                dark width="600px">
                 <form @submit.prevent="submitTestimonial" class="testimonial-form">
                     <div class="form-group">
-                        <textarea v-model="form.ContenuTexte" placeholder="Racontez-nous votre parcours..." rows="5"
+                        <textarea v-model="form.ContenuTexte" :placeholder="$t('Temoignage.Placeholder')" rows="5"
                             class="dark-input"></textarea>
                     </div>
 
                     <div class="form-group row-group">
-                        <label class="type-label">Type de témoignage :</label>
+                        <label class="type-label">{{ $t('Temoignage.TypeLabel') }}</label>
                         <div class="type-selectors">
                             <button type="button" :class="{ active: form.Type === 'Texte' }"
                                 @click="form.Type = 'Texte'">
-                                <i class="fas fa-align-left"></i> Texte
+                                <i class="fas fa-align-left"></i> {{ $t('Temoignage.TypeTexte') }}
                             </button>
                             <button type="button" :class="{ active: form.Type === 'Photo' }"
                                 @click="form.Type = 'Photo'">
-                                <i class="fas fa-image"></i> Photo
+                                <i class="fas fa-image"></i> {{ $t('Temoignage.TypePhoto') }}
                             </button>
                             <button type="button" :class="{ active: form.Type === 'Video' }"
                                 @click="form.Type = 'Video'">
-                                <i class="fas fa-video"></i> Vidéo
+                                <i class="fas fa-video"></i> {{ $t('Temoignage.TypeVideo') }}
                             </button>
                         </div>
                     </div>
@@ -195,27 +197,29 @@
                         <div class="upload-options">
                             <div class="upload-box" @click="$refs.fileInput.click()">
                                 <i class="fas fa-cloud-upload-alt"></i>
-                                <span>{{ form.Fichier ? form.Fichier.name : 'Importer un fichier' }}</span>
+                                <span>{{ form.Fichier ? form.Fichier.name : $t('Temoignage.ImportFile') }}</span>
                                 <input type="file" ref="fileInput" hidden @change="handleFileUpload"
                                     :accept="form.Type === 'Photo' ? 'image/*' : 'video/*'">
                             </div>
                             <div class="url-input-container">
-                                <span class="or-separator">OU</span>
+                                <span class="or-separator">{{ $t('Temoignage.Or') }}</span>
                                 <input type="text" v-model="form.CheminFichier"
-                                    placeholder="Coller un lien (YouTube, Cloudinary, etc.)" class="dark-input">
+                                    :placeholder="$t('Temoignage.PasteLink')" class="dark-input">
                             </div>
                         </div>
                     </div>
 
                     <div class="form-actions">
                         <PremiumButton type="submit" class="submit-btn" :disabled="form.processing"
-                            :text="form.processing ? 'Publication' : 'Publier votre témoignage'"
+                            :text="form.processing ? $t('Temoignage.Publishing') : $t('Temoignage.SubmitBtn')"
                             @click="submitTestimonial" />
                     </div>
                 </form>
             </PremiumModal>
 
             <LoginModal :isOpen="showLoginModal" @close="showLoginModal = false" />
+            <PublicProfileModal :isOpen="showPublicProfile" :userId="selectedUserId"
+                @close="showPublicProfile = false" />
         </ShaderBackground>
     </div>
 </template>
@@ -228,7 +232,14 @@ import PremiumModal from '../components/ui/PremiumModal.vue';
 import LoginModal from '../components/auth/LoginModal.vue';
 import PremiumButton from '../components/ui/PremiumButton.vue';
 import TemoignageCard from '../components/ui/TemoignageCard.vue';
+import PublicProfileModal from '../components/ui/PublicProfileModal.vue';
 import ShaderBackground from '../components/ui/ShaderBackground.vue';
+// Lenis removed to prioritize working auto-scroll
+import { gsap } from 'gsap';
+
+const page = usePage();
+const $t = (key) => page.props.translations[key] ?? key;
+const currentLocale = computed(() => page.props.locale || 'fr');
 
 const { auth } = usePage().props;
 const user = computed(() => auth.user);
@@ -239,6 +250,13 @@ const props = defineProps({
 
 const showSubmitModal = ref(false);
 const showLoginModal = ref(false);
+const showPublicProfile = ref(false);
+const selectedUserId = ref(null);
+
+const openPublicProfile = (userId) => {
+    selectedUserId.value = userId;
+    showPublicProfile.value = true;
+};
 const form = useForm({
     Type: 'Texte',
     ContenuTexte: '',
@@ -269,7 +287,7 @@ const submitTestimonial = () => {
 
 const formatDate = (dateString) => {
     if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('fr-FR', {
+    return new Date(dateString).toLocaleDateString(currentLocale.value, {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
@@ -304,6 +322,11 @@ const handleTextScroll = (e) => {
     const scrollTop = e.target.scrollTop;
     const set1Height = textSet1.value.clientHeight;
 
+    // Pause auto-scroll on manual interaction
+    activeColumns.value.text = false;
+    clearTimeout(scrollTimers.text);
+    scrollTimers.text = setTimeout(() => { activeColumns.value.text = true; }, 3000);
+
     if (scrollTop >= set1Height) {
         e.target.scrollTop = scrollTop - set1Height;
     }
@@ -318,6 +341,10 @@ const handlePhotoScroll = (e) => {
     const scrollTop = e.target.scrollTop;
     const set1Height = photoSet1.value.clientHeight;
 
+    activeColumns.value.photo = false;
+    clearTimeout(scrollTimers.photo);
+    scrollTimers.photo = setTimeout(() => { activeColumns.value.photo = true; }, 3000);
+
     if (scrollTop >= set1Height) {
         e.target.scrollTop = scrollTop - set1Height;
     }
@@ -328,20 +355,31 @@ const handleVideoScroll = (e) => {
     const scrollTop = e.target.scrollTop;
     const set1Height = videoSet1.value.clientHeight;
 
+    activeColumns.value.video = false;
+    clearTimeout(scrollTimers.video);
+    scrollTimers.video = setTimeout(() => { activeColumns.value.video = true; }, 3000);
+
     if (scrollTop >= set1Height) {
         e.target.scrollTop = scrollTop - set1Height;
     }
 };
 
 // Auto-scroll Animation Logic
-let animationFrame;
 const activeColumns = ref({
     text: true,
     photo: true,
     video: true
 });
 
+const scrollTimers = {
+    text: null,
+    photo: null,
+    video: null
+};
+
+let animationFrame;
 const animate = () => {
+    // Auto-scroll logic via direct scrollTop
     if (activeColumns.value.text && textColumn.value && textTestimonials.value.length > 0) {
         textColumn.value.scrollTop += 0.6;
     }
@@ -351,6 +389,7 @@ const animate = () => {
     if (activeColumns.value.video && videoColumn.value && videoTestimonials.value.length > 0) {
         videoColumn.value.scrollTop += 0.6;
     }
+
     animationFrame = requestAnimationFrame(animate);
 };
 
@@ -363,6 +402,7 @@ const checkMobile = () => {
 onMounted(() => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
+
     animationFrame = requestAnimationFrame(animate);
 });
 
@@ -408,7 +448,16 @@ const videoTestimonials = computed(() => {
     flex-direction: column;
     overscroll-behavior: none;
     background-color: transparent;
-    /* Rend le Shader visible */
+}
+
+/* Hide footer on this page */
+:global(body:has(.temoignage-page) footer:not(.footer-menu)),
+:global(body:has(.temoignage-page) .app-footer) {
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .split-container {
@@ -702,9 +751,11 @@ const videoTestimonials = computed(() => {
 .submission-glass2 {
     height: 60px;
     width: 100%;
-    /* padding-top removed for better centering with flex */
     transition: transform 0.3s, box-shadow 0.3s;
     pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .submission-glass:hover {

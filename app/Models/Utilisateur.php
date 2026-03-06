@@ -100,6 +100,11 @@ class Utilisateur extends Authenticatable
                     ->withTimestamps('created_at', 'updated_at');
     }
 
+    public function temoignages()
+    {
+        return $this->hasMany(Temoignage::class, 'IdUtilisateur', 'IdUtilisateur');
+    }
+
     public function panier()
     {
         return $this->hasOne(Panier::class, 'IdUtilisateur', 'IdUtilisateur');

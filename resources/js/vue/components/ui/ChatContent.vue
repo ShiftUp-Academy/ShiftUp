@@ -1,5 +1,15 @@
 <template>
     <div class="chat-content-root">
+        <!-- SVG Gradient Definition -->
+        <svg width="0" height="0" style="position: absolute; pointer-events: none;">
+            <defs>
+                <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#202020;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#1A888D;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#F7B455;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+        </svg>
         <div v-if="!embedded" class="chat-header">
             <div class="header-info">
                 <div class="header-avatar">
@@ -14,7 +24,7 @@
             </div>
         </div>
 
-        <div class="messages-area custom-scrollbar" ref="scrollContainer">
+        <div class="messages-area custom-scrollbar" ref="scrollContainer" @click="handleChatClick">
             <div class="messages-list">
                 <div v-for="(msg, index) in messages" :key="index" :class="['message-row', msg.role]">
                     <div v-if="msg.role === 'assistant'" class="bubble-wrapper assistant">
@@ -32,15 +42,17 @@
 
                 <div v-if="isLoading" class="message-row assistant">
                     <div class="bubble-wrapper assistant">
-                        <div class="avatar-assistant loading-icon">
-                            <svg viewBox="0 0 24 24" class="icon-star animate-pulse">
+                        <div class="avatar-assistant loading-icon-container" ref="loadingIconRef">
+                            <svg viewBox="0 0 24 24" class="icon-star">
                                 <path d="M12 2L14.7 8.6L21.3 11.3L14.7 14L12 20.6L9.3 14L2.7 11.3L9.3 8.6L12 2Z" />
                             </svg>
                         </div>
-                        <div class="bubble assistant-bubble loading-bubble">
-                            <span class="dot"></span>
-                            <span class="dot"></span>
-                            <span class="dot"></span>
+                        <div class="bubble assistant-bubble loading-bubble" ref="loadingBubbleRef">
+                            <div class="dots-container">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -66,8 +78,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import { marked } from 'marked';
+import { gsap } from 'gsap';
+import { router } from '@inertiajs/vue3';
 
 const props = defineProps({
     messages: Array,
@@ -97,7 +111,89 @@ const scrollToBottom = () => {
     }
 };
 
+const handleChatClick = (event) => {
+    const link = event.target.closest('a');
+    if (link) {
+        const href = link.getAttribute('href');
+        if (href && (href.startsWith('/') || href.startsWith(window.location.origin))) {
+            event.preventDefault();
+            const path = href.startsWith('/') ? href : href.replace(window.location.origin, '');
+            router.visit(path);
+        }
+    }
+};
+
 defineExpose({ scrollToBottom });
+
+const loadingIconRef = ref(null);
+const loadingBubbleRef = ref(null);
+let loadingTimeline = null;
+
+const startLoadingAnimation = () => {
+    if (loadingTimeline) loadingTimeline.kill();
+    loadingTimeline = gsap.timeline({ repeat: -1 });
+
+    if (loadingIconRef.value) {
+        // Star Icon: Floating + Rotation + Glow
+        loadingTimeline.to(loadingIconRef.value, {
+            y: -8,
+            rotation: 15,
+            duration: 1.5,
+            ease: "sine.inOut",
+            yoyo: true,
+            repeat: -1
+        }, 0);
+
+        loadingTimeline.to(loadingIconRef.value.querySelector('svg'), {
+            filter: "drop-shadow(0 0 8px #1A888D)",
+            scale: 1.1,
+            duration: 0.8,
+            yoyo: true,
+            repeat: -1,
+            ease: "power1.inOut"
+        }, 0);
+    }
+
+    if (loadingBubbleRef.value) {
+        // Bubble: Subtle liquid-like scaling
+        loadingTimeline.to(loadingBubbleRef.value, {
+            scaleX: 1.05,
+            scaleY: 0.95,
+            duration: 1.2,
+            ease: "sine.inOut",
+            yoyo: true,
+            repeat: -1
+        }, 0.2);
+
+        // Individual dots animation
+        const dots = loadingBubbleRef.value.querySelectorAll('.dot');
+        dots.forEach((dot, i) => {
+            loadingTimeline.to(dot, {
+                y: -10,
+                opacity: 1,
+                scale: 1.2,
+                duration: 0.5,
+                ease: "power2.out",
+                yoyo: true,
+                repeat: -1,
+                delay: i * 0.15
+            }, 0);
+        });
+    }
+};
+
+watch(() => props.isLoading, (loading) => {
+    if (loading) {
+        setTimeout(startLoadingAnimation, 50); // Small delay to ensure DOM is ready
+        scrollToBottom();
+    } else {
+        if (loadingTimeline) loadingTimeline.kill();
+    }
+});
+
+onBeforeUnmount(() => {
+    if (loadingTimeline) loadingTimeline.kill();
+});
 
 onMounted(() => {
     scrollToBottom();
@@ -203,8 +299,13 @@ onMounted(() => {
     margin-bottom: 4px;
 }
 
-.icon-star {
-    fill: #d9f539;
+.icon-star path,
+.icon-avatar path {
+    fill: url(#starGradient) !important;
+}
+
+.icon-star,
+.icon-avatar {
     width: 100%;
     height: 100%;
 }
@@ -213,15 +314,14 @@ onMounted(() => {
     background: rgba(30, 30, 30, 0.6);
     color: #eeeeee;
     border-bottom-left-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(5px);
 }
 
 .user-bubble {
-    background: linear-gradient(115deg, #1a73e8e0, #6e39f5);
+    background: linear-gradient(135deg, #202020 0%, #1A888D 50%, #F7B455 100%) !important;
     color: white;
     border-bottom-right-radius: 4px;
-    box-shadow: 0 4px 10px rgba(0, 102, 255, 0.2);
+    box-shadow: 0 4px 15px rgba(26, 136, 141, 0.2);
 }
 
 .input-container {
@@ -292,7 +392,6 @@ onMounted(() => {
     margin-top: 6px;
 }
 
-/* Scrollbar Style */
 .custom-scrollbar::-webkit-scrollbar {
     width: 4px;
 }
@@ -306,9 +405,9 @@ onMounted(() => {
     background: transparent;
 }
 
-/* Markdown and animations */
 .markdown-body {
-    font-size: 0.92rem;
+    font-size: 1.1rem;
+    line-height: 1.1;
 }
 
 .markdown-body :deep(p) {
@@ -324,40 +423,60 @@ onMounted(() => {
     color: white;
 }
 
-.dot {
-    width: 6px;
-    height: 6px;
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: 50%;
-    animation: bounce 1.4s infinite ease-in-out both;
+.markdown-body :deep(a) {
+    display: inline-block;
+    background: linear-gradient(135deg, #202020, #1A888D, #F7B455, #202020);
+    background-size: 300% 300%;
+    color: white !important;
+    padding: 3px 12px;
+    border-radius: 12px;
+    text-decoration: none !important;
+    font-weight: 600;
+    font-size: 0.9em;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 4px 2px;
+    animation: gradientShift 4s ease infinite;
 }
 
-@keyframes bounce {
-
-    0%,
-    80%,
-    100% {
-        transform: scale(0);
-    }
-
-    40% {
-        transform: scale(1);
-    }
-}
-
-.animate-pulse {
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        opacity: 1;
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
     }
 
     50% {
-        opacity: .5;
+        background-position: 100% 50%;
     }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.markdown-body :deep(a:hover) {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 15px rgba(26, 136, 141, 0.4);
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background: linear-gradient(135deg, #202020 0%, #1A888D 50%, #F7B455 100%) !important;
+    border-radius: 50%;
+    opacity: 1 !important;
+    transform: translateY(0);
+}
+
+.dots-container {
+    display: flex;
+    gap: 6px;
+    padding: 2px 4px;
+}
+
+.loading-icon-container {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    margin-top: 2vh;
+    margin-bottom: 4px;
 }
 </style>

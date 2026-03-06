@@ -2,25 +2,26 @@
   <div v-if="user" class="consultation-sessions-list">
     <div class="list-container">
       <div class="sidebar">
-        <h2 class="sidebar-title">LISTES DES SESSIONS D’APRÈS VOS QUESTIONS</h2>
+        <h2 class="sidebar-title">{{ $t('Consultations.my_sessions_title') }}</h2>
       </div>
 
       <div class="main-content scrollable" data-lenis-prevent>
         <div v-for="(item, index) in sessions" :key="index" class="session-item">
-          <div class="item-header">LES QUESTIONS</div>
+          <div class="item-header">{{ $t('Consultations.the_questions') }}</div>
           <div class="author-row">
             <img :src="getAuthorAvatar()" :alt="getAuthorName()" class="avatar" />
             <span class="author-name">{{ getAuthorName() }}</span>
           </div>
           <p class="question-text">{{ item.Question }}</p>
           <div class="item-footer">
-            <span class="category-tag">Catégorie <br /> <span class="category-name">{{ item.categorie?.Nom || 'Général'
-            }}</span></span>
+            <span class="category-tag">{{ $t('Consultations.category') }} <br /> <span class="category-name">{{
+              item.categorie?.Nom || 'Général'
+                }}</span></span>
             <a v-if="item.reponse_consultations && item.reponse_consultations.length > 0" href="#"
               class="consultation-link" @click.prevent="$emit('view-detail', item.reponse_consultations[0])">
-              VOIR LA RÉPONSE <span class="arrow">↗</span>
+              {{ $t('Consultations.view_answer') }} <span class="arrow">↗</span>
             </a>
-            <span v-else class="pending-tag">EN ATTENTE DE RÉPONSE</span>
+            <span v-else class="pending-tag">{{ $t('Consultations.pending_answer') }}</span>
           </div>
         </div>
       </div>

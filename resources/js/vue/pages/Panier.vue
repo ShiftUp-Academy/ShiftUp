@@ -1,5 +1,5 @@
 <template>
-    <AppLayout title="Mon Panier">
+    <AppLayout :title="$t('MyCart')">
         <div class="panier-page">
             <div class="background-noise"></div>
 
@@ -21,7 +21,7 @@
                                 {{ panier.items.length }} article(s) prêt(s) pour votre achat
                             </p>
                             <p class="premium-subtitle" v-else>
-                                Préparez votre ascension vers le succès
+                                {{ $t('Panier.prparez_votre_ascension') }}
                             </p>
                         </div>
                     </div>
@@ -32,10 +32,10 @@
                                 <div class="empty-icon text-glow">
                                     <i class="fas fa-shopping-basket"></i>
                                 </div>
-                                <h2>Votre panier est vide</h2>
-                                <p>Il est temps de passer à l'action et de choisir votre programme !</p>
+                                <h2>{{ $t('Panier.votre_panier_est') }}</h2>
+                                <p>{{ $t('Panier.il_est_temps') }}</p>
                                 <Link href="/programmes" class="browse-btn-premium">
-                                    DÉCOUVRIR LES PROGRAMMES
+                                    {{ $t('Panier.dcouvrir_les_programmes') }}
                                 </Link>
                             </div>
                         </LiquidGlass>
@@ -61,7 +61,7 @@
                                                 <div class="item-price">{{ formatPrice(item.PrixAuMomentDeLAjout) }}
                                                 </div>
                                                 <button @click="removeItem(item.IdPanierItem)" class="delete-btn"
-                                                    title="Supprimer">
+                                                    :title="$t('Panier.supprimer')">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
                                             </div>
@@ -74,29 +74,29 @@
                         <aside class="summary-section">
                             <LiquidGlass border-radius="30px" class="summary-glass">
                                 <div class="summary-inner">
-                                    <h2 class="summary-title">RÉSUMÉ</h2>
+                                    <h2 class="summary-title">{{ $t('Panier.rsum') }}</h2>
                                     <div class="summary-rows">
                                         <div class="s-row">
-                                            <span>Sous-total</span>
+                                            <span>{{ $t('Panier.soustotal') }}</span>
                                             <span>{{ formatPrice(total) }}</span>
                                         </div>
                                         <div class="s-row">
-                                            <span>TVA (Incluse)</span>
-                                            <span>0 Ar</span>
+                                            <span>{{ $t('Panier.tva_incluse') }}</span>
+                                            <span>{{ $t('Panier.0_ar') }}</span>
                                         </div>
                                     </div>
                                     <div class="summary-divider"></div>
                                     <div class="total-row">
-                                        <span class="total-label">TOTAL À RÉGLER</span>
+                                        <span class="total-label">{{ $t('Panier.total__rgler') }}</span>
                                         <span class="final-price">{{ formatPrice(total) }}</span>
                                     </div>
-                                    <PremiumButton class="checkout-btn" @click="proceedToCheckout">
-                                        <span>PROCÉDER AU PAIEMENT</span>
+                                    <PremiumButton class="checkout-btn" @click="paymentModalOpen = true">
+                                        <span>{{ $t('Panier.procder_au_paiement') }}</span>
                                         <i class="fas fa-arrow-right ml-2"></i>
                                     </PremiumButton>
 
                                     <p class="secure-info">
-                                        <i class="fas fa-shield-alt"></i> Paiement 100% sécurisé
+                                        <i class="fas fa-shield-alt"></i> {{ $t('Panier.paiement_100_scuris') }}
                                     </p>
                                 </div>
                             </LiquidGlass>
@@ -106,8 +106,51 @@
             </div>
         </div>
 
-        <ConfirmModal :isOpen="confirmData.isOpen" :title="confirmData.title" :message="confirmData.message"
+        <ConfirmModal :isOpen="confirmData.isOpen" ::title="$t('Panier.confirmdatatitle')" :message="confirmData.message"
             :type="confirmData.type" @confirm="onModalConfirm" @cancel="confirmData.isOpen = false" />
+
+        <!-- Modal de paiement premium -->
+        <PremiumModal :isOpen="paymentModalOpen" :header="$t('Panier.paiement_mobile')" width="450px" dark
+            @close="paymentModalOpen = false">
+            <div class="modal-body-payment">
+                <p class="payment-intro">{{ $t('Panier.saisissez_votre_numro') }}</p>
+
+                <div class="phone-input-group mb-6">
+                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">{{ $t('Panier.numro_de_tlphone') }}</label>
+                    <input type="text" v-model="customerPhone" class="premium-input mb-4" :placeholder="$t('Panier.034_xx_xxx')"
+                        :disabled="isProcessing" />
+                </div>
+
+                <div class="payment-options">
+                    <button class="pay-btn mvola-btn" @click="initPayment('mvola')"
+                        :disabled="isProcessing || !customerPhone">
+                        <div class="provider-logo">M</div>
+                        <div class="btn-text">
+                            <span class="btn-main-text">{{ $t('Panier.payer_avec_mvola') }}</span>
+                            <span class="btn-sub-text">{{ $t('Panier.paiement_instantan_sandbox') }}</span>
+                        </div>
+                        <i class="fas fa-chevron-right ml-auto"></i>
+                    </button>
+
+                    <button class="pay-btn orange-btn" @click="initPayment('orange-money')"
+                        :disabled="isProcessing || !customerPhone">
+                        <div class="provider-logo">O</div>
+                        <div class="btn-text">
+                            <span class="btn-main-text">{{ $t('Panier.payer_avec_orange') }}</span>
+                            <span class="btn-sub-text">{{ $t('Panier.paiement_scuris_sandbox') }}</span>
+                        </div>
+                        <i class="fas fa-chevron-right ml-auto"></i>
+                    </button>
+                </div>
+
+                <div v-if="isProcessing" class="processing-overlay">
+                    <div class="spinner"></div>
+                    <p class="mt-4 font-semibold text-white">{{ $t('Panier.connexion__mvola') }}</p>
+                    <p class="text-xs text-gray-400">{{ $t('Panier.ne_fermez_pas') }}</p>
+                </div>
+            </div>
+        </PremiumModal>
+
     </AppLayout>
 </template>
 
@@ -119,6 +162,8 @@ import AppLayout from '@/vue/layout/AppLayout.vue';
 import LiquidGlass from '@/vue/components/ui/LiquidGlass.vue';
 import PremiumButton from '@/vue/components/ui/PremiumButton.vue';
 import ConfirmModal from '@/vue/components/ui/ConfirmModal.vue';
+import PremiumModal from '@/vue/components/ui/PremiumModal.vue';
+import axios from 'axios';
 const props = defineProps({
     panier: Object
 });
@@ -210,7 +255,35 @@ const removeItem = (id) => {
 };
 
 const proceedToCheckout = () => {
-    alert('Bientôt disponible : Interface de paiement sécurisé.');
+    paymentModalOpen.value = true;
+};
+
+const paymentModalOpen = ref(false);
+const isProcessing = ref(false);
+const customerPhone = ref('0343500004'); // Numéro sandbox par défaut
+
+const initPayment = async (provider) => {
+    isProcessing.value = true;
+    try {
+        const url = provider === 'mvola' ? '/payment/mvola' : '/payment/orange-money';
+        const response = await axios.post(url, {
+            amount: total.value,
+            phone: customerPhone.value
+        });
+
+        if (response.data.status === 'success') {
+            window.location.href = response.data.simulated_redirect_url;
+        } else {
+            alert("Erreur serveur : " + (response.data.message || "Inconnue"));
+            console.error("Réponse d'erreur:", response.data);
+        }
+    } catch (error) {
+        const msg = error.response?.data?.message || error.message;
+        alert("Erreur de connexion : " + msg);
+        console.error("Détails de l'erreur axios:", error);
+    } finally {
+        isProcessing.value = false;
+    }
 };
 </script>
 
@@ -521,7 +594,7 @@ const proceedToCheckout = () => {
 
     .hover-title {
         margin-top: 3vh;
-    font-size: 4rem !important;
+        font-size: 4rem !important;
     }
 
     .summary-section {
@@ -569,6 +642,134 @@ const proceedToCheckout = () => {
     .item-thumb {
         width: 100%;
         height: 180px;
+    }
+}
+
+/* Payment Modal Styles Enhancement */
+.modal-body-payment {
+    padding-top: 10px;
+    position: relative;
+}
+
+.premium-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.premium-input:focus {
+    border-color: #8A38F5;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.payment-intro {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pay-btn {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 18px 25px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(255, 255, 255, 0.03);
+    text-align: left;
+    width: 100%;
+}
+
+.provider-logo {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.mvola-btn .provider-logo {
+    background: #00A650;
+    color: #fff;
+}
+
+.orange-btn .provider-logo {
+    background: #FF7900;
+    color: #fff;
+}
+
+.btn-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.btn-main-text {
+    color: #fff;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.btn-sub-text {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.8rem;
+}
+
+.pay-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateX(5px);
+}
+
+.pay-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.processing-overlay {
+    position: absolute;
+    inset: -20px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    z-index: 10;
+    border-radius: 20px;
+}
+
+.spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(138, 56, 245, 0.1);
+    border-top-color: #8A38F5;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
     }
 }
 </style>

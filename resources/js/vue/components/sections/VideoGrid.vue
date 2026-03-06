@@ -63,16 +63,15 @@
             <div class="overlay-content" ref="overlayRef">
                 <h2 class="reveal-text">
                     <span class="text-line">
-                        A travers <span class="highlight gt-alpina-font">ShiftUp</span>, on a la vision
-                        d'aider les dirigeants de TPE et PME malgache
+                        {{ $t('VideoGrid.a_travers') }} <span class="highlight gt-alpina-font">{{ $t('VideoGrid.shiftup') }}</span>{{ $t('VideoGrid.on_a') }}
                     </span>
                     <span class="text-line">
-                        à trouver son <span class="highlight gt-alpina-font">feu sacré</span>, réaliser les <span
-                            class="highlight gt-alpina-font">premières ventes</span>
+                        {{ $t('VideoGrid.trouver_son') }} <span class="highlight gt-alpina-font">{{ $t('VideoGrid.feu_sacr') }}</span>{{ $t('VideoGrid.raliser_les') }} <span
+                            class="highlight gt-alpina-font">{{ $t('VideoGrid.premires_ventes') }}</span>
                     </span>
                     <span class="text-line">
-                        et à devenir un <br>
-                        <span class="highlight gt-alpina-font">entrepreneur libre</span>.
+                        {{ $t('VideoGrid.et__devenir') }} <br>
+                        <span class="highlight gt-alpina-font">{{ $t('VideoGrid.entrepreneur_libre') }}</span>.
                     </span>
                 </h2>
             </div>

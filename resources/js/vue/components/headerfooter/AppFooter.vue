@@ -4,11 +4,11 @@
       <div class="footer-columns">
 
         <div class="footer-section">
-          <h3 class="section-title">Rubrique</h3>
+          <h3 class="section-title">{{ $t('Rubric') }}</h3>
           <ul class="section-list">
             <li v-for="link in linksRubrique" :key="link.label">
               <Link :href="link.url" class="link animated-link">
-                <span v-for="(char, i) in splitText(link.label)" :key="i" class="char"
+                <span v-for="(char, i) in splitText($t(link.label))" :key="i" class="char"
                   :style="{ 'animation-delay': `${i * 0.02}s` }">
                   {{ char === ' ' ? '\u00A0' : char }}
                 </span>
@@ -18,11 +18,11 @@
         </div>
 
         <div class="footer-section">
-          <h3 class="section-title">Clients</h3>
+          <h3 class="section-title">{{ $t('Clients') }}</h3>
           <ul class="section-list">
             <li v-for="link in linksClients" :key="link.label">
               <Link :href="link.url" class="link animated-link">
-                <span v-for="(char, i) in splitText(link.label)" :key="i" class="char"
+                <span v-for="(char, i) in splitText($t(link.label))" :key="i" class="char"
                   :style="{ 'animation-delay': `${i * 0.02}s` }">
                   {{ char === ' ' ? '\u00A0' : char }}
                 </span>
@@ -32,27 +32,27 @@
         </div>
 
         <div class="footer-section">
-          <h3 class="section-title">Contacts</h3>
+          <h3 class="section-title">{{ $t('Contacts') }}</h3>
           <div class="contact-info">
-            <p class="link">Lot II A 12 E Ampandrana</p>
+            <p class="link">{{ $t('Footer.Address') }}</p>
             <a href="mailto:hello@shiftup.academy" class="link animated-link">
               <span v-for="(char, i) in splitText('hello@shiftup.academy')" :key="i" class="char"
                 :style="{ 'animation-delay': `${i * 0.02}s` }">
                 {{ char }}
               </span>
             </a>
-            <p class="link">+261 38 34 540 81</p>
+            <p class="link">{{ $t('Footer.Phone') }}</p>
           </div>
         </div>
       </div>
 
       <div class="footer-newsletter">
         <p class="newsletter-text">
-          En vous inscrivant ici vous recevrez les conseils de Nantenaina par email, via newsletter
+          {{ $t('NewsletterDesc') }}
         </p>
 
         <form class="email-input-group" @submit.prevent="submitNewsletter">
-          <input type="email" v-model="form.email" placeholder="Votre adresse email ici" class="email-input" required />
+          <input type="email" v-model="form.email" :placeholder="$t('EmailPlaceholder')" class="email-input" required />
           <button type="submit" class="submit-btn" :disabled="form.processing">
             <svg viewBox="0 0 24 24" class="submit-icon-svg" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M5 12h14M12 5l7 7-7 7" />
@@ -61,33 +61,32 @@
         </form>
 
         <p class="newsletter-disclaimer">
-          En vous inscrivant, vous acceptez notre <Link href="/politique-de-confidentialite">Politique de
-            Confidentialité</Link>.
-          Désabonnement possible à tout moment.
+          {{ $t('NewsletterConsent') }} <Link href="/politique-de-confidentialite">{{ $t('PrivacyPolicy') }}</Link>.
+          {{ $t('UnsubscribeText') }}
         </p>
       </div>
     </div>
 
     <div class="footer-bottom">
       <div class="copyright">
-        ©2026 ShiftUp Academy® | ANTANANARIVO
+        {{ $t('Footer.Copyright') }}
       </div>
 
       <div class="social-links">
         <a href="https://linkedin.com" target="_blank" class="social-icon" aria-label="LinkedIn">
           <i class="fa-brands fa-linkedin-in"></i>
         </a>
-        <a href="https://facebook.com" target="_blank" class="social-icon" aria-label="Facebook">
+        <a href="https://www.facebook.com/nante.randria.gel" target="_blank" class="social-icon" aria-label="Facebook">
           <i class="fa-brands fa-facebook-f"></i>
         </a>
-        <a href="https://youtube.com" target="_blank" class="social-icon" aria-label="YouTube">
+        <a href="https://www.youtube.com/@nr.shiftup" target="_blank" class="social-icon" aria-label="YouTube">
           <i class="fa-brands fa-youtube"></i>
         </a>
       </div>
 
       <div class="back-to-top">
         <a href="#" @click.prevent="scrollToTop" class="back-link animated-link">
-          <span v-for="(char, i) in splitText('REVENIR EN HAUT')" :key="i" class="char"
+          <span v-for="(char, i) in splitText($t('BackToTop'))" :key="i" class="char"
             :style="{ 'animation-delay': `${i * 0.02}s` }">
             {{ char === ' ' ? '\u00A0' : char }}
           </span>
@@ -99,7 +98,10 @@
 </template>
 
 <script setup>
-import { Link, useForm } from '@inertiajs/vue3';
+import { Link, useForm, usePage } from '@inertiajs/vue3';
+
+const page = usePage();
+const $t = (key) => page.props.translations?.[key] || key;
 
 const form = useForm({
   email: ''
@@ -125,18 +127,18 @@ const scrollToTop = () => {
 };
 
 const linksRubrique = [
-  { label: "Témoignages", url: "/temoignages" },
-  { label: "L'organisme", url: "/organisme" },
-  { label: "Comment ShiftUp fonctionne?", url: "/comment-ca-fonctionne" },
-  { label: "Articles et conseils", url: "/articles-conseils" },
-  { label: "Contactez nous", url: "/contact" }
+  { label: "Footer.Temoignages", url: "/temoignages" },
+  { label: "Footer.Organisme", url: "/organisme" },
+  { label: "Footer.CommentCaFonctionne", url: "/comment-ca-fonctionne" },
+  { label: "Footer.ArticlesConseils", url: "/articles-conseils" },
+  { label: "Footer.ContactezNous", url: "/contact" }
 ];
 
 const linksClients = [
-  { label: "Nos programmes", url: "/programmes" },
-  { label: "Nos Coachings", url: "/coaching" },
-  { label: "Nos offres", url: "/offres" },
-  { label: "Politique de confidentialité", url: "/politique-de-confidentialite" }
+  { label: "Footer.NosProgrammes", url: "/programmes" },
+  { label: "Footer.NosCoachings", url: "/coaching" },
+  { label: "Footer.NosOffres", url: "/offres" },
+  { label: "PrivacyPolicy", url: "/politique-de-confidentialite" }
 ];
 </script>
 

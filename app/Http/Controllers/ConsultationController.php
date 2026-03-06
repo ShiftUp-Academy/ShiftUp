@@ -11,11 +11,14 @@ use App\Notifications\ActiviteAdminNotification;
 use Illuminate\Support\Facades\Notification;
 use App\Models\Utilisateur;
 
+use App\Models\ReponseConsultation;
+
 class ConsultationController extends Controller
 {
     public function index()
     {
         $categories = \App\Models\Categorie::where('Statut', 'Publié')->get();
+
         
         $myConsultations = Consultation::where('IdUtilisateur', Auth::id())
             ->with(['categorie', 'reponseConsultations.questions.utilisateur.profil'])
@@ -141,5 +144,17 @@ class ConsultationController extends Controller
         $reponse->update($validated);
 
         return back()->with('success', 'La consultation archive a été mise à jour.');
+    }
+
+    public function destroy($id)
+    {
+        Consultation::findOrFail($id)->delete();
+        return back()->with('success', 'La question a été supprimée.');
+    }
+
+    public function destroyArchive($id)
+    {
+        ReponseConsultation::findOrFail($id)->delete();
+        return back()->with('success', 'L\'archive a été supprimée.');
     }
 }

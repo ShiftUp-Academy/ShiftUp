@@ -96,4 +96,10 @@ class LiveController extends Controller
 
         return redirect()->back()->with('success', 'Live mis à jour avec succès.');
     }
+    public function destroy($id)
+    {
+        Live::findOrFail($id)->delete();
+        return back()->with('success', 'Live supprimé.');
+    }
 }
+

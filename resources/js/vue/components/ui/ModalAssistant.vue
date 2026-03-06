@@ -250,10 +250,9 @@ const leave = (el, done) => {
     display: flex;
     gap: 12px;
     padding: 12px;
-    border-radius: 15px;
+    border-radius: 30px;
     background: rgba(10, 10, 10, 0.6);
     backdrop-filter: blur(2px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
     margin-bottom: 8px;
     transition: background 0.3s;
 }
@@ -288,16 +287,19 @@ const leave = (el, done) => {
 }
 
 .notif-item.unread {
-    background: rgba(33, 33, 33, 0.632);
+    background: linear-gradient(135deg, #202020 0%, #1A888D 50%, #F7B455 100%) !important;
+}
+
+.notif-item.unread .notif-icon {
+    color: rgba(255, 255, 255, 0.814) !important;
 }
 
 .unread-dot {
-    width: 8px;
-    height: 8px;
-    background: #8A38F5;
+    width: 10px;
+    height: 10px;
+    background: #ffffff;
     border-radius: 50%;
     align-self: center;
-    box-shadow: 0 0 10px #8A38F5;
 }
 
 .bubble-tail {

@@ -90,6 +90,9 @@
                 <button class="edit-btn" @click="editCoachingType(type)">
                   <i class="fas fa-pen"></i> Modifier
                 </button>
+                <button class="delete-btn-simple" @click="deleteCoachingType(type)">
+                  <i class="fas fa-trash"></i>
+                </button>
               </div>
             </div>
 
@@ -117,14 +120,15 @@
                 </span>
               </div>
               <div class="col-type">{{ res.type?.NomDeType }}</div>
-              <div class="col-date">{{ formatDate(res.disponibilite?.DateDisponible) }}</div>
+              <div class="col-date">{{ res.disponibilite?.DateDisponible ? formatDate(res.disponibilite.DateDisponible)
+                : 'N/A (Archive)' }}</div>
               <div class="col-status">
                 <PremiumSlideToggle v-model="res.StatutReplay" checkedValue="Publié" uncheckedValue="Dépublié"
                   activeColor="#22c55e" @update:modelValue="updateReplayStatus(res)" />
               </div>
               <div class="col-actions">
-                <button class="edit-btn" @click="editReservation(res)">
-                  <i class="fas fa-video"></i> Replay
+                <button class="edit-btn" @click="openReplayModal(res)">
+                  <i class="fas fa-video"></i> {{ res.LienVideoReplay ? 'Gérer' : 'Créer' }} Replay
                 </button>
               </div>
             </div>
@@ -145,6 +149,9 @@
     <ModalCoachingAvailability :isOpen="showAvailModal" :existingAvailabilities="availabilities"
       @close="showAvailModal = false" />
 
+    <ModalAdminReplay :isOpen="showReplayModal" :reservation="selectedReplayReservation" @close="closeReplayModal"
+      @success="onRefresh" />
+
     <PremiumModal :isOpen="showMeetModal" header="Lien Google Meet Global" width="35rem" @close="showMeetModal = false">
       <form @submit.prevent="submitMeetLink" class="p-4">
         <div class="flex flex-col gap-4">
@@ -160,6 +167,8 @@
       </form>
     </PremiumModal>
 
+    <ConfirmModal :isOpen="confirmData.isOpen" :title="confirmData.title" :message="confirmData.message"
+      :type="confirmData.type" @confirm="onModalConfirm" @cancel="confirmData.isOpen = false" />
     <Toast />
   </div>
 </template>
@@ -178,6 +187,8 @@ import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import AdminFilters from '../../components/admin/AdminFilters.vue';
 import ModalEditReservation from '../../components/admin/ModalEditReservation.vue';
+import ModalAdminReplay from '../../components/admin/ModalAdminReplay.vue';
+import ConfirmModal from '../../components/ui/ConfirmModal.vue';
 
 const props = defineProps({
   coachingTypes: { type: Array, default: () => [] },
@@ -192,7 +203,21 @@ const filters = ref({ search: '', dateStart: null, dateEnd: null });
 const toast = useToast();
 
 const filteredReservations = computed(() => {
-  let list = props.reservations;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let list = props.reservations.filter(res => {
+    // If no slot, we assume it's a past/incomplete entry, hide it from "Reservations"
+    if (!res.disponibilite) return false;
+
+    const [year, month, day] = res.disponibilite.DateDisponible.split('-').map(Number);
+    const resDate = new Date(year, month - 1, day);
+    resDate.setHours(0, 0, 0, 0);
+
+    // Keep only today or future
+    return resDate >= today && res.StatutReservation !== 'Terminé';
+  });
+
   if (filters.value.search) {
     const query = filters.value.search.toLowerCase();
     list = list.filter(res => {
@@ -216,7 +241,23 @@ const filteredReservations = computed(() => {
 });
 
 const filteredReplays = computed(() => {
-  let list = props.reservations.filter(res => res.StatutReservation === 'Terminé');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let list = props.reservations.filter(res => {
+    // If Terminé, always show in Replays
+    if (res.StatutReservation === 'Terminé') return true;
+
+    // Otherwise, check if it has a past date
+    if (!res.disponibilite) return false;
+
+    const [year, month, day] = res.disponibilite.DateDisponible.split('-').map(Number);
+    const resDate = new Date(year, month - 1, day);
+    resDate.setHours(0, 0, 0, 0);
+
+    return resDate <= today;
+  });
+
   if (filters.value.search) {
     const query = filters.value.search.toLowerCase();
     list = list.filter(res => {
@@ -249,6 +290,18 @@ const editCoachingType = (type) => { editingType.value = type; showTypeModal.val
 const closeTypeModal = () => { showTypeModal.value = false; editingType.value = null; };
 const editReservation = (res) => { editingReservation.value = res; showEditReservationModal.value = true; };
 const closeEditReservationModal = () => { showEditReservationModal.value = false; editingReservation.value = null; };
+
+const showReplayModal = ref(false);
+const selectedReplayReservation = ref(null);
+const openReplayModal = (res) => {
+  selectedReplayReservation.value = res;
+  showReplayModal.value = true;
+};
+const closeReplayModal = () => {
+  showReplayModal.value = false;
+  selectedReplayReservation.value = null;
+};
+
 const onRefresh = () => { router.reload(); };
 
 const submitMeetLink = () => {
@@ -276,6 +329,39 @@ const updateReplayStatus = (res) => {
     preserveScroll: true,
     onSuccess: () => { toast.add({ severity: 'success', summary: 'Succès', detail: 'Le statut du replay a été mis à jour', life: 3000 }); }
   });
+};
+
+// CONFIRM MODAL STATE
+const confirmData = ref({
+  isOpen: false,
+  title: '',
+  message: '',
+  type: 'danger',
+  action: null
+});
+
+const triggerConfirm = (title, message, type, action) => {
+  confirmData.value = { isOpen: true, title, message, type, action };
+};
+
+const onModalConfirm = () => {
+  if (confirmData.value.action) confirmData.value.action();
+  confirmData.value.isOpen = false;
+};
+
+const deleteCoachingType = (type) => {
+  triggerConfirm(
+    "Supprimer le type de coaching",
+    `Voulez-vous vraiment supprimer "${type.NomDeType}" ?`,
+    'danger',
+    () => {
+      router.delete('/admin/coachings/types/' + type.IdTypeCoaching, {
+        onSuccess: () => {
+          toast.add({ severity: 'info', summary: 'Supprimé', detail: "Le type de coaching a été supprimé", life: 3000 });
+        }
+      });
+    }
+  );
 };
 
 const formatDate = (dateString) => {
@@ -471,6 +557,26 @@ const formatDate = (dateString) => {
 
 .edit-btn:hover {
   background: #333;
+}
+
+.delete-btn-simple {
+  background: none;
+  border: 1px solid #eee;
+  color: #ef4444;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  margin-left: 10px;
+}
+
+.delete-btn-simple:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
 }
 
 .tab-content {

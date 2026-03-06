@@ -20,6 +20,26 @@ use App\Mail\ForgotPasswordMail;
 
 class UtilisateurController extends Controller
 {
+    public function publicProfile($id)
+    {
+        $user = Utilisateur::with([
+            'profil.reseauxSociaux',
+            'temoignages' => function($q) {
+                $q->where('Statut', 'Publié')->orderBy('DateCreation', 'desc');
+            }
+        ])->findOrFail($id);
+
+        $reussites = \App\Models\Reussite::whereHas('utilisateurs', function($q) use ($id) {
+            $q->where('user_id', $id);
+        })->get();
+
+        return response()->json([
+            'profil' => $user->profil,
+            'temoignages' => $user->temoignages,
+            'reussites' => $reussites,
+            'email' => $user->Email // For some public identification
+        ]);
+    }
 
     public function login(Request $request)
     {

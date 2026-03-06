@@ -1,8 +1,8 @@
-<template >
+<template>
   <section id="live-trainings" ref="sectionRef" class="live-trainings-section no-global-reveal">
     <div class="scroll-hint-wrapper" ref="scrollHintRef">
       <div class="scroll-hint">
-        <span class="scroll-text">FAITES DÉFILER</span>
+        <span class="scroll-text">{{ $t('LiveTrainings.FaitesDefiler') }}</span>
         <div class="icon-group">
           <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round" class="mouse-icon">
@@ -22,10 +22,10 @@
 
       <div class="left-content" ref="titleRef">
         <h2 class="title-main">
-          NOS DATES DE SEMINAIRES EN LIGNE ET PRESENTIELS
+          {{ $t('LiveTrainings.NosDates') }}
         </h2>
         <p class="description-text">
-          Explorez toutes les catégories proposées par ShiftUp regroupées en une seule page.
+          {{ $t('LiveTrainings.Description') }}
         </p>
 
         <div class="navigation-buttons">
@@ -49,9 +49,9 @@
 
       <div class="right-content">
         <div class="section-header">
-          <h3 class="section-title">Les programmes disponibles</h3>
+          <h3 class="section-title">{{ $t('LiveTrainings.ProgrammesDisponibles') }}</h3>
           <div class="view-all">
-            <span>TOUT VOIR</span>
+            <span>{{ $t('LiveTrainings.ToutVoir') }}</span>
             <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round" class="arrow-icon">
               <polyline points="7 14 14 7 7 0"></polyline>
@@ -60,14 +60,8 @@
           </div>
         </div>
 
-        <div 
-          class="cards-grid" 
-          ref="cardsGridRef" 
-          @mousedown="handleDragStart"
-          @mousemove="handleDragMove"
-          @mouseup="handleDragEnd"
-          @mouseleave="handleDragEnd"
-        >
+        <div class="cards-grid" ref="cardsGridRef" @mousedown="handleDragStart" @mousemove="handleDragMove"
+          @mouseup="handleDragEnd" @mouseleave="handleDragEnd">
           <div v-for="(training, index) in trainings" :key="index" class="card-wrapper">
             <span class="card-number">{{ String(index + 1).padStart(2, '0') }}</span>
             <TrainingCard v-bind="training" />
@@ -82,7 +76,11 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { usePage } from '@inertiajs/vue3';
 import TrainingCard from '../ui/TrainingCard.vue';
+
+const page = usePage();
+const $t = (key) => page.props.translations[key] || key;
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -449,9 +447,9 @@ onBeforeUnmount(() => {
   scrollbar-width: none;
   will-change: scroll-position;
   backface-visibility: hidden;
-  transform: translateZ(0); 
+  transform: translateZ(0);
   cursor: grab;
-  user-select: none; 
+  user-select: none;
 }
 
 .cards-grid::-webkit-scrollbar {

@@ -25,9 +25,27 @@ class CoachingController extends Controller
             ->orderBy('HeureDebut')
             ->get();
 
+        $userCoachings = [];
+        if (auth()->check()) {
+            $userCoachings = ReservationCoaching::where('IdUtilisateur', auth()->id())
+                ->whereHas('disponibilite', function($query) {
+                    $query->where('DateDisponible', '>=', now()->toDateString());
+                })
+                ->with(['type', 'disponibilite'])
+                ->orderBy('DateCreation', 'desc')
+                ->get();
+        }
+
+        $coachingReplays = ReservationCoaching::where('StatutReplay', 'Publié')
+            ->with(['type', 'disponibilite'])
+            ->orderBy('DateCreation', 'desc')
+            ->get();
+
         return Inertia::render('Coachings', [
             'coachingTypes' => $coachingTypes,
-            'availabilities' => $availabilities
+            'availabilities' => $availabilities,
+            'userCoachings' => $userCoachings,
+            'coachingReplays' => $coachingReplays
         ]);
     }
 
@@ -135,10 +153,10 @@ class CoachingController extends Controller
         $coachingTypes = TypeDeCoaching::withCount('reservations')->get();
         
         $reservations = ReservationCoaching::with(['utilisateur.profil', 'type', 'disponibilite'])
-            ->join('DisponibiliteCoaching', 'ReservationCoaching.IdDisponibilite', '=', 'DisponibiliteCoaching.IdDisponibilite')
-            ->orderBy('DisponibiliteCoaching.DateDisponible', 'asc') // Le plus proche d'abord
-            ->orderBy('DisponibiliteCoaching.HeureDebut', 'asc')
-            ->select('ReservationCoaching.*') // Important pour éviter les conflits d'ID
+            ->leftJoin('DisponibiliteCoaching', 'ReservationCoaching.IdDisponibilite', '=', 'DisponibiliteCoaching.IdDisponibilite')
+            ->orderBy('DisponibiliteCoaching.DateDisponible', 'desc')
+            ->orderBy('DisponibiliteCoaching.HeureDebut', 'desc')
+            ->select('ReservationCoaching.*')
             ->get();
 
         $availabilities = DisponibiliteCoaching::orderBy('DateDisponible', 'desc')->get();
@@ -282,6 +300,8 @@ class CoachingController extends Controller
             'StatutReservation' => 'required|string|in:En attente,Confirmé,Terminé,Annulé,Remboursé',
             'LienVideoReplay' => 'nullable|string',
             'StatutReplay' => 'nullable|string|in:Publié,Dépublié',
+            'TitreReplay' => 'nullable|string|max:255',
+            'DescriptionReplay' => 'nullable|string',
         ]);
 
         $reservation->update($validated);
@@ -298,4 +318,11 @@ class CoachingController extends Controller
 
         return back()->with('success', 'Réservation mise à jour avec succès.');
     }
+
+    public function destroyType($id)
+    {
+        TypeDeCoaching::findOrFail($id)->delete();
+        return back()->with('success', 'Type de coaching supprimé.');
+    }
 }
+

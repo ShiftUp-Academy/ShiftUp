@@ -3,11 +3,10 @@
         <!-- Hero Section - Minimalist Style -->
         <div class="intro-section">
             <div class="intro-content">
-                <span class="category-label" ref="labelRef">RESSOURCES GRATUITES</span>
-                <h1 class="impact-title" ref="titleRef">Articles et Conseils</h1>
+                <span class="category-label" ref="labelRef">{{ $t('ArticlesConseils.ressources_gratuites') }}</span>
+                <h1 class="impact-title" ref="titleRef">{{ $t('ArticlesTips') }}</h1>
                 <p class="subtitle" ref="subtitleRef">
-                    Boostez votre carrière avec nos programmes exclusifs, accessibles gratuitement
-                    pour vous accompagner dans votre transformation.
+                    {{ $t('ArticlesConseils.boostez_votre_carrire') }}
                 </p>
             </div>
         </div>
@@ -36,9 +35,10 @@
                             d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18 18.246 18.477 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
                 </div>
-                <h3>Aucun article trouvé</h3>
-                <p>Essayez de modifier vos filtres ou revenez plus tard.</p>
-                <button @click="resetFilters" class="reset-btn">Réinitialiser les filtres</button>
+                <h3>{{ $t('ArticlesConseils.aucun_article_trouv') }}</h3>
+                <p>{{ $t('ArticlesConseils.essayez_de_modifier') }}</p>
+                <button @click="resetFilters" class="reset-btn">{{ $t('ArticlesConseils.rinitialiser_les_filtres')
+                    }}</button>
             </div>
         </div>
 
@@ -46,7 +46,7 @@
             :showClose="false">
             <div class="reader-container">
                 <div class="reader-sidebar" v-if="hasMultipleLessons">
-                    <h3 class="sidebar-title">Sommaire</h3>
+                    <h3 class="sidebar-title">{{ $t('ArticlesConseils.sommaire') }}</h3>
                     <div class="lesson-nav">
                         <button v-for="(lesson, idx) in allArticleLessons" :key="lesson.IdLecon" class="nav-item"
                             :class="{ 'active': activeLessonIndex === idx }" @click="activeLessonIndex = idx">
@@ -67,6 +67,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import PremiumModal from '../components/ui/PremiumModal.vue';
@@ -84,6 +85,9 @@ const props = defineProps({
         default: () => []
     }
 });
+
+const page = usePage();
+const currentLocale = computed(() => page.props.locale || 'fr');
 
 const searchValue = ref('');
 const selectedCategory = ref(null);
@@ -117,15 +121,20 @@ const formattedCategories = computed(() => {
 
 const filteredArticles = computed(() => {
     return props.articles.filter(article => {
-        const matchesSearch = article.Titre.toLowerCase().includes(searchValue.value.toLowerCase()) ||
-            (article.Descriptions && article.Descriptions.toLowerCase().includes(searchValue.value.toLowerCase()));
+        const title = article.Titre || '';
+        const description = article.Descriptions || '';
+        const search = searchValue.value.toLowerCase();
+
+        const matchesSearch = title.toLowerCase().includes(search) ||
+            description.toLowerCase().includes(search);
+
         const matchesCategory = !selectedCategory.value || article.IdCategorie === selectedCategory.value.code;
         return matchesSearch && matchesCategory;
     });
 });
 
 const allSuggestions = computed(() => {
-    return props.articles.map(a => a.Titre);
+    return props.articles.map(a => a.Titre || '');
 });
 
 const filteredSuggestions = ref([]);
@@ -175,7 +184,7 @@ const closeReader = () => {
 const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+    return new Intl.DateTimeFormat(currentLocale.value, { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
 };
 
 const truncate = (text, length) => {
@@ -488,14 +497,12 @@ onMounted(() => {
         line-height: 1.1;
     }
 
-    .article-title
-    {
+    .article-title {
         font-size: 1.5rem;
         line-height: 1.1;
     }
 
-    .article-desc
-    {
+    .article-desc {
         font-size: 1.2rem;
         line-height: 1.1;
         margin-top: 1vh;

@@ -10,9 +10,10 @@
                 <div class="event-meta">
                     <div class="edition-label-container">
                         <span class="recording-dot" v-if="isUpcoming || isActive"></span>
-                        <span class="edition-label" v-if="isUpcoming">LIVE À VENIR</span>
-                        <span class="edition-label active-live" v-else-if="isActive">EN DIRECT</span>
-                        <span class="edition-label replay-label" v-else>REPLAY DISPONIBLE</span>
+                        <span class="edition-label" v-if="isUpcoming">{{ $t('LiveDetail.live__venir') }}</span>
+                        <span class="edition-label active-live" v-else-if="isActive">{{ $t('LiveDetail.en_direct')
+                        }}</span>
+                        <span class="edition-label replay-label" v-else>{{ $t('LiveDetail.replay_disponible') }}</span>
                     </div>
                 </div>
 
@@ -28,23 +29,23 @@
                 </div>
 
                 <div class="countdown-section" v-if="isUpcoming">
-                    <p class="starts-in-label">Commence dans</p>
+                    <p class="starts-in-label">{{ $t('LiveDetail.commence_dans') }}</p>
                     <div class="countdown-timer">
                         <div class="time-unit">
                             <span class="number">{{ days }}</span>
-                            <span class="label">Jours</span>
+                            <span class="label">{{ $t('LiveDetail.jours') }}</span>
                         </div>
                         <div class="time-unit">
                             <span class="number">{{ hours }}</span>
-                            <span class="label">Heures</span>
+                            <span class="label">{{ $t('LiveDetail.heures') }}</span>
                         </div>
                         <div class="time-unit">
                             <span class="number">{{ minutes }}</span>
-                            <span class="label">Minutes</span>
+                            <span class="label">{{ $t('LiveDetail.minutes') }}</span>
                         </div>
                         <div class="time-unit">
                             <span class="number">{{ seconds }}</span>
-                            <span class="label">Secondes</span>
+                            <span class="label">{{ $t('LiveDetail.secondes') }}</span>
                         </div>
                     </div>
                 </div>
@@ -52,30 +53,32 @@
                     <template v-if="isActive">
                         <PremiumButton v-if="live.LienGoogleMeet" class="action-btn meet-btn" @click="joinLive"
                             :style="{ '--btn-gradient': 'linear-gradient(90deg, #EA4335, #FBBC05, #EA4335)' }">
-                            OUVRIR SUR GOOGLE MEET
+                            {{ $t('LiveDetail.ouvrir_sur_google') }}
                         </PremiumButton>
 
                         <PremiumButton class="action-btn copy-btn" @click="copyLink"
                             :style="{ '--btn-bg': '#000', '--btn-gradient': 'none' }">
-                            <i class="fas fa-copy" style="margin-right: 8px;"></i> {{ linkCopied ? 'LIEN COPIÉ !' :
-                            'COPIER LE LIEN' }}
+                            <i class="fas fa-copy" style="margin-right: 8px;"></i> {{ linkCopied ?
+                                $t('LiveDetail.lien_copie') :
+                                $t('LiveDetail.copier_le_lien') }}
                         </PremiumButton>
                     </template>
 
                     <template v-else-if="!isUpcoming && live.LienReplay">
                         <PremiumButton class="action-btn replay-btn" @click="watchReplay">
-                            VOIR LE REPLAY
+                            {{ $t('LiveDetail.voir_le_replay') }}
                         </PremiumButton>
                     </template>
 
                     <template v-else-if="isUpcoming">
                         <PremiumButton class="action-btn notify-btn" disabled>
-                            TENEZ-VOUS PRÊT
+                            {{ $t('LiveDetail.tenez_vous_pret') }}
                         </PremiumButton>
                         <PremiumButton class="action-btn copy-btn" @click="copyLink"
                             :style="{ '--btn-bg': '#000', '--btn-gradient': 'none' }">
-                            <i class="fas fa-copy" style="margin-right: 8px;"></i> {{ linkCopied ? 'LIEN COPIÉ !' :
-                            'COPIER LE LIEN' }}
+                            <i class="fas fa-copy" style="margin-right: 8px;"></i> {{ linkCopied ?
+                                $t('LiveDetail.lien_copie') :
+                                $t('LiveDetail.copier_le_lien') }}
                         </PremiumButton>
                     </template>
                 </div>
@@ -84,8 +87,8 @@
 
         <div class="main-content container empty-state" v-else>
             <div class="content-left">
-                <h1 class="main-title">AUCUN LIVE PROGRAMMÉ</h1>
-                <PremiumButton class="action-btn" @click="goHome">RETOUR À L'ACCUEIL</PremiumButton>
+                <h1 class="main-title">{{ $t('LiveDetail.aucun_live') }}</h1>
+                <PremiumButton class="action-btn" @click="goHome">{{ $t('LiveDetail.retour_accueil') }}</PremiumButton>
             </div>
         </div>
         <Toast />
@@ -94,11 +97,15 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import PremiumButton from '../components/ui/PremiumButton.vue';
 import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
+
+const page = usePage();
+const $t = (key) => page.props.translations[key] || key;
+const currentLocale = computed(() => page.props.locale || 'fr');
 
 const props = defineProps({
     live: Object
@@ -126,13 +133,13 @@ const isActive = computed(() => {
 const formattedDate = computed(() => {
     if (!props.live) return '';
     const date = new Date(props.live.DateDebut);
-    return date.toLocaleDateString('fr-FR', { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
+    return date.toLocaleDateString(currentLocale.value, { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
 });
 
 const formatTime = (dateStr) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
-    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
+    return date.toLocaleTimeString(currentLocale.value, { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
 };
 
 const calculateTimeLeft = () => {
@@ -160,7 +167,7 @@ const copyLink = () => {
     const url = window.location.href;
     navigator.clipboard.writeText(url).then(() => {
         linkCopied.value = true;
-        toast.add({ severity: 'success', summary: 'Copié', detail: 'Lien copié dans le presse-papier', life: 2000 });
+        toast.add({ severity: 'success', summary: $t('LiveDetail.copie_summary'), detail: $t('LiveDetail.lien_copie_detail'), life: 2000 });
         setTimeout(() => {
             linkCopied.value = false;
         }, 2000);

@@ -2,22 +2,23 @@
   <div class="free-consultations-list">
     <div class="list-container">
       <div class="sidebar">
-        <h2 class="sidebar-title">LISTES DES REDIFFUSIONS DE CONSULTATIONS GRATUITES</h2>
+        <h2 class="sidebar-title">{{ $t('Consultations.free_sessions_title') }}</h2>
       </div>
 
       <div class="main-content scrollable" data-lenis-prevent>
         <div v-for="(item, index) in consultations" :key="index" class="replay-item">
-          <div class="item-header">LES QUESTIONS</div>
+          <div class="item-header">{{ $t('Consultations.the_questions') }}</div>
           <div class="author-row">
             <img :src="getAuthorAvatar(item.questions)" :alt="getAuthorName(item.questions)" class="avatar" />
             <span class="author-name">{{ getAuthorName(item.questions) }}</span>
           </div>
           <p class="question-text">{{ getQuestionText(item.questions) }}</p>
           <div class="item-footer">
-            <span class="category-tag">Catégorie <br /> <span class="category-name">{{ item.categorie?.Nom || 'Général'
-            }}</span></span>
-            <a href="#" class="consultation-link" @click.prevent="$emit('view-detail', item)">VOIR LA REPONSE <span
-                class="arrow">↗</span></a>
+            <span class="category-tag">{{ $t('Consultations.category') }} <br /> <span class="category-name">{{
+              item.categorie?.Nom || 'Général'
+                }}</span></span>
+            <a href="#" class="consultation-link" @click.prevent="$emit('view-detail', item)">{{
+              $t('Consultations.view_answer') }} <span class="arrow">↗</span></a>
           </div>
         </div>
       </div>

@@ -1,11 +1,10 @@
 <template>
-    <div class="hero-page-container no-global-reveal" 
-        @mousemove="handleMouseMove" 
-        @mouseover="showCursor = true; animateCursorIn()"
-        @mouseleave="showCursor = false; animateCursorOut()"
+    <div class="hero-page-container no-global-reveal" @mousemove="handleMouseMove"
+        @mouseover="showCursor = true; animateCursorIn()" @mouseleave="showCursor = false; animateCursorOut()"
         @click="navigateToProgrammes">
 
-        <video class="hero-video" ref="videoRef" muted loop playsinline autoplay preload="metadata" :src="heroVideoSrc"></video>
+        <video class="hero-video" ref="videoRef" muted loop playsinline autoplay preload="metadata"
+            :src="heroVideoSrc"></video>
 
         <div class="hero-overlay">
             <div class="hero-content">
@@ -24,14 +23,15 @@
                             <linearGradient id="textGradient" x1="0%" y1="0%" x2="200%" y2="0%">
                                 <stop offset="0%" class="grad-stop stop-1" style="stop-color:#0E7EC3;stop-opacity:1" />
                                 <stop offset="50%" class="grad-stop stop-2" style="stop-color:#8A38F5;stop-opacity:1" />
-                                <stop offset="100%" class="grad-stop stop-3" style="stop-color:#0E7EC3;stop-opacity:1" />
+                                <stop offset="100%" class="grad-stop stop-3"
+                                    style="stop-color:#0E7EC3;stop-opacity:1" />
                             </linearGradient>
                         </defs>
 
                         <g clip-path="url(#text-reveal-clip)">
                             <text x="50%" y="70%" dominant-baseline="middle" text-anchor="middle" class="svg-text"
                                 fill="url(#textGradient)">
-                                Libre
+                                {{ $t('Heropage.libre') }}
                             </text>
                         </g>
                     </svg>
@@ -41,15 +41,18 @@
     </div>
 
     <div class="custom-cursor" :style="{ left: cursorPosition.x + 'px', top: cursorPosition.y + 'px' }">
-        VOIR NOS PROGRAMMES
+        {{ $t('Heropage.voir_nos_programmes') }}
     </div>
 </template>
-  
+
 <script setup>
-import { ref, onMounted, onBeforeUnmount, reactive } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, reactive } from 'vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { router } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
+
+const page = usePage();
+const $t = (key) => page.props.translations[key] ?? key;
 
 function navigateToProgrammes() {
     router.visit('/programmes');
@@ -60,12 +63,25 @@ gsap.registerPlugin(ScrollTrigger);
 const videoRef = ref(null);
 
 const heroVideoSrc = "https://res.cloudinary.com/dzgdjei0h/video/upload/v1766751142/Shift_Up_1_Workflow_1_lzre8i.mp4";
-const fullTitle = 'Propulsez votre entreprise au niveau supérieur et devenez un entrepreneur';
-const bogartWords = ['votre', 'entreprise', 'devenez', 'un', 'entrepreneur'];
 
-const titleWords = fullTitle.trim().split(/\s+/).map(word => {
-    const isBogart = bogartWords.includes(word.toLowerCase());
-    return { text: word, isBogart: isBogart };
+const titleWords = computed(() => {
+    const fullTitle = $t('Heropage.title') !== 'Heropage.title'
+        ? $t('Heropage.title')
+        : 'Propulsez votre entreprise au niveau supérieur et devenez un entrepreneur';
+
+    const bogartString = $t('Heropage.bogart_words') !== 'Heropage.bogart_words'
+        ? $t('Heropage.bogart_words')
+        : 'votre, entreprise, devenez, un, entrepreneur';
+
+    const bogartWords = bogartString.split(',').map(w => w.trim().toLowerCase());
+
+    return fullTitle.trim().split(/\s+/).map(word => {
+        const cleanWord = word.replace(/[.,!?;:]/g, "").toLowerCase();
+        return {
+            text: word,
+            isBogart: bogartWords.includes(cleanWord)
+        };
+    });
 });
 
 // --- CURSEUR LOGIC (Non Modifié) ---
@@ -126,7 +142,7 @@ function animateCursorOut() {
 }
 
 function animateGradientScroll() {
-    const gradientTl = gsap.timeline({ repeat: -1, defaults: { ease: "none", duration: 8 } }); 
+    const gradientTl = gsap.timeline({ repeat: -1, defaults: { ease: "none", duration: 8 } });
 
     // Animer la position X du dégradé de 100% (Décalage du dégradé)
     gradientTl.fromTo("#textGradient",
@@ -176,22 +192,22 @@ function initAnimations() {
     // --- 3. Playback Optimization ---
     const vST = ScrollTrigger.create({
         trigger: ".hero-page-container",
-        start: "top top", 
+        start: "top top",
         end: "bottom top",
-        onEnter: () => { if (videoRef.value) videoRef.value.play().catch(() => {}); },
+        onEnter: () => { if (videoRef.value) videoRef.value.play().catch(() => { }); },
         // On attend que la section soit bien sortie (50vh plus loin)
-        onLeave: () => { 
+        onLeave: () => {
             const isFarEnough = window.scrollY > (document.querySelector('.hero-page-container').offsetHeight + window.innerHeight * 0.5);
-            if (isFarEnough && videoRef.value) videoRef.value.pause(); 
+            if (isFarEnough && videoRef.value) videoRef.value.pause();
         },
-        onEnterBack: () => { if (videoRef.value) videoRef.value.play().catch(() => {}); },
+        onEnterBack: () => { if (videoRef.value) videoRef.value.play().catch(() => { }); },
     });
 }
 
 onMounted(() => {
     initAnimations();
     animateGradientScroll();
-    
+
     // Initialisation du curseur en petite taille et invisible
     gsap.set(".custom-cursor", { scale: 0.1, opacity: 0 });
     window.addEventListener('resize', onWindowResize);
@@ -210,7 +226,7 @@ onBeforeUnmount(() => {
 
 function onWindowResize() { /* Laisser vide ou gérer la responsivité si nécessaire */ }
 </script>
-  
+
 <style scoped>
 /* Conteneur Principal */
 .hero-page-container {

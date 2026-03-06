@@ -8,8 +8,8 @@
             <i class="fa-solid fa-envelope-open-text"></i>
           </div>
           <div class="item-content">
-            <p class="content-value">hello@shiftup.academy</p>
-            <p class="content-label">EMAIL</p>
+            <p class="content-value">{{ $t('Contact.helloshiftupacademy') }}</p>
+            <p class="content-label">{{ $t('Contact.email') }}</p>
           </div>
         </div>
 
@@ -19,7 +19,7 @@
           </div>
           <div class="item-content">
             <p class="content-value">038 34 540 81</p>
-            <p class="content-label">TÉLÉPHONE</p>
+            <p class="content-label">{{ $t('Contact.tlphone') }}</p>
           </div>
         </div>
 
@@ -33,14 +33,14 @@
 
         <div class="working-hours">
           <div class="hours-row">
-            <span class="day-label">Jours de travail</span>
+            <span class="day-label">{{ $t('Contact.jours_de_travail') }}</span>
             <span class="dots-spacer"></span>
-            <span class="time-value">9h00 – 18h00</span>
+            <span class="time-value">{{ $t('Contact.9h00__18h00') }}</span>
           </div>
           <div class="hours-row">
-            <span class="day-label">Samedi</span>
+            <span class="day-label">{{ $t('Contact.samedi') }}</span>
             <span class="dots-spacer"></span>
-            <span class="time-value">12h00 – 18h00</span>
+            <span class="time-value">{{ $t('Contact.12h00__18h00') }}</span>
           </div>
         </div>
       </div>
@@ -50,7 +50,8 @@
           <div class="bubble-relative-container">
             <div class="paper-bubble-rectangular shadow-2xl" ref="paperBubble">
               <div class="bubble-inner">
-                <p>Le coaching <br> vous intéresse ?<br>Contactez moi.</p>
+                <p>{{ $t('Contact.le_coaching') }} <br> {{ $t('Contact.vous_intresse') }}<br>{{
+                  $t('Contact.contactez_moi') }}</p>
               </div>
 
               <!-- 4 Folded corners -->
@@ -82,33 +83,33 @@
           <form @submit.prevent="submitForm" class="contact-custom-form">
             <div class="form-row">
               <div class="form-line-group">
-                <label>Nom</label>
-                <input type="text" v-model="form.nom" placeholder="Votre nom" required />
+                <label>{{ $t('Contact.nom') }}</label>
+                <input type="text" v-model="form.nom" :placeholder="$t('Contact.votre_nom')" required />
               </div>
               <div class="form-line-group">
-                <label>Prénom</label>
-                <input type="text" v-model="form.prenom" placeholder="Votre prénom" required />
+                <label>{{ $t('Contact.prnom') }}</label>
+                <input type="text" v-model="form.prenom" :placeholder="$t('Contact.votre_prnom')" required />
               </div>
             </div>
 
             <div class="form-line-group">
-              <label>Sujet</label>
-              <input type="text" v-model="form.sujet" placeholder="De quoi s'agit-il ?" required />
+              <label>{{ $t('Contact.sujet') }}</label>
+              <input type="text" v-model="form.sujet" :placeholder="$t('Contact.de_quoi_sagitil')" required />
             </div>
 
             <div class="form-line-group">
-              <label>Email</label>
-              <input type="email" v-model="form.email" placeholder="exemple@gmail.com" required />
+              <label>{{ $t('Contact.email_2') }}</label>
+              <input type="email" v-model="form.email" :placeholder="$t('Contact.exemplegmailcom')" required />
             </div>
 
             <div class="form-line-group">
-              <label>Message</label>
-              <textarea v-model="form.message" rows="2" placeholder="Dites-nous tout..." required></textarea>
+              <label>{{ $t('Contact.message') }}</label>
+              <textarea v-model="form.message" rows="2" :placeholder="$t('Contact.ditesnous_tout')" required></textarea>
             </div>
 
             <div class="form-footer">
               <button type="submit" class="contact-submit-btn" :disabled="isLoading">
-                {{ isLoading ? 'Envoi en cours...' : 'Envoyer le message' }}
+                {{ isLoading ? $t('Contact.envoi_en_cours') : $t('Contact.envoyer_le_message') }}
               </button>
             </div>
           </form>
@@ -179,8 +180,8 @@ const submitForm = async () => {
     const response = await axios.post('/contact/send', form);
     toast.add({
       severity: 'success',
-      summary: 'Succès',
-      detail: response.data.message || "Message envoyé avec succès !",
+      summary: $t('Success'),
+      detail: response.data.message || $t('Contact.message_envoye'),
       life: 5000
     });
     Object.assign(form, { nom: '', prenom: '', sujet: '', email: '', message: '' });
@@ -188,8 +189,8 @@ const submitForm = async () => {
     console.error("Error sending contact email", error);
     toast.add({
       severity: 'error',
-      summary: 'Erreur',
-      detail: error.response?.data?.message || "Une erreur est survenue lors de l'envoi du message.",
+      summary: $t('Error'),
+      detail: error.response?.data?.message || $t('Contact.erreur_envoi'),
       life: 5000
     });
   } finally {

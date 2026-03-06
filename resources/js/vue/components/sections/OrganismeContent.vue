@@ -2,22 +2,18 @@
   <section id="organisme-content" class="organisme-content no-global-reveal">
     <div class="content-container">
       <h2 class="impact-title">
-        Nous atteindrons cet objectif en partageant des conseils, stratégies, ressources et outils concrets sur tous les
-        médias nécessaires pour créer ce « déclic » chez les chefs d’entreprise et les entrepreneurs en herbe
+        {{ $t('OrganismeContent.nous_atteindrons_cet') }}
       </h2>
 
       <div class="supporting-text">
         <p>
-          La seule façon d’être libre c’est d’avoir une entreprise qui a un système en place et qui génère des ventes en
-          pilote automatique, sans votre intervention.
+          {{ $t('OrganismeContent.la_seule_faon') }}
         </p>
         <p>
-          Pour cela, il faut apporter davantage de valeur que quiconque sur votre marché – et il faut mettre en place
-          quelques systèmes simples pour vous libérer du temps et pouvoir le consacrer à votre famille et à vos
-          passions.
+          {{ $t('OrganismeContent.pour_cela_il') }}
         </p>
         <p class="highlight-intro">
-          Les cinq atouts qui feront le succès de notre Organisme sont les suivants :
+          {{ $t('OrganismeContent.les_cinq_atouts') }}
         </p>
       </div>
 
@@ -35,8 +31,8 @@
             <div class="number-circle">{{ idx + 1 }}</div>
           </div>
           <p class="asset-text">
-            <span class="bold-intro">{{ splitText(asset.text).intro }}</span>
-            <span class="remaining-text">{{ splitText(asset.text).rest }}</span>
+            <span class="bold-intro">{{ splitText($t(asset.text)).intro }}</span>
+            <span class="remaining-text">{{ splitText($t(asset.text)).rest }}</span>
           </p>
           <div class="flashlight"></div>
         </div>
@@ -54,23 +50,23 @@ gsap.registerPlugin(ScrollTrigger);
 
 const assets = [
   {
-    text: "La clarté absolue de notre objectif, et notre approche « One Thing » : Nous déclinons les tentations et restons concentrés sur l’objectif stratégique ci-dessus,",
+    text: "OrganismeContent.asset1",
     gradient: ["#F7B455", "#FF8C00"]
   },
   {
-    text: "Un marketing bienveillant, qui met en valeur notre expertise : Nous appliquons nos propres conseils !",
+    text: "OrganismeContent.asset2",
     gradient: ["#8A38F5", "#4B0082"]
   },
   {
-    text: "Une qualité sans faille : Le contenu de nos formations doit s’appuyer sur des cas d’études concrets.",
+    text: "OrganismeContent.asset3",
     gradient: ["#0E7EC3", "#004B8D"]
   },
   {
-    text: "Une pédagogie irréprochable : À la pointe des outils et stratégies permettant d’obtenir les meilleurs résultats pour les entrepreneurs.",
+    text: "OrganismeContent.asset4",
     gradient: ["#1A888D", "#005F61"]
   },
   {
-    text: "Une grande réactivité : Répondre aux interrogations des entrepreneurs et les aiguiller avec expertise.",
+    text: "OrganismeContent.asset5",
     gradient: ["#A71543", "#7D0022"]
   }
 ];
@@ -287,8 +283,8 @@ const splitText = (text) => {
   }
 
   .supporting-text p {
-  line-height: 1.3;
-}
+    line-height: 1.3;
+  }
 
   .assets-grid {
     grid-template-columns: 1fr;
@@ -310,6 +306,7 @@ const splitText = (text) => {
   .bold-intro {
     font-size: 1.2rem;
   }
+
   .asset-text {
     font-size: 1.2rem;
   }

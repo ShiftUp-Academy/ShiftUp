@@ -1,0 +1,19 @@
+=== ÉTAPE 1 : TOKEN ===
+✅ Token OK (expire dans 3600s)
+
+=== ÉTAPE 2 : TRANSACTION PRODUCTION ===
+merchantMsisdn  : 261383454081
+customerMsisdn  : 261347113486
+orderId         : 1771934512
+requestDate     : 2026-02-24T13:01:52.984Z
+correlationId   : 47f0f86d-4422-466d-8bfc-26709f2df616
+URL             : https://api.mvola.mg/mvola/mm/transactions/type/merchantpay/1.0.0/
+
+Payload :
+{"amount":"1000","currency":"Ar","descriptionText":"Achat ShiftUp 1771934512","requestingOrganisationTransactionReference":"1771934512","requestDate":"2026-02-24T13:01:52.984Z","originalTransactionReference":"1771934512","debitParty":[{"key":"msisdn","value":"261347113486"}],"creditParty":[{"key":"msisdn","value":"261383454081"}],"metadata":[{"key":"partnerName","value":"ShiftUp"}]}
+
+=== RÉSULTAT ===
+HTTP Code : 401
+Response  : {"code":"900901","message":"Invalid Credentials","description":"Access failure for API: /mvola/mm/transactions/type/merchantpay/1.0.0, version: 1.0.0 status: (900901) - Invalid Credentials. Make sure you have provided the correct security credentials"}
+
+❌ 401 - Token invalide ou scope insuffisant

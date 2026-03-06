@@ -1,7 +1,7 @@
 <template>
     <section class="bento-section">
         <div class="custom-cursor" ref="cursorRef" :style="{ backgroundColor: cursorBgColor }">
-            <span :style="{ color: cursorTextColor }">Explorer</span>
+            <span :style="{ color: cursorTextColor }">{{ $t('LayoutMenus.explorer') }}</span>
         </div>
 
         <div class="bento-grid" ref="bentoGrid">
@@ -15,13 +15,13 @@
                 </div>
                 <div class="card-body">
                     <div class="cat-header">
-                        <span class="sub-label">CATÉGORIES DE PROGRAMME</span>
-                        <p class="cat-desc">Naviguez pour voir tous les programmes que ShiftUp propose</p>
+                        <span class="sub-label">{{ $t('LayoutMenus.categories_programme') }}</span>
+                        <p class="cat-desc">{{ $t('LayoutMenus.naviguez_pour_voir') }}</p>
                     </div>
                     <div class="cat-list">
                         <Link v-for="link in categoryLinks" :key="link.href" :href="link.href"
                             class="cat-link item-cat">
-                            <span>{{ link.label }}</span>
+                            <span>{{ $t(link.labelKey) }}</span>
                             <img :src="ArrowIcon" class="btn-icon">
                         </Link>
                     </div>
@@ -37,7 +37,7 @@
                     <div class="overlay-hover"></div>
                 </div>
                 <div class="card-body center-all">
-                    <h2 class="card-title">Coaching</h2>
+                    <h2 class="card-title">{{ $t('Coachings') }}</h2>
                 </div>
             </Link>
 
@@ -53,7 +53,7 @@
                     <div class="live-indicator">
                         <span class="dot" ref="liveDot"></span>
                     </div>
-                    <h2 class="card-title">Live</h2>
+                    <h2 class="card-title">{{ $t('Live') }}</h2>
                 </div>
             </Link>
 
@@ -66,7 +66,7 @@
                     <div class="overlay-hover"></div>
                 </div>
                 <div class="card-body center-all">
-                    <h2 class="card-title">Articles et conseils</h2>
+                    <h2 class="card-title">{{ $t('Header.ArticlesTips') }}</h2>
                 </div>
             </Link>
 
@@ -78,12 +78,10 @@
                     <div class="overlay-hover"></div>
                 </div>
                 <div class="card-body body-testimonials">
-                    <h2 class="card-title-temoignage">Témoignages</h2>
-                    <p class="card-desc-temoignage">Êtes-vous satisfait de notre accompagnement ? Témoignez votre
-                        avancée.
-                    </p>
+                    <h2 class="card-title-temoignage">{{ $t('Testimonials') }}</h2>
+                    <p class="card-desc-temoignage">{{ $t('LayoutMenus.etes_vous_satisfait') }}</p>
                     <PremiumButton style="width: 10vw; margin-top: -2vh;" class="mobile-temoignage-btn"
-                        href="/temoignages" text="Témoigner" />
+                        href="/temoignages" :text="$t('LayoutMenus.temoigner')" />
                 </div>
             </div>
 
@@ -96,8 +94,8 @@
                     <div class="overlay-hover"></div>
                 </div>
                 <div class="card-body body-organisme">
-                    <h2 class="card-title-organisme">L'organisme</h2>
-                    <p class="card-desc-organisme">L'organisme ShiftUp aide les cadres en reconversion.</p>
+                    <h2 class="card-title-organisme">{{ $t('Header.LOrganisme') }}</h2>
+                    <p class="card-desc-organisme">{{ $t('LayoutMenus.lorganisme_shiftup') }}</p>
                 </div>
             </Link>
 
@@ -107,10 +105,13 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import ArrowIcon from '../../assets/images/fleche-lien.svg';
 import PremiumButton from '../components/ui/PremiumButton.vue';
+
+const page = usePage();
+const $t = (key) => page.props.translations?.[key] || key;
 
 
 const imgTestimonials = '/images/Role Models - Kinfolk.jpg';
@@ -121,10 +122,10 @@ const imgOrganisme = '/images/Organisme.jpg';
 const imgCategoriesBg = '/images/catégorie.jpg';
 
 const categoryLinks = [
-    { label: 'Toutes les catégories', href: '/toutcategorie' },
-    { label: 'Formations', href: '/programmes' },
-    { label: 'Offres', href: '/offres' },
-    { label: 'Consultations', href: '/consultations' },
+    { labelKey: 'Header.ToutesLesCategories', href: '/toutcategorie' },
+    { labelKey: 'Header.LesProgrammesDeFormation', href: '/programmes' },
+    { labelKey: 'Offers', href: '/offres' },
+    { labelKey: 'Consultations', href: '/consultations' },
 ];
 
 const liveDot = ref(null);
@@ -381,7 +382,7 @@ const onLiveLeaveCustom = () => {
 
 .card-title-temoignage {
     font-size: 2.2rem;
-    font-weight: 800;
+    font-weight: 700;
     margin-top: 11vh;
     margin-bottom: 0;
     line-height: 1.1;
@@ -403,7 +404,7 @@ const onLiveLeaveCustom = () => {
     font-size: 2.2rem;
     margin-top: 11vh;
     margin-bottom: 0;
-    font-weight: 800;
+    font-weight: 600;
     line-height: 1.1;
 }
 
@@ -422,7 +423,7 @@ const onLiveLeaveCustom = () => {
 
 .card-title {
     font-size: 2.2rem;
-    font-weight: 800;
+    font-weight: 600;
 }
 
 .sub-label {
@@ -448,10 +449,10 @@ const onLiveLeaveCustom = () => {
 }
 
 .cat-link {
-    color: #f3f3f3;
+    color: #ebebeb;
     font-size: 1.8rem;
     line-height: 1.3;
-    font-weight: 700;
+    font-weight: 600;
     text-decoration: none;
     display: flex;
     align-items: center;

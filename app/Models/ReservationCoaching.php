@@ -20,7 +20,9 @@ class ReservationCoaching extends Model
         'StatutReservation',
         'NoteUtilisateur',
         'LienVideoReplay',
-        'StatutReplay'
+        'StatutReplay',
+        'TitreReplay',
+        'DescriptionReplay'
     ];
 
     const CREATED_AT = 'DateCreation';

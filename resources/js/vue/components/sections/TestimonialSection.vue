@@ -3,8 +3,8 @@
 
     <div class="container section-header">
       <div class="title-wrapper">
-        <h2 class="title">Ce qu'ils disent de nous</h2>
-        <p class="subtitle">Découvrez les retours d'expérience de nos apprenants.</p>
+        <h2 class="title">{{ $t('TestimonialSection.ce_quils_disent') }}</h2>
+        <p class="subtitle">{{ $t('TestimonialSection.dcouvrez_les_retours') }}</p>
       </div>
 
       <div class="navigation-buttons">
@@ -32,10 +32,10 @@
       <div class="set-wrapper" ref="set1Ref">
         <div class="testimonial-wrapper" v-for="t in finalTestimonials" :key="t.IdTemoignage || t.id">
           <TestimonialCard
-            :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || t.fallbackName || 'Membre')"
-            :role="t.utilisateur?.profil?.Metier || t.fallbackRole || 'Membre'"
+            :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || t.fallbackName || $t('Member'))"
+            :role="t.utilisateur?.profil?.Metier || (t.fallbackRole ? $t(t.fallbackRole) : $t('Member'))"
             :avatar="t.utilisateur?.profil?.PhotoProfil || t.fallbackAvatar || '/images/placeholder.jpg'"
-            :text="t.ContenuTexte || t.fallbackText" />
+            :text="t.ContenuTexte || (t.fallbackText ? $t(t.fallbackText) : '')" />
         </div>
       </div>
 
@@ -43,10 +43,10 @@
       <div class="set-wrapper" ref="set2Ref" v-if="finalTestimonials.length > 0">
         <div class="testimonial-wrapper" v-for="t in finalTestimonials" :key="'clone-' + (t.IdTemoignage || t.id)">
           <TestimonialCard
-            :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || t.fallbackName || 'Membre')"
-            :role="t.utilisateur?.profil?.Metier || t.fallbackRole || 'Membre'"
+            :name="t.utilisateur?.profil ? `${t.utilisateur.profil.Prenom} ${t.utilisateur.profil.Nom}` : (t.Auteur || t.fallbackName || $t('Member'))"
+            :role="t.utilisateur?.profil?.Metier || (t.fallbackRole ? $t(t.fallbackRole) : $t('Member'))"
             :avatar="t.utilisateur?.profil?.PhotoProfil || t.fallbackAvatar || '/images/placeholder.jpg'"
-            :text="t.ContenuTexte || t.fallbackText" />
+            :text="t.ContenuTexte || (t.fallbackText ? $t(t.fallbackText) : '')" />
         </div>
       </div>
     </div>
@@ -55,8 +55,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
+
+const page = usePage();
+const $t = (key) => page.props.translations?.[key] || key;
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import TestimonialCard from '../ui/TestimonialCard.vue';
 
@@ -69,43 +73,41 @@ const props = defineProps({
   }
 });
 
-import { computed } from 'vue';
-
 const fallbackTestimonials = [
   {
     id: 'f1',
     fallbackName: "Rasoamanana Koloina",
-    fallbackRole: "Entrepreneuse",
+    fallbackRole: "Testimonial.role1",
     fallbackAvatar: "/images/Avatar/téléchargement (11).jpg",
-    fallbackText: "Une formation incroyable qui a totalement changé ma vision du business. Les outils donnés sont concrets et applicables immédiatement."
+    fallbackText: "Testimonial.text1"
   },
   {
     id: 'f2',
     fallbackName: "Jean-Pierre Dubois",
-    fallbackRole: "Consultant Senior",
+    fallbackRole: "Testimonial.role2",
     fallbackAvatar: "/images/Avatar/Black boy posing _ Free Photo.jpg",
-    fallbackText: "ShiftUp m'a permis de structurer mon offre et d'augmenter mes tarifs. L'aspect communautaire est aussi un gros plus."
+    fallbackText: "Testimonial.text2"
   },
   {
     id: 'f3',
     fallbackName: "Andrianina Toky",
-    fallbackRole: "Freelance Designer",
+    fallbackRole: "Testimonial.role3",
     fallbackAvatar: "/images/Avatar/téléchargement (13).jpg",
-    fallbackText: "Enfin une formation adaptée au contexte local tout en gardant des standards internationaux. Je recommande vivement !"
+    fallbackText: "Testimonial.text3"
   },
   {
     id: 'f4',
     fallbackName: "Marie Shelby",
-    fallbackRole: "Directrice Marketing",
+    fallbackRole: "Testimonial.role4",
     fallbackAvatar: "/images/Avatar/téléchargement (14).jpg",
-    fallbackText: "J'ai adoré l'approche participative. On ne fait pas qu'écouter, on pratique et on échange avec des experts passionnés."
+    fallbackText: "Testimonial.text4"
   },
   {
     id: 'f5',
     fallbackName: "Rakoto Faneva",
-    fallbackRole: "CEO Start-up",
+    fallbackRole: "Testimonial.role5",
     fallbackAvatar: "/images/Avatar/téléchargement (15).jpg",
-    fallbackText: "Le retour sur investissement a été immédiat. Les stratégies de vente enseignées sont redoutables."
+    fallbackText: "Testimonial.text5"
   }
 ];
 

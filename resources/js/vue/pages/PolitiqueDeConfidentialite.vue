@@ -5,17 +5,15 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M19 12H5M5 12L12 19M5 12L12 5" />
                 </svg>
-                <span>RETOUR</span>
+                <span>{{ $t('PolitiqueDeConfidentialite.retour') }}</span>
             </div>
 
             <div class="legal-hero">
                 <div class="hero-content">
-                    <div class="tagline">POLITIQUES & JURIDIQUE</div>
-                    <h1 class="premium-title">Politique de <span class="accent-text">Confidentialité</span></h1>
+                    <div class="tagline">{{ $t('PolitiqueDeConfidentialite.politiques__juridique') }}</div>
+                    <h1 class="premium-title">{{ $t('PolitiqueDeConfidentialite.politique_de') }} <span class="accent-text">{{ $t('PolitiqueDeConfidentialite.confidentialit') }}</span></h1>
                     <p class="hero-desc">
-                        ShiftUp s’engage à protéger vos données personnelles en conformité avec le RGPD et les
-                        réglementations internationales.
-                        Votre vie privée est le pilier de notre relation de confiance.
+                        {{ $t('PolitiqueDeConfidentialite.shiftup_sengage') }}
                     </p>
                 </div>
             </div>
@@ -28,10 +26,10 @@
                 </div>
 
                 <div class="bottom-card">
-                    <h3>Une question sur vos données ?</h3>
-                    <p>Contactez notre responsable de traitement pour toute demande spécifique concernant vos droits.
+                    <h3>{{ $t('PolitiqueDeConfidentialite.une_question_sur') }}</h3>
+                    <p>{{ $t('PolitiqueDeConfidentialite.contactez_notre_responsable') }}
                     </p>
-                    <PremiumButton @click="openMail" class="premium-btn">contact@shiftup.academy</PremiumButton>
+                    <PremiumButton @click="openMail" class="premium-btn">{{ $t('PolitiqueDeConfidentialite.contactshiftupacademy') }}</PremiumButton>
                 </div>
             </div>
         </div>

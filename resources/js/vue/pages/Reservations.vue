@@ -1,148 +1,149 @@
 <template>
     <div class="reservations-page">
-        <AppHeader :auth="auth" />
-
         <ShaderBackground :colors="themeColors" class="hero-section">
             <div class="hero-content" ref="heroContent">
-                <h1 class="page-title">Mes Réservations</h1>
-                <p class="page-subtitle">Retrouvez ici tous vos rendez-vous, séminaires et lives à venir.</p>
+                <h1 class="page-title">{{ $t('Reservations.mes_rservations') }}</h1>
+                <p class="page-subtitle">{{ $t('Reservations.retrouvez_ici_tous') }}</p>
             </div>
         </ShaderBackground>
 
         <main class="content-section">
             <div class="reservations-container">
 
-                <!-- Section Coachings -->
-                <div class="category-block" v-if="coachings.length > 0">
-                    <div class="section-header">
-                        <i class="fas fa-headset section-icon"></i>
-                        <h2 class="section-title">Mes Coachings</h2>
+                <div v-if="hasUpcoming" class="upcoming-section">
+                    <div class="main-section-header">
+                        <div class="section-label-line"></div>
+                        <h2 class="main-section-title">{{ $t('Reservations.a_venir') }}</h2>
+                        <div class="section-label-line"></div>
                     </div>
-                    <div class="cards-wrapper row-flex mobile-horizontal scroll-premium">
-                        <div v-for="c in coachings" :key="c.IdReservation"
-                            class="res-card coaching-card shadow-premium">
-                            <div class="card-status" :class="getStatusClass(c.StatutReservation)">
-                                {{ c.StatutReservation }}
-                            </div>
-                            <div class="card-header">
-                                <span class="card-type">{{ c.type?.NomDeType || 'Coaching Personnel' }}</span>
-                                <h3 class="card-title">{{ formatDate(c.HeureDebutReservation, true) }}</h3>
-                            </div>
-                            <div class="card-body">
-                                <div class="info-item">
-                                    <i class="far fa-calendar-alt"></i>
-                                    <span>{{ formatFullDate(c.HeureDebutReservation) }}</span>
-                                </div>
-                                <div class="info-item" v-if="c.NoteUtilisateur">
-                                    <i class="far fa-sticky-note"></i>
-                                    <p class="note-text">{{ c.NoteUtilisateur }}</p>
-                                </div>
-                            </div>
-                            <div class="card-footer">
-                                <a v-if="c.StatutReservation === 'Confirmé'" href="#" class="btn-join disabled"
-                                    title="Le lien sera disponible 5 min avant">
-                                    <i class="fas fa-video"></i> Rejoindre la session
-                                </a>
-                                <span v-else class="status-msg">En attente de confirmation</span>
-                            </div>
+
+                    <div class="category-block" v-if="upcomingCoachings.length > 0">
+                        <div class="section-header">
+                            <h2 class="section-title">{{ $t('Reservations.mes_coachings') }}</h2>
+                        </div>
+                        <div class="upcoming-gradient-list">
+                            <UpcomingCard v-for="c in upcomingCoachings" :key="c.IdReservation" type="coaching"
+                                :item="c" :dateTime="getCoachingDateTime(c)" />
+                        </div>
+                    </div>
+
+                    <div class="category-block" v-if="upcomingSeminaires.length > 0">
+                        <div class="section-header">
+                            <i class="fas fa-users-rectangle section-icon"></i>
+                            <h2 class="section-title">{{ $t('Reservations.mes_sminaires') }}</h2>
+                        </div>
+                        <div class="upcoming-gradient-list">
+                            <UpcomingCard v-for="s in upcomingSeminaires" :key="s.IdProgrammeFormation" type="seminar"
+                                :item="s" />
+                        </div>
+                    </div>
+
+                    <!-- Lives à venir -->
+                    <div class="category-block" v-if="upcomingLives.length > 0">
+                        <div class="section-header">
+                            <i class="fas fa-video section-icon"></i>
+                            <h2 class="section-title">{{ $t('Reservations.lives__venir') }}</h2>
+                        </div>
+                        <div class="upcoming-gradient-list">
+                            <UpcomingCard v-for="l in upcomingLives" :key="l.IdLive" type="live" :item="l" />
                         </div>
                     </div>
                 </div>
 
-                <!-- Section Séminaires -->
-                <div class="category-block" v-if="seminaires.length > 0">
-                    <div class="section-header">
-                        <i class="fas fa-users-rectangle section-icon"></i>
-                        <h2 class="section-title">Mes Séminaires</h2>
-                    </div>
-                    <div class="cards-wrapper row-flex mobile-horizontal scroll-premium">
-                        <div v-for="s in seminaires" :key="s.IdProgrammeFormation"
-                            class="res-card seminar-card shadow-premium">
-                            <div class="card-visual">
-                                <img v-if="s.LienPhoto" :src="s.LienPhoto" :alt="s.Titre" />
-                                <div v-else class="placeholder-visual"><i class="fas fa-map-marker-alt"></i></div>
-                            </div>
-                            <div class="card-content">
-                                <span class="card-type">Séminaire {{ s.ModaliteSeminaire }}</span>
-                                <h3 class="card-title">{{ s.Titre }}</h3>
-                                <div class="info-item">
-                                    <i class="far fa-calendar-check"></i>
-                                    <span>{{ formatFullDate(s.DateSeminaire) }} à {{ s.HeureSeminaire }}</span>
-                                </div>
-                                <div class="info-item" v-if="s.LieuSeminaire">
-                                    <i class="fas fa-location-dot"></i>
-                                    <span>{{ s.LieuSeminaire }}</span>
-                                </div>
-                            </div>
-                            <div class="card-footer">
-                                <Link :href="`/seminaires/${s.IdProgrammeFormation}`" class="btn-view">
-                                    Détails <i class="fas fa-arrow-right"></i>
-                                </Link>
-                            </div>
-                        </div>
+                <!-- Message si aucune réservation à venir mais histoire existante -->
+                <div v-if="!hasUpcoming && hasHistory" class="no-upcoming-state">
+                    <div class="no-upcoming-box">
+                        <i class="fas fa-calendar-check"></i>
+                        <p>{{ $t('Reservations.aucune_reservation_a_venir') }}</p>
                     </div>
                 </div>
 
-                <!-- Section Lives -->
-                <div class="category-block" v-if="lives.length > 0">
-                    <div class="section-header">
-                        <i class="fas fa-video section-icon"></i>
-                        <h2 class="section-title">Lives à Venir</h2>
+                <!-- SECTION: HISTORIQUE -->
+                <div v-if="hasHistory" class="history-section">
+                    <div class="main-section-header history-header" @click="historyOpen = !historyOpen">
+                        <div class="section-label-line history-line"></div>
+                        <h2 class="main-section-title history-title">
+                            <i class="fas fa-clock-rotate-left"></i>
+                            {{ $t('Reservations.historique') }}
+                            <span class="history-count">{{ totalHistoryCount }}</span>
+                        </h2>
+                        <div class="section-label-line history-line"></div>
+                        <i class="fas fa-chevron-down history-chevron" :class="{ 'is-open': historyOpen }"></i>
                     </div>
-                    <div class="cards-wrapper row-flex mobile-horizontal scroll-premium">
-                        <div v-for="l in lives" :key="l.IdLive" class="res-card live-card shadow-premium">
-                            <div class="live-indicator">LIVE EN ATTENTE</div>
-                            <div class="card-header">
-                                <div class="cat-pill" v-if="l.categorie">{{ l.categorie.Nom }}</div>
-                                <h3 class="card-title">{{ l.Titre }}</h3>
-                            </div>
-                            <div class="card-body">
-                                <div class="info-item">
-                                    <i class="far fa-clock"></i>
-                                    <span>{{ formatFullDate(l.DateDebut) }} - {{ formatTime(l.DateDebut) }}</span>
+
+                    <transition name="slide-history">
+                        <div v-show="historyOpen" class="history-content">
+                            <!-- Coachings passés -->
+                            <div class="category-block" v-if="pastCoachings.length > 0">
+                                <div class="section-header-history">
+                                    <h2 class="history-category-title">{{ $t('Reservations.mes_coachings') }}</h2>
                                 </div>
-                                <p class="excerpt" v-if="l.Descriptions">{{ truncate(l.Descriptions, 80) }}</p>
+                                <div class="history-cards-list">
+                                    <HistoryCard v-for="c in pastCoachings" :key="c.IdReservation"
+                                        :title="c.type?.NomDeType || $t('Reservations.CoachingPersonnel')"
+                                        :subtitle="formatDate(getCoachingDateTime(c), true)"
+                                        :category="translateStatus(c.StatutReservation)"
+                                        :actionText="$t('Reservations.termine')" iconClass="fas fa-headset" />
+                                </div>
                             </div>
-                            <div class="card-footer">
-                                <Link :href="`/live`" class="btn-reserve">
-                                    S'informer <i class="fas fa-circle-info"></i>
-                                </Link>
+
+                            <!-- Séminaires passés -->
+                            <div class="category-block" v-if="pastSeminaires.length > 0">
+                                <div class="section-header-history">
+                                    <h2 class="history-category-title">{{ $t('Reservations.mes_sminaires') }}</h2>
+                                </div>
+                                <div class="history-cards-list">
+                                    <HistoryCard v-for="s in pastSeminaires" :key="s.IdProgrammeFormation"
+                                        :title="s.Titre" :subtitle="formatFullDate(s.DateSeminaire)"
+                                        :category="s.ModaliteSeminaire" :actionText="$t('Reservations.dtails')"
+                                        iconClass="fas fa-users-rectangle" actionIconClass="fas fa-arrow-right" />
+                                </div>
+                            </div>
+
+                            <!-- Lives passés -->
+                            <div class="category-block" v-if="pastLives.length > 0">
+                                <div class="section-header-history">
+                                    <h2 class="history-category-title">{{ $t('Reservations.lives_passes') }}</h2>
+                                </div>
+                                <div class="history-cards-list">
+                                    <HistoryCard v-for="l in pastLives" :key="l.IdLive" :title="l.Titre"
+                                        :subtitle="formatFullDate(l.DateDebut)" :category="l.categorie?.Nom"
+                                        :actionText="$t('Reservations.revoir')" iconClass="fas fa-video"
+                                        actionIconClass="fas fa-play-circle" />
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </transition>
                 </div>
 
-                <!-- Empty State Global -->
-                <div v-if="coachings.length === 0 && seminaires.length === 0 && lives.length === 0"
-                    class="empty-state-global">
-                    <div class="empty-box shadow-sm">
-                        <i class="fas fa-calendar-xmark"></i>
-                        <h2>Aucune réservation trouvée</h2>
-                        <p>Vous n'avez pas encore de coaching programmé ou de séminaire réservé.</p>
-                        <div class="empty-actions">
-                            <Link href="/coaching" class="action-btn">Réserver un coaching</Link>
-                            <Link href="/toutcategorie" class="action-btn secondary">Voir les programmes</Link>
-                        </div>
-                    </div>
-                </div>
+                <ReservationEmptyState v-if="!hasUpcoming && !hasHistory"
+                    :title="$t('Reservations.aucune_rservation_trouve')"
+                    :description="$t('Reservations.vous_navez_pas')">
+                    <template #actions>
+                        <Link href="/coaching" class="action-btn">{{ $t('Reservations.rserver_un_coaching') }}</Link>
+                        <Link href="/toutcategorie" class="action-btn secondary">{{
+                            $t('Reservations.voir_les_programmes') }}</Link>
+                    </template>
+                </ReservationEmptyState>
 
             </div>
         </main>
-
-        <AppFooter />
     </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import { Link } from '@inertiajs/vue3';
-import AppHeader from '../components/headerfooter/AppHeader.vue';
-import AppFooter from '../components/headerfooter/AppFooter.vue';
+import { ref, computed } from 'vue';
+import { Link, usePage } from '@inertiajs/vue3';
 import ShaderBackground from '../components/ui/ShaderBackground.vue';
-import gsap from 'gsap';
+import UpcomingCard from '../components/reservations/UpcomingCard.vue';
+import HistoryCard from '../components/reservations/HistoryCard.vue';
+import ReservationEmptyState from '../components/reservations/ReservationEmptyState.vue';
+
+const page = usePage();
+const currentLocale = computed(() => page.props.locale || 'fr');
+const $t = (key) => page.props.translations[key] || key;
 
 const props = defineProps({
-    auth: Object,
     coachings: Array,
     seminaires: Array,
     lives: Array
@@ -156,64 +157,70 @@ const themeColors = {
 };
 
 const heroContent = ref(null);
+const historyOpen = ref(false);
 
-onMounted(() => {
-    gsap.from(heroContent.value, {
-        y: 40,
-        opacity: 0,
-        duration: 1.2,
-        ease: 'power4.out'
-    });
+const getCoachingDateTime = (coaching) => {
+    const datePart = coaching.disponibilite?.DateDisponible;
+    const timePart = coaching.HeureDebutReservation;
+    if (datePart && timePart) return new Date(`${datePart}T${timePart}`);
+    if (datePart) return new Date(datePart);
+    return new Date(coaching.DateCreation || 0);
+};
 
-    gsap.from('.category-block', {
-        x: -30,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.2,
-        ease: 'power3.out',
-        delay: 0.5
-    });
-
-    gsap.from('.res-card', {
-        scale: 0.95,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: 'back.out(1.7)',
-        delay: 0.8
-    });
+const upcomingCoachings = computed(() => {
+    const now = new Date();
+    return (props.coachings || []).filter(c => getCoachingDateTime(c) >= now);
 });
+const pastCoachings = computed(() => {
+    const now = new Date();
+    return (props.coachings || []).filter(c => getCoachingDateTime(c) < now);
+});
+
+const getSeminaireDateTime = (s) => {
+    return new Date(`${s.DateSeminaire}T${s.HeureSeminaire || '00:00:00'}`);
+};
+
+const upcomingSeminaires = computed(() => {
+    const now = new Date();
+    return (props.seminaires || []).filter(s => getSeminaireDateTime(s) >= now);
+});
+const pastSeminaires = computed(() => {
+    const now = new Date();
+    return (props.seminaires || []).filter(s => getSeminaireDateTime(s) < now);
+});
+
+const upcomingLives = computed(() => {
+    const now = new Date();
+    return (props.lives || []).filter(l => new Date(l.DateDebut) >= now);
+});
+const pastLives = computed(() => {
+    const now = new Date();
+    return (props.lives || []).filter(l => new Date(l.DateDebut) < now);
+});
+
+const hasUpcoming = computed(() => upcomingCoachings.value.length > 0 || upcomingSeminaires.value.length > 0 || upcomingLives.value.length > 0);
+const hasHistory = computed(() => pastCoachings.value.length > 0 || pastSeminaires.value.length > 0 || pastLives.value.length > 0);
+const totalHistoryCount = computed(() => pastCoachings.value.length + pastSeminaires.value.length + pastLives.value.length);
 
 const formatDate = (dateString, withTime = false) => {
     if (!dateString) return '';
     const date = new Date(dateString);
     const opt = { day: '2-digit', month: 'short' };
     if (withTime) { opt.hour = '2-digit'; opt.minute = '2-digit'; }
-    return date.toLocaleDateString('fr-FR', opt);
+    return date.toLocaleDateString(currentLocale.value, opt);
 };
 
 const formatFullDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    return date.toLocaleDateString(currentLocale.value, { day: 'numeric', month: 'long', year: 'numeric' });
 };
 
-const formatTime = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-};
-
-const getStatusClass = (status) => {
-    if (status === 'Confirmé') return 'status-confirmed';
-    if (status === 'En attente') return 'status-pending';
-    if (status === 'Terminé') return 'status-done';
-    return 'status-cancelled';
-};
-
-const truncate = (text, length) => {
-    if (!text) return '';
-    return text.length > length ? text.substring(0, length) + '...' : text;
+const translateStatus = (status) => {
+    if (status === 'Confirmé') return $t('Reservations.StatusConfirmed');
+    if (status === 'En attente') return $t('Reservations.StatusPending');
+    if (status === 'Terminé') return $t('Reservations.StatusDone');
+    return $t('Reservations.StatusCancelled');
 };
 </script>
 
@@ -238,9 +245,9 @@ const truncate = (text, length) => {
 
 .page-title {
     font-size: clamp(2.5rem, 6vw, 4.5rem);
-    font-weight: 800;
+    font-weight: 400;
+    margin-top: 5vh !important;
     text-transform: uppercase;
-    margin: 0;
     letter-spacing: -2px;
 }
 
@@ -253,9 +260,9 @@ const truncate = (text, length) => {
 
 .content-section {
     padding: 60px 5vw;
-    margin-top: -80px;
-    position: relative;
+    margin-top: 3vh;
     z-index: 5;
+    position: relative;
 }
 
 .reservations-container {
@@ -287,292 +294,146 @@ const truncate = (text, length) => {
 }
 
 .section-title {
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: 600;
-    margin: 0;
 }
 
-.cards-wrapper {
-    display: flex;
-    gap: 25px;
-}
-
-.row-flex {
-    flex-wrap: wrap;
-}
-
-.res-card {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 25px;
-    padding: 30px;
-    width: calc(33.333% - 17px);
-    min-width: 320px;
+.upcoming-gradient-list {
     display: flex;
     flex-direction: column;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative;
-    overflow: hidden;
+    align-items: center;
+    gap: 20px;
 }
 
-.res-card:hover {
-    transform: translateY(-10px);
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(26, 136, 141, 0.3);
-}
-
-.card-status {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    font-size: 0.7rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    padding: 4px 12px;
-    border-radius: 50px;
-    letter-spacing: 1px;
-}
-
-.status-confirmed {
-    background: #dcfce7;
-    color: #166534;
-}
-
-.status-pending {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.status-done {
-    background: #f1f5f9;
-    color: #475569;
-}
-
-.status-cancelled {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.card-type {
-    font-size: 0.8rem;
-    color: #1A888D;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.card-title {
-    font-size: 1.4rem;
-    margin: 10px 0 20px;
-    line-height: 1.2;
-    font-weight: 600;
-}
-
-.info-item {
+.main-section-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-    font-size: 0.95rem;
-    color: #ccc;
+    gap: 20px;
+    margin-bottom: 50px;
 }
 
-.info-item i {
-    width: 20px;
-    color: #1A888D;
+.section-label-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
 }
 
-.excerpt {
-    font-size: 0.9rem;
-    color: #888;
-    line-height: 1.5;
-    margin-top: 15px;
-}
-
-.card-footer {
-    margin-top: auto;
-    padding-top: 25px;
-}
-
-.btn-join,
-.btn-view,
-.btn-reserve {
-    display: inline-flex;
+.main-section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: rgba(255, 255, 255, 0.997);
+    white-space: nowrap;
+    display: flex;
     align-items: center;
     gap: 10px;
-    padding: 12px 25px;
-    border-radius: 12px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.3s;
-    font-size: 0.9rem;
 }
 
-.btn-join {
-    background: #1A888D;
-    color: white;
+.history-section {
+    margin-top: 60px;
+    padding-top: 40px;
 }
 
-.btn-join.disabled {
-    opacity: 0.5;
-    cursor: help;
+.history-header {
+    cursor: pointer;
+    user-select: none;
 }
 
-.btn-view {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
+.history-line {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
 }
 
-.btn-view:hover {
-    background: white;
-    color: black;
+.history-title {
+    color: rgb(255, 255, 255);
 }
 
-.btn-reserve {
-    background: rgba(138, 56, 245, 0.1);
-    color: #8A38F5;
-    border: 1px solid rgba(138, 56, 245, 0.2);
-}
-
-.btn-reserve:hover {
-    background: #8A38F5;
-    color: white;
-}
-
-.seminar-card {
-    padding: 0;
-}
-
-.card-visual {
-    height: 180px;
-    overflow: hidden;
-    position: relative;
-}
-
-.card-visual img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.placeholder-visual {
-    width: 100%;
-    height: 100%;
-    background: #111;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    color: #333;
-}
-
-.seminar-card .card-content {
-    padding: 25px;
-}
-
-.seminar-card .card-footer {
-    padding: 0 25px 25px;
-}
-
-.live-indicator {
-    background: #ff0055;
-    padding: 4px 15px;
-    font-size: 0.65rem;
-    font-weight: 800;
-    border-radius: 5px;
-    width: fit-content;
-    margin-bottom: 15px;
-}
-
-.cat-pill {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 3px 10px;
-    border-radius: 50px;
-    font-size: 0.7rem;
-    width: fit-content;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.empty-state-global {
-    display: flex;
-    justify-content: center;
-    padding: 100px 0;
-}
-
-.empty-box {
-    text-align: center;
-    max-width: 500px;
-    background: rgba(255, 255, 255, 0.02);
-    padding: 60px;
-    border-radius: 40px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.empty-box i {
-    font-size: 4rem;
-    color: #333;
-    margin-bottom: 30px;
-}
-
-.empty-box h2 {
-    font-size: 2rem;
-    margin-bottom: 15px;
-}
-
-.empty-box p {
-    color: #888;
-    line-height: 1.6;
-}
-
-.empty-actions {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin-top: 40px;
-}
-
-.action-btn {
-    padding: 15px 30px;
-    border-radius: 15px;
-    text-decoration: none;
+.history-count {
+    font-size: 1rem;
     font-weight: 700;
-    transition: 0.3s;
+    color: rgb(255, 255, 255);
 }
 
-.action-btn:not(.secondary) {
-    background: #1A888D;
-    color: white;
+.history-chevron {
+    color: rgb(255, 255, 255);
+    font-size: 0.8rem;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.action-btn.secondary {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
+.history-chevron.is-open {
+    transform: rotate(180deg);
 }
 
-/* Modal mobile horizontal scroll */
+.history-content {
+    overflow: hidden;
+}
+
+.section-header-history {
+    margin: 40px 0 20px;
+    padding-left: 10px;
+    border-left: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.history-category-title {
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: rgb(255, 255, 255);
+    font-weight: 500;
+}
+
+.history-cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.no-upcoming-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.no-upcoming-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px 40px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.no-upcoming-box i {
+    font-size: 1.3rem;
+    color: rgba(255, 255, 255, 0.25);
+}
+
+.no-upcoming-box p {
+    margin: 0;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.slide-history-enter-active,
+.slide-history-leave-active {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: 3000px;
+}
+
+.slide-history-enter-from,
+.slide-history-leave-to {
+    max-height: 0;
+    opacity: 0;
+}
+
 @media (max-width: 768px) {
-    .content-section {
-        margin-top: -40px;
-        padding: 40px 0;
-    }
-
-    .section-header {
-        padding: 0 6vw;
-    }
-
-    .mobile-horizontal {
+    .cards-wrapper.mobile-horizontal {
         flex-wrap: nowrap !important;
         overflow-x: auto;
-        padding: 0 6vw 40px;
+        padding: 0 0 40px;
         scroll-snap-type: x mandatory;
         gap: 20px;
-    }
-
-    .res-card {
-        scroll-snap-align: center;
-        width: 85vw;
-        min-width: 85vw;
     }
 
     .hero-section {
@@ -582,18 +443,5 @@ const truncate = (text, length) => {
     .page-title {
         font-size: 2.8rem;
     }
-}
-
-.scroll-premium::-webkit-scrollbar {
-    height: 6px;
-}
-
-.scroll-premium::-webkit-scrollbar-thumb {
-    background: rgba(26, 136, 141, 0.2);
-    border-radius: 10px;
-}
-
-.scroll-premium::-webkit-scrollbar-track {
-    background: transparent;
 }
 </style>

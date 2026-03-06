@@ -4,18 +4,17 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M19 12H5M5 12L12 19M5 12L12 5" />
             </svg>
-            <span>Retour</span>
+            <span>{{ $t('CommentCaFonctionne.retour') }}</span>
         </div>
 
         <div class="intro-section">
             <div class="intro-content">
-                <h1 class="impact-title">Principes Opérationnels</h1>
+                <h1 class="impact-title">{{ $t('CommentCaFonctionne.principes_oprationnels') }}</h1>
                 <p class="subtitle">
-                    Voici les Principes Opérationnels que respecte chaque membre de l’équipe de ShiftUp et les
-                    entrepreneurs Libres :
+                    {{ $t('CommentCaFonctionne.voici_les_principes') }}
                 </p>
                 <div class="scroll-indicator">
-                    <span>Scroller pour découvrir</span>
+                    <span>{{ $t('CommentCaFonctionne.scroller_pour_dcouvrir') }}</span>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M7 13L12 18L17 13M7 6L12 11L17 6" />
                     </svg>
@@ -25,14 +24,16 @@
 
         <div class="horizontal-scroll-container" ref="scrollContainer">
             <div class="cards-track" ref="trackRef">
-                <div v-for="(principle, index) in principles" :key="index" class="principle-card"
-                    :class="{ 'has-long-text': isLongText(principle.body), 'is-expanded': hoveredIndex === index }"
+                <div v-for="(principleId, index) in principles" :key="index" class="principle-card"
+                    :class="{ 'has-long-text': isLongText($t('CommentCaFonctionne.principle_' + principleId + '_body')), 'is-expanded': hoveredIndex === index }"
                     :style="{ backgroundColor: getCardColor(index) }" @mouseenter="handleMouseEnter(index)"
                     @mouseleave="handleMouseLeave">
                     <div class="card-content">
                         <div class="card-number">{{ String(index + 1).padStart(2, '0') }}</div>
-                        <h3 class="card-title">{{ principle.title }}</h3>
-                        <div class="card-body" v-html="formatBody(principle.body)" data-lenis-prevent @wheel.stop></div>
+                        <h3 class="card-title">{{ $t('CommentCaFonctionne.principle_' + principleId + '_title') }}</h3>
+                        <div class="card-body"
+                            v-html="formatBody($t('CommentCaFonctionne.principle_' + principleId + '_body'))"
+                            data-lenis-prevent @wheel.stop></div>
                     </div>
                 </div>
             </div>
@@ -41,7 +42,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -66,72 +67,7 @@ const goBack = () => {
     window.history.back();
 };
 
-const principles = [
-    {
-        title: "L’Entrepreneur Libre choisit une direction claire et fixe des objectifs ambitieux.",
-        body: "Le but de l’Organisme est d’aider plus d’un million d’entrepreneurs francophones à devenir des Entrepreneurs Libres. Toutes nos actions, et les objectifs trimestriels de chaque membre de l’équipe, visent à atteindre cet objectif."
-    },
-    {
-        title: "L’Entrepreneur Libre « regarde droit devant » et avance avec détermination parce que son objectif est clair.",
-        body: "C’est pourquoi nous avons mis par écrit notre raison d’être, notre Objectif Stratégique, dans le Manifeste de l’Organisme, que nous avons aussi retranscrit nos Principes Opérationnels, et nous prenons le temps de créer des Procédures de Travail. Nous croyons fermement qu’une entreprise se définit aussi bien par les tentations qu’elle décline, que par les opportunités qu’elle saisit. Pour cette raison nous passons régulièrement en revue notre Objectif Stratégique avant de lancer de nouveaux projets – et nous disons « NON » à la majority des opportunités, pour pouvoir dire « OUI » à notre mission."
-    },
-    {
-        title: "L’Entrepreneur Libre donne la priorité aux priorités.",
-        body: "1. Nous travaillons sur les tâches les plus importantes en premier.<br>2. Nous passons le maximum de temps possible sur les tâches “non-urgentes et importantes” telles que définies par Stephen R. Covey : plutôt que de sauter de crise en crise, nous donnons priorité aux activités qui suivent l’Objectif Stratégique. Cela se reflète, par exemple, dans nos réunions d’équipe où la majeure partie de la réunion vise à avancer vers l’Objectif Stratégique – et seule la dernière partie de la réunion est consacrée aux crises et dossiers « urgents ».<br>3. Nous ne travaillons pas en multitâche. Quand nous communiquons avec quelqu’un, nous sommes présents à 100 pourcent. Quand nous suivons une formation ou exécutons une mission, nous coupons toute source potentielle d’interruption."
-    },
-    {
-        title: "L’Entrepreneur Libre voit toujours plus grand.",
-        body: "Nous combattons activement ce grand ennemi : le Conformisme. Nous avons une vision de l’entreprise bien différente de la « boîte enfermante » qu’on y associe souvent. Au contraire, nous bâtissons cette entreprise sous la forme d’un Organisme et de Mouvement qui nous permet d’exprimer notre créativité, vivre nos valeurs, et travailler avec passion. Nous ne faisons pas la « course au profit » ; nous préférons nous concentrer sur l’apport maximum de valeur à nos clients. Et paradoxalement, cela augmente notre rentabilité et permet à l’ensemble de l’équipe d’en tirer les fruits avec une rémunération stable, à la hauteur des efforts fournis."
-    },
-    {
-        title: "Gratitude et Optimisme",
-        body: "L’Entrepreneur Libre sait qu’il a déjà accompli beaucoup, et que le meilleur reste à venir. Nous mettons un point d’honneur à célébrer nos accomplissements, petits et grands. C’est pourquoi nous démarrons nos rendez-vous d’équipe en félicitant les membres pour leurs réussites; et c’est également pour cela que nous prenons le temps d’un moment de « débriefing » décontracté après un gros projet ou un séminaire."
-    },
-    {
-        title: "L’Entrepreneur Libre se voit comme le « Champion » d’une cause – il transforme des vies.",
-        body: "Nous travaillons uniquement avec des personnes qui croient profondément à notre vision de l’Entrepreneur Libre. Nos collaborateurs vivent leur vie selon les valeurs de l’Entrepreneur Libre et ont conscience de l’importance de la mission qui leur est confiée : transformer des millions de chefs d’entreprise et de porteurs de projet en Entrepreneurs Libres !"
-    },
-    {
-        title: "L’Entrepreneur Libre n’a pas peur d’échouer.",
-        body: "C’est pourquoi nous continuons toujours à nous améliorer en tirant les leçons de nos expériences passées. Le travail du gérant, des managers et chefs de département est de créer, superviser, et améliorer en permanence les systèmes de l’entreprise. Nous construisons une machine bien huilée actionnée par des personnes compétentes – pas un ”bricolage” nécessitant des tours de passe-passe ou un écopage permanent."
-    },
-    {
-        title: "L’Entrepreneur Libre est exigeant envers les autres… Parce qu’il est exigeant envers lui-même.",
-        body: "1. Nous employons des personnes qui se donnent à 100% dans leur travail, et nous les rémunérons généreusement en conséquence. Quand nous sommes au travail, nous travaillons dur, de façon concentrée, et en échange l’entreprise fournit de l’ambiance et des avantages.<br> 2. « Les paroles s’envolent mais les écrits restent » : nous mettons tout au clair par écrit.<br>3. Notre lieu de travail est impeccable : propre et ordonné. <br> 4. Notre tenue est le reflet de notre entreprise : professionnelle, sobre.<br>5. Nous prêtons une attention toute particulière à la langue française.<br>6. Nous faisons relire tout document avant publication.<br>7. Tout événement est annoncé dans l’agenda.<br>8. Nous tenons nos promesses de livraison.<br>9. Nous maintenons notre équipement fonctionnel à 100%."
-    },
-    {
-        title: "L’Entrepreneur Libre crée un entourage qui le soutient et l’inspire à aller toujours plus haut.",
-        body: "Notre climat de travail est sérieux et calme, mais surtout serein, apaisant, et amical. Chacun peut y donner le meilleur de lui-même et être respecté pour la qualité de son travail et de ses idées.<br><br>1. Nous communiquons régulièrement via les « Stand-Up ».<br>2. Nous n’utilisons pas la communication par email au sein de l’équipe.<br>3. L’accueil et la formation des nouveaux collaborateurs sont structurés."
-    },
-    {
-        title: "L’Entrepreneur Libre tire le maximum de ses ressources pour créer quelque chose de nouveau.",
-        body: "L’entreprise opère en suivant des procédures rédigées noir sur blanc.<br>1. Si un problème se présente de façon récurrente, nous mettons en place un système.<br>2. Chaque membre a la responsabilité de maintenir ses procédures.<br>3. Nous automatisons les tâches répétitives de plus de 3 heures."
-    },
-    {
-        title: "L’entrepreneur Libre est un Agisseur : il décide vite et agit avec détermination.",
-        body: "En toute situation, nous appliquons la solution la plus simple.<br>2. Nous évitons de créer des procédures pour des situations uniques.<br>3. “On ne touche un message qu’une fois” : traitement immédiat pour rester réatif."
-    },
-    {
-        title: "L’Entrepreneur Libre apporte sans cesse davantage de valeur à ses clients.",
-        body: "1. Mise à jour constante des formations.<br>2. Écoute active des suggestions (communautés, coaching, SAV).<br>3. Proposer des alternatives constructives lors de refus."
-    },
-    {
-        title: "L’Entrepreneur Libre gère ses finances avec discipline.",
-        body: "Un Ariary économisé est un Ariary gagné pour l’entreprise et ses collaborateurs ! Nous veillons à ce que les dépenses se fassent dans l'optique de l'Objectif Stratégique."
-    },
-    {
-        title: "L’Entrepreneur Libre met un grain de folie dans sa vie.",
-        body: "Lorsque nous avons terminé notre journée de travail, nous décrochons complètement. Nous valorisons le repos, l'alimentation saine et les rituels dynamisants pour garder une énergie positive."
-    },
-    {
-        title: "L’Entrepreneur Libre s’inspire des meilleurs.",
-        body: "Nous améliorons en permanence notre savoir et notre savoir-faire en lisant, en nous formant et en échangeant. Nous mettons en pratique nos apprentissages immédiatement."
-    },
-    {
-        title: "L’Entrepreneur Libre inspire ceux qui le suivent.",
-        body: "1. Nous montrons l’exemple en vivant nous-mêmes une vie libre.<br>2. Nous apportons le maximum de valeur gratuite (vidéos, newsletters).<br>3. Nous maintenons une communication bienveillante en toute circonstance."
-    }
-];
+const principles = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 
 const colors = [
     '#F7B455', '#E67E22', '#D35400', '#C0392B',

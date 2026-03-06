@@ -8,7 +8,7 @@
         <div class="main-content container">
             <div class="content-left">
                 <div class="event-meta">
-                    <span class="edition-label">SÉMINAIRE EXCLUSIF</span>
+                    <span class="edition-label">{{ $t('SeminaireDetail.sminaire_exclusif') }}</span>
                 </div>
 
                 <h1 class="main-title">
@@ -27,29 +27,29 @@
                 </div>
 
                 <div class="countdown-section">
-                    <p class="starts-in-label">Commence dans</p>
+                    <p class="starts-in-label">{{ $t('LiveDetail.commence_dans') }}</p>
                     <div class="countdown-timer">
                         <div class="time-unit">
                             <span class="number">{{ days }}</span>
-                            <span class="label">Jours</span>
+                            <span class="label">{{ $t('LiveDetail.jours') }}</span>
                         </div>
                         <div class="time-unit">
                             <span class="number">{{ hours }}</span>
-                            <span class="label">Heures</span>
+                            <span class="label">{{ $t('LiveDetail.heures') }}</span>
                         </div>
                         <div class="time-unit">
                             <span class="number">{{ minutes }}</span>
-                            <span class="label">Minutes</span>
+                            <span class="label">{{ $t('LiveDetail.minutes') }}</span>
                         </div>
                         <div class="time-unit">
                             <span class="number">{{ seconds }}</span>
-                            <span class="label">Secondes</span>
+                            <span class="label">{{ $t('LiveDetail.secondes') }}</span>
                         </div>
                     </div>
                 </div>
 
                 <PremiumButton class="reserve-btn" @click="reserveSeat">
-                    RÉSERVER MA PLACE
+                    {{ $t('SeminaireDetail.rserver_ma_place') }}
                 </PremiumButton>
             </div>
         </div>
@@ -58,9 +58,13 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import PremiumButton from '../components/ui/PremiumButton.vue';
+
+const page = usePage();
+const $t = (key) => page.props.translations[key] || key;
+const currentLocale = computed(() => page.props.locale || 'fr');
 
 const props = defineProps({
     seminaire: Object
@@ -74,7 +78,7 @@ const seconds = ref(0);
 let timerInterval = null;
 
 const formattedDate = computed(() => {
-    if (!props.seminaire.DateSeminaire) return 'DATE À ANNONCER';
+    if (!props.seminaire.DateSeminaire) return $t('SeminaireDetail.date_a_annoncer');
 
     const startDate = new Date(props.seminaire.DateSeminaire);
 
@@ -83,18 +87,18 @@ const formattedDate = computed(() => {
         endDate.setDate(startDate.getDate() + (props.seminaire.NombreDeJours - 1));
 
         if (startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear()) {
-            const month = startDate.toLocaleDateString('fr-FR', { month: 'long' });
+            const month = startDate.toLocaleDateString(currentLocale.value, { month: 'long' });
             const year = startDate.getFullYear();
             return `${startDate.getDate()}-${endDate.getDate()} ${month} ${year}`.toUpperCase();
         }
         else if (startDate.getFullYear() === endDate.getFullYear()) {
-            const startMonth = startDate.toLocaleDateString('fr-FR', { month: 'long' });
-            const endMonth = endDate.toLocaleDateString('fr-FR', { month: 'long' });
+            const startMonth = startDate.toLocaleDateString(currentLocale.value, { month: 'long' });
+            const endMonth = endDate.toLocaleDateString(currentLocale.value, { month: 'long' });
             return `${startDate.getDate()} ${startMonth} - ${endDate.getDate()} ${endMonth} ${startDate.getFullYear()}`.toUpperCase();
         }
     }
 
-    return startDate.toLocaleDateString('fr-FR', { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
+    return startDate.toLocaleDateString(currentLocale.value, { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
 });
 
 const calculateTimeLeft = () => {
@@ -153,7 +157,7 @@ onUnmounted(() => {
 
 const reserveSeat = () => {
     console.log('Reserve seat clicked');
-    alert("Fonctionnalité de réservation à venir");
+    alert($t('SeminaireDetail.reservation_a_venir'));
 };
 </script>
 

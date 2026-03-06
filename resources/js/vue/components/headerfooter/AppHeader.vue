@@ -91,7 +91,7 @@
           @refresh="fetchNotifications" />
 
         <div class="robot-bubble hide-on-mobile" v-if="!showNotif">
-          Je suis votre assistante pour vous aider à vous notifier de toutes activité dans ShiftUp
+          {{ $t('Header.RobotBubble') }}
         </div>
       </div>
 
@@ -102,15 +102,66 @@
           events-target="global" @load="() => { isRobotReady = true; sessionStorage.setItem('robot_loaded', 'true'); }"
           :class="{ 'is-ready': isRobotReady }" class="robot-spline-viewer"
           style="pointer-events: none;"></spline-viewer>
+
+        <transition name="scale">
+          <div v-if="notifications.length > 0" class="robot-notif-badge">
+            {{ notifications.length }}
+          </div>
+        </transition>
       </div>
     </div>
 
-    <Link href="/panier" class="cart-icon-wrapper-fixed profile-icon-wrapper" :class="{ 'is-visible': showFooter }"
+    <div class="lang-switcher-wrapper" :class="{
+      'is-visible': isMobile ? showFooter : true,
+      'menu-open': isLangMenuOpen,
+      'desktop-view': !isMobile,
+      'icon-hidden': isMobile && mobileIconState === 'cart'
+    }" :style="{ '--mouse-x': langFlash.x, '--mouse-y': langFlash.y, '--flash-opacity': langFlash.opacity }"
+      @mousemove="handleFlashMove($event, 'lang')" @mouseleave="handleFlashLeave('lang')"
+      @click.stop="isMobile ? null : (isLangMenuOpen = !isLangMenuOpen)">
+
+      <div class="lang-icon-display">
+        <img :src="availableLanguages.find(l => l.code === currentLocale)?.gif" class="lang-gif-main" />
+      </div>
+
+      <div class="lang-dropdown" v-if="isLangMenuOpen">
+        <div v-for="lang in availableLanguages" :key="lang.code" class="lang-option gif-bg"
+          :style="{ backgroundImage: `url(${lang.gif})` }" :class="{ 'active': currentLocale === lang.code }"
+          @click.stop="changeLocale(lang.code)">
+          <span class="lang-name">{{ lang.name }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div @click="isMobile ? null : (!user ? openLogin($event) : router.visit('/panier'))"
+      class="cart-icon-wrapper-fixed profile-icon-wrapper"
+      :class="{ 'is-visible': showFooter, 'icon-hidden': mobileIconState === 'lang' && isMobile }"
       :style="{ '--mouse-x': cartFlash.x, '--mouse-y': cartFlash.y, '--flash-opacity': cartFlash.opacity }"
-      @mousemove="handleFlashMove($event, 'cart')" @mouseleave="handleFlashLeave('cart')">
-      <div class="profile-icon"><i class="fas fa-shopping-basket"></i></div>
-      <span class="cart-label hide-on-mobile">Panier</span>
-    </Link>
+      @mousemove="handleFlashMove($event, 'cart')" @mouseleave="handleFlashLeave('cart')" style="cursor: pointer;">
+
+      <div class="profile-icon">
+        <i class="fas fa-shopping-basket"></i>
+      </div>
+      <span class="cart-label hide-on-mobile">{{ $t('Cart') }}</span>
+    </div>
+
+    <div v-if="isMobile && showFooter" class="mobile-icon-container" @touchstart="handleTouchStart"
+      @touchend="handleTouchEnd">
+
+      <!-- Swipe Hint Bubble -->
+      <Transition name="fade-scale">
+        <div v-if="showSwipeHint" class="swipe-hint-bubble">
+          {{ $t('Header.SwipeHint') }}
+        </div>
+      </Transition>
+
+      <div class="mobile-icon-active-area">
+        <div v-show="mobileIconState === 'cart'" class="mobile-direct-action"
+          @click.stop="!user ? openLogin($event) : router.visit('/panier')"></div>
+        <div v-show="mobileIconState === 'lang'" class="mobile-direct-action"
+          @click.stop="isLangMenuOpen = !isLangMenuOpen"></div>
+      </div>
+    </div>
 
     <Profil :is-open="isProfilOpen" :user="user" @close="isProfilOpen = false" />
     <LoginModal :is-open="isLoginOpen" :origin="loginButtonCoords" @close="isLoginOpen = false" />
@@ -119,12 +170,14 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed, nextTick, reactive, watch } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link, usePage, router } from '@inertiajs/vue3';
 import Profil from './Profil.vue';
 import LoginModal from '../auth/LoginModal.vue';
 import ModalAssistant from '../ui/ModalAssistant.vue';
+import gsap from 'gsap';
 
 const page = usePage();
+const $t = (key) => page.props.translations?.[key] || key;
 const user = computed(() => page.props.auth.user);
 const isRobotReady = ref(typeof window !== 'undefined' && sessionStorage.getItem('robot_loaded') === 'true');
 const showNotif = ref(false);
@@ -175,41 +228,39 @@ if (typeof window !== 'undefined' && !window.customElements.get('spline-viewer')
   document.head.appendChild(script);
 }
 
-const menuItemsData = [
-  { label: 'Accueil', route: '/' },
+const menuItemsData = computed(() => [
+  { label: 'Home', route: '/' },
   { label: 'Menus', route: '/menu' },
-];
+]);
 
 const dynamicHomeLabel = computed(() => {
   const currentPath = page.url;
-  if (currentPath === '/organisme') return 'L\'organisme';
-  if (currentPath === '/toutcategorie') return 'Toutes les Catégories';
+  if (currentPath === '/organisme') return 'Header.LOrganisme';
+  if (currentPath === '/toutcategorie') return 'Header.ToutesLesCategories';
   if (currentPath === '/login') return 'Identification';
-  if (currentPath === '/contact') return 'Contactez-moi !';
+  if (currentPath === '/contact') return 'Header.ContactezMoi';
   if (currentPath === '/consultations') return 'Consultations';
-  if (currentPath === '/programmes') return 'Les programmes de formation';
-  if (currentPath.includes('/programmes/')) return 'Programme détaillé';
+  if (currentPath === '/programmes') return 'Header.LesProgrammesDeFormation';
+  if (currentPath.includes('/programmes/')) return 'Header.ProgrammeDetail';
   if (currentPath === '/coaching') return 'Coachings';
-  if (currentPath.includes('/seminaires')) return 'Séminaire détaillé';
-  if (currentPath === '/temoignages') return 'Témoignages';
-  if (currentPath === '/offres') return 'Offres';
+  if (currentPath.includes('/seminaires')) return 'Header.SeminaireDetail';
+  if (currentPath === '/temoignages') return 'Testimonials';
+  if (currentPath === '/offres') return 'Offers';
   if (currentPath === '/live') return 'Live';
-  if (currentPath === '/panier') return 'Mon Panier';
-  if (currentPath === '/articles-conseils') return 'Articles et Conseils';
-  if (currentPath === '/reservations') return 'Mes réservations';
-  if (currentPath === '/politique-de-confidentialite') return 'Politique de confidentialité';
+  if (currentPath === '/panier') return 'MyCart';
+  if (currentPath === '/articles-conseils') return 'Header.ArticlesTips';
+  if (currentPath === '/reservations') return 'MyReservations';
+  if (currentPath === '/politique-de-confidentialite') return 'PrivacyPolicy';
 
-
-
-  return 'Accueil';
+  return 'Home';
 });
 
 const renderedMenuItems = computed(() => {
-  return menuItemsData.map((item, index) => {
+  return menuItemsData.value.map((item, index) => {
     if (index === 0) {
-      return { ...item, label: dynamicHomeLabel.value };
+      return { ...item, label: $t(dynamicHomeLabel.value) };
     }
-    return item;
+    return { ...item, label: $t(item.label) };
   });
 });
 
@@ -217,7 +268,7 @@ const findActiveIndex = () => {
   const currentPath = page.url;
   if (currentPath === '/' || currentPath === '/organisme' || currentPath === '/toutcategorie') return 0;
 
-  const index = menuItemsData.findIndex(item => item.route !== '/' && currentPath.startsWith(item.route));
+  const index = menuItemsData.value.findIndex(item => item.route !== '/' && currentPath.startsWith(item.route));
   return index !== -1 ? index : 0;
 };
 
@@ -230,10 +281,9 @@ watch([() => page.url, dynamicHomeLabel], () => {
   });
 });
 
-const loginText = 'Se connecter';
-const programsText = 'Les programmes';
-const loginChars = computed(() => loginText.split(''));
-const programsChars = computed(() => programsText.split(''));
+// Login/Programs animations setup
+const loginChars = computed(() => String(page.props.translations['Login'] || 'Se connecter').split(''));
+const programsChars = computed(() => String(page.props.translations['Programmes'] || 'Les programmes').split(''));
 const userNameChars = computed(() => {
   const name = user.value?.profil?.Prenom || 'User';
   return name.split('');
@@ -249,6 +299,106 @@ const cartFlash = reactive({ x: '50%', y: '50%', opacity: 0 });
 
 const isLightBackground = ref(false);
 const showFooter = ref(false);
+const isLangMenuOpen = ref(false);
+const mobileIconState = ref('cart'); // 'cart' or 'lang'
+const isMobile = ref(false);
+const showSwipeHint = ref(false);
+let mobileIconInterval = null;
+let swipeHintInterval = null;
+
+const toggleMobileIcon = () => {
+  const newState = mobileIconState.value === 'cart' ? 'lang' : 'cart';
+
+  const cartElem = document.querySelector('.cart-icon-wrapper-fixed');
+  const langElem = document.querySelector('.lang-switcher-wrapper');
+
+  const currentElem = mobileIconState.value === 'cart' ? cartElem : langElem;
+  const nextElem = newState === 'cart' ? cartElem : langElem;
+
+  if (currentElem && nextElem) {
+    gsap.to(currentElem, {
+      y: 0,
+      opacity: 0,
+      scale: 0.7,
+      duration: 0.6,
+      ease: "power2.inOut"
+    });
+
+    mobileIconState.value = newState;
+    nextTick(() => {
+      gsap.fromTo(nextElem,
+        { y: 0, opacity: 0, scale: 0.7 },
+        { y: 0, opacity: 1, scale: 1.1, duration: 0.6, ease: "power2.out", delay: 0.1, clearProps: "y,opacity,scale" }
+      );
+    });
+  } else {
+    mobileIconState.value = newState;
+  }
+};
+
+const manualToggle = () => {
+  if (mobileIconInterval) {
+    clearInterval(mobileIconInterval);
+    startMobileIconTimer(); // Reset timer on manual interaction
+  }
+  toggleMobileIcon();
+};
+
+let touchStartX = 0;
+let touchStartY = 0;
+
+const handleTouchStart = (e) => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+};
+
+const handleTouchEnd = (e) => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+
+  if (Math.abs(dx) > 30 || Math.abs(dy) > 30) {
+    manualToggle();
+  }
+};
+
+const startMobileIconTimer = () => {
+  mobileIconInterval = setInterval(() => {
+    if (isMobile.value && showFooter.value && !isLangMenuOpen.value) {
+      toggleMobileIcon();
+    }
+  }, 4000);
+};
+
+const startSwipeHintTimer = () => {
+  const triggerHint = () => {
+    showSwipeHint.value = true;
+    setTimeout(() => {
+      showSwipeHint.value = false;
+    }, 7000);
+  };
+
+  triggerHint();
+  swipeHintInterval = setInterval(triggerHint, 100000);
+};
+
+const currentLocale = computed(() => page.props.locale || 'fr');
+const availableLanguages = [
+  { code: 'fr', name: 'Français', gif: 'https://res.cloudinary.com/dzgdjei0h/image/upload/v1772797651/%D8%B9%D9%84%D9%85_%D9%81%D8%B1%D9%86%D8%B3%D8%A7_GIF_-_French_Flag_Drapeau_Francais_France_-_D%C3%A9couvrir_et_partager_des_GIF_otskhk.gif' },
+  { code: 'en', name: 'English', gif: 'https://res.cloudinary.com/dzgdjei0h/image/upload/v1772798239/United_Kingdom_United_Kingdom_Flag_GIF_United_Kingdom_United_Kingdom_Flag_Flag_Waving_discover_and_share_GIFs_1_ennasn.gif' },
+  { code: 'mg', name: 'Malagasy', gif: 'https://res.cloudinary.com/dzgdjei0h/image/upload/v1772798282/Madagascar_Flag_Gif_GIF_-_Madagascar_Flag_Gif_Africa_-_Discover_Share_GIFs_1_xfbaa4.gif' }
+];
+
+const changeLocale = (locale) => {
+  router.post('/locale', { locale }, {
+    preserveScroll: true,
+    onSuccess: () => {
+      isLangMenuOpen.value = false;
+      window.location.reload();
+    }
+  });
+};
+
+const langFlash = reactive({ x: '50%', y: '50%', opacity: 0 });
 
 watch(showFooter, () => {
   nextTick(() => {
@@ -288,6 +438,7 @@ function handleFlashMove(event, target) {
   else if (target === 'profile') state = profileFlash;
   else if (target === 'top') state = topFlash;
   else if (target === 'cart') state = cartFlash;
+  else if (target === 'lang') state = langFlash;
 
   state.x = `${(event.clientX - rect.left) / rect.width * 100}%`;
   state.y = `${(event.clientY - rect.top) / rect.height * 100}%`;
@@ -299,6 +450,7 @@ function handleFlashLeave(target) {
   else if (target === 'profile') profileFlash.opacity = 0;
   else if (target === 'top') topFlash.opacity = 0;
   else if (target === 'cart') cartFlash.opacity = 0;
+  else if (target === 'lang') langFlash.opacity = 0;
 }
 
 function setActive(index) {
@@ -334,13 +486,15 @@ const closeNotifOutside = (e) => {
 
 const initScrollLogic = async () => {
   const { ScrollTrigger } = await import("gsap/ScrollTrigger");
+  gsap.registerPlugin(ScrollTrigger);
 
   ScrollTrigger.getAll().forEach(t => {
-    if (t.vars.id === 'floating-menu-trigger') t.kill();
+    if (t.vars.id === 'floating-menu-trigger' || t.vars.id === 'mobile-icon-switcher') t.kill();
   });
 
-  const isMobile = window.innerWidth <= 768;
-  const startThreshold = isMobile ? "200px top" : "100px top";
+  const isMobileView = window.innerWidth <= 768;
+  isMobile.value = isMobileView;
+  const startThreshold = isMobileView ? "200px top" : "100px top";
 
   ScrollTrigger.create({
     id: 'floating-menu-trigger',
@@ -355,6 +509,10 @@ const initScrollLogic = async () => {
     onLeaveBack: () => { showFooter.value = false; },
     refreshPriority: -1
   });
+
+  if (isMobileView) {
+    startMobileIconTimer();
+  }
 };
 
 let resizeObserver = null;
@@ -393,8 +551,26 @@ onMounted(async () => {
     updateBackground();
   }, 50);
 
-  window.addEventListener('resize', updateBackground);
-  window.addEventListener('click', closeNotifOutside);
+  window.addEventListener('resize', () => {
+    updateBackground();
+    isMobile.value = window.innerWidth <= 768;
+    if (isMobile.value) {
+      if (!swipeHintInterval) startSwipeHintTimer();
+    }
+  });
+
+  // Initial check
+  isMobile.value = window.innerWidth <= 768;
+  if (isMobile.value) {
+    startSwipeHintTimer();
+  }
+
+  window.addEventListener('click', (e) => {
+    closeNotifOutside(e);
+    if (isLangMenuOpen.value && !e.target.closest('.lang-switcher-wrapper')) {
+      isLangMenuOpen.value = false;
+    }
+  });
 
   setTimeout(() => {
     isRobotReady.value = true;
@@ -418,6 +594,8 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
+  if (mobileIconInterval) clearInterval(mobileIconInterval);
+  if (swipeHintInterval) clearInterval(swipeHintInterval);
   if (resizeObserver) resizeObserver.disconnect();
   window.removeEventListener('resize', updateBackground);
   window.removeEventListener('click', closeNotifOutside);
@@ -514,6 +692,30 @@ watch(() => page.url, () => {
   opacity: 1;
 }
 
+.flag-fr {
+  background-image: url('https://flagcdn.com/w40/fr.png');
+}
+
+.flag-en {
+  background-image: url('https://flagcdn.com/w40/gb.png');
+}
+
+.flag-mg {
+  background-image: url('https://flagcdn.com/w40/mg.png');
+}
+
+.flag-fr,
+.flag-en,
+.flag-mg {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 .menu {
   padding: 0.3rem;
   border-radius: 25px;
@@ -551,6 +753,13 @@ watch(() => page.url, () => {
   z-index: 3;
   cursor: pointer;
   text-decoration: none;
+}
+
+.lang-flag-current {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
 }
 
 .menu-logo {
@@ -607,6 +816,14 @@ watch(() => page.url, () => {
 .footer-menu.is-visible {
   opacity: 1;
   transform: translateX(-50%) translateY(0) scale(1);
+}
+
+.lang-flag {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
 }
 
 .action-buttons {
@@ -758,6 +975,7 @@ watch(() => page.url, () => {
   justify-content: flex-start;
   padding-left: 15px;
   overflow: hidden;
+  background: linear-gradient(135deg, #1a73e8, #8A38F5);
 }
 
 .cart-label {
@@ -790,6 +1008,179 @@ watch(() => page.url, () => {
   opacity: 1;
   transform: translateY(0) scale(1);
   pointer-events: auto;
+}
+
+.cart-icon-wrapper-fixed.icon-hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(20px) scale(0.8) !important;
+}
+
+.lang-switcher-wrapper {
+  position: fixed;
+  top: 25px;
+  right: 5vw;
+  z-index: 1001;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: visible;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: none;
+  font-size: 1.6rem !important;
+}
+
+.lang-gif-main {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.lang-flag-current {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 769px) {
+  .lang-switcher-wrapper {
+    opacity: 1 !important;
+    transform: none !important;
+    pointer-events: auto !important;
+  }
+}
+
+.lang-switcher-wrapper.desktop-view {
+  top: 25px;
+  right: 5vw;
+}
+
+.lang-icon-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: white;
+  font-size: 1.3rem;
+}
+
+.lang-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.lang-dropdown {
+  position: absolute;
+  top: calc(100% + 15px);
+  right: 0;
+  background: rgba(32, 32, 32, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 5px;
+  width: 160px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  animation: dropdown-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 1002;
+}
+
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.lang-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 15px;
+  border-radius: 15px;
+  color: white;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.lang-option::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  transition: background 0.3s ease;
+}
+
+.lang-option:hover::before {
+  background: rgba(138, 56, 245, 0.3);
+}
+
+.lang-option.active::before {
+  background: rgba(138, 56, 245, 0.3);
+}
+
+.lang-flag {
+  font-size: 1.2rem;
+}
+
+.lang-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  z-index: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+  .lang-switcher-wrapper {
+    position: fixed;
+    top: 22px;
+    right: 5%;
+    width: 60px;
+    height: 60px;
+    border-radius: 50% !important;
+    display: flex;
+    align-items: center;
+    justify-content: center !important;
+    padding: 0 !important;
+    opacity: 0;
+    transform: translateY(-50px) scale(0.8);
+    pointer-events: none;
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .lang-switcher-wrapper.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  .lang-switcher-wrapper.icon-hidden {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateY(20px) scale(0.8) !important;
+  }
 }
 
 .robot-container {
@@ -915,6 +1306,37 @@ spline-viewer.is-ready {
   }
 }
 
+.robot-notif-badge {
+  position: absolute;
+  top: 15vh;
+  right: 2vw;
+  background: linear-gradient(135deg, #1a73e8, #8A38F5);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 800;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(26, 115, 232, 0.4);
+  z-index: 20;
+  border: 2px solid #000;
+}
+
+.scale-enter-active,
+.scale-leave-active {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+}
+
+.scale-enter-from,
+.scale-leave-to {
+  transform: scale(0);
+  opacity: 0;
+}
+
 .action-buttons {
   display: flex;
   align-items: center;
@@ -1026,27 +1448,6 @@ spline-viewer.is-ready {
     font-weight: 400;
   }
 
-  .cart-icon-wrapper-fixed {
-    top: 22px;
-    bottom: auto;
-    right: 5%;
-    left: auto !important;
-    width: 60px;
-    height: 60px;
-    border-radius: 50% !important;
-    display: flex;
-    align-items: center;
-    justify-content: center !important;
-    padding: 0 !important;
-    transform: translateY(-50px) scale(0.8);
-  }
-
-  .cart-icon-wrapper-fixed.is-visible {
-    opacity: 1 !important;
-    transform: translateY(0) scale(1) !important;
-    pointer-events: auto !important;
-  }
-
   .profile-icon-wrapper,
   .top-icon-wrapper {
     width: 80px;
@@ -1061,6 +1462,50 @@ spline-viewer.is-ready {
   .profile-icon,
   .top-icon {
     font-size: 2rem;
+  }
+
+  :is(.cart-icon-wrapper-fixed, .lang-switcher-wrapper) :is(.profile-icon, .lang-gif-main) {
+    font-size: 1.5rem;
+  }
+
+  .lang-switcher-wrapper {
+    position: fixed;
+    top: 22px;
+    right: 5%;
+    width: 50px;
+    height: 50px;
+    border-radius: 50% !important;
+    display: flex;
+    align-items: center;
+    justify-content: center !important;
+    padding: 0 !important;
+    opacity: 0;
+    transform: translateY(-50px) scale(0.8);
+    pointer-events: none;
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .cart-icon-wrapper-fixed {
+    top: 22px;
+    bottom: auto;
+    right: 5%;
+    left: auto !important;
+    width: 50px;
+    height: 50px;
+    border-radius: 50% !important;
+    display: flex;
+    align-items: center;
+    justify-content: center !important;
+    padding: 0 !important;
+    background: linear-gradient(135deg, #1a73e8, #8A38F5) !important;
+  }
+
+  .lang-gif-main {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
   }
 
   .robot-container {
@@ -1085,9 +1530,111 @@ spline-viewer.is-ready {
     pointer-events: auto;
   }
 
-  spline-viewer {
-    width: 50px;
-    height: 50px;
+  /* Specific mobile positioning for badge - separated to ensure visibility */
+  .robot-notif-badge {
+    position: absolute !important;
+    top: -5px !important;
+    right: 5px !important;
+    min-width: 20px !important;
+    height: 20px !important;
+    font-size: 0.75rem !important;
+    padding: 2px !important;
+    display: flex !important;
+    z-index: 9999 !important;
+    background: linear-gradient(135deg, #1a73e8, #8A38F5) !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .mobile-icon-container {
+    position: fixed;
+    top: 22px;
+    right: 5%;
+    width: 60px;
+    height: 60px;
+    z-index: 1002;
+    cursor: pointer;
+  }
+
+  .mobile-icon-active-area {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .swipe-hint-bubble {
+    position: absolute;
+    right: -5px;
+    top: 75px;
+    background: linear-gradient(135deg, #202020 0%, #1A888D 50%, #F7B455 100%);
+    color: white;
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    z-index: 1005;
+    animation: floatBubbleHint 2.5s ease-in-out infinite;
+  }
+
+  .swipe-hint-bubble::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 28px;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+  }
+
+  @keyframes floatBubbleHint {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+
+  .fade-scale-enter-active,
+  .fade-scale-leave-active {
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .fade-scale-enter-from {
+    opacity: 0;
+    transform: translateY(-15px) scale(0.8) !important;
+  }
+
+  .fade-scale-leave-to {
+    opacity: 0;
+    transform: translateY(15px) scale(0.8) !important;
+  }
+
+  .mobile-direct-action {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+  }
+
+  .robot-notif-badge {
+    position: absolute !important;
+    top: 4vh !important;
+    right: 10vw !important;
+    min-width: 22px !important;
+    height: 22px !important;
+    font-size: 0.85rem !important;
+    background: linear-gradient(135deg, #1a73e8, #8A38F5) !important;
+    display: flex !important;
+    opacity: 1 !important;
+    transform: none !important;
+    z-index: 9999 !important;
+    box-shadow: 0 4px 10px rgba(138, 56, 245, 0.5) !important;
+    border: 1.5px solid #171717 !important;
   }
 }
 

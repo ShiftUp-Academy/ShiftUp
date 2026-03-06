@@ -3,7 +3,7 @@
     <div class="hero-content">
       <div class="title-container">
         <h1 class="main-title">
-          <div v-for="(line, index) in title.split('<br />')" :key="index">
+          <div v-for="(line, index) in (displayTitle || '').split('<br />')" :key="index">
             <span class="anim-opacity" v-html="line"></span>
           </div>
         </h1>
@@ -22,7 +22,7 @@
           <slot name="action"></slot>
         </div>
         <p class="sub-text anim-opacity">
-          {{ description }}
+          {{ displayDescription }}
         </p>
       </div>
     </div>
@@ -30,18 +30,26 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { gsap } from 'gsap'
+import { usePage } from '@inertiajs/vue3'
 import ShaderBackground from './ShaderBackground.vue'
+
+const page = usePage();
+const $t = (key) => page.props.translations[key] ?? key;
 
 const props = defineProps({
   title: {
     type: String,
-    default: 'We choose a <br />different &rarr;<br />starting point'
+    default: ''
   },
   description: {
     type: String,
-    default: 'Every project is a chance to try something new. Look at something with a fresh perspective.'
+    default: ''
+  },
+  cursorText: {
+    type: String,
+    default: ''
   },
   colors: {
     type: Object,
@@ -54,9 +62,19 @@ const props = defineProps({
   }
 })
 
+const displayTitle = computed(() => {
+  return props.title || $t('ChildHeropage.title');
+});
+
+const displayDescription = computed(() => {
+  return props.description || $t('ChildHeropage.description');
+});
+
+const displayCursorText = computed(() => {
+  return props.cursorText || $t('ChildHeropage.cursorText');
+});
+
 const rootContainer = ref(null)
-
-
 const themeColors = props.colors;
 
 onMounted(() => {
@@ -108,13 +126,16 @@ onMounted(() => {
 }
 
 .main-title {
-  font-size: 6.5vw;
-  font-weight: 500;
-  line-height: 0.85;
-  word-spacing: 0.2em;
-  letter-spacing: -0.05em;
+  font-size: clamp(2.5rem, 6.5vw, 6rem);
+  font-weight: 400;
+  line-height: 0.95;
+  word-spacing: normal;
+  letter-spacing: -0.02em;
   font-family: 'Roboto', sans-serif;
   margin: 0;
+  word-wrap: break-word;
+  hyphens: auto;
+  max-width: 90vw;
 }
 
 .scroll-arrow {
@@ -216,11 +237,13 @@ onMounted(() => {
   }
 
   .main-title {
-    font-size: 13vw;
+    font-size: clamp(2rem, 12vw, 4.5rem);
     padding-left: 0 !important;
     margin-bottom: 10px;
     margin-left: -4px;
-    line-height: 0.95;
+    line-height: 1.05;
+    word-break: break-word;
+    max-width: 100%;
   }
 
   .sub-text {

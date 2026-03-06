@@ -36,7 +36,13 @@ class OffreController extends Controller
         $offres = Offre::where('Statut', 'Publié')
             ->with(['programmes.programme', 'coachings.coaching'])
             ->orderBy('DateCreation', 'desc')
-            ->get();
+            ->get()
+            ->filter(function ($offre) {
+                if (!$offre->DureeJours || $offre->DureeJours <= 0) return true;
+                $expirationDate = \Carbon\Carbon::parse($offre->DateCreation)->addDays($offre->DureeJours);
+                return $expirationDate->isFuture();
+            })
+            ->values();
 
         $availabilities = DisponibiliteCoaching::where('EstReserve', false)
             ->whereRaw("CONCAT(\"DateDisponible\", ' ', \"HeureDebut\") > ?", [now()])

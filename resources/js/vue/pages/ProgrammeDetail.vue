@@ -3,7 +3,7 @@
         <div class="background-noise"></div>
 
         <div class="back-link" @click="goBack">
-            <i class="fas fa-arrow-left"></i> Retour aux programmes
+            <i class="fas fa-arrow-left"></i> {{ $t('ProgrammeDetail.retour_aux_programmes') }}
         </div>
 
         <div class="hero-section" @mousemove="handleMouseMove" @mouseleave="handleMouseLeave" ref="heroRef">
@@ -18,16 +18,16 @@
 
                 <div class="meta-tags ">
                     <span class="tag premium" v-if="program.Prix > 0">{{ formatPrice(program.Prix) }}</span>
-                    <span class="tag free" v-else>GRATUIT</span>
+                    <span class="tag free" v-else>{{ $t('ProgrammeDetail.gratuit') }}</span>
                 </div>
 
                 <div class="action-buttons-container">
                     <button class="cart-btn" @click="addToCart">
-                        <i class="fas fa-shopping-cart"></i> Ajouter au panier
+                        <i class="fas fa-shopping-cart"></i> {{ $t('Offres.ajouter_au_panier') }}
                     </button>
 
-                    <PremiumButton class="buy-btn-premium">
-                        <span>Acheter maintenant</span>
+                    <PremiumButton class="buy-btn-premium" @click="openPaymentModal">
+                        <span>{{ $t('Offres.acheter_maintenant') }}</span>
                         <i class="fas fa-arrow-right ml-2"></i>
                     </PremiumButton>
                 </div>
@@ -46,11 +46,12 @@
                     </div>
 
                     <div v-else class="video-player-container">
-                        <iframe v-if="videoUrl" :src="videoUrl" title="YouTube video player" frameborder="0"
+                        <iframe v-if="videoUrl" :src="videoUrl" :title="$t('ProgrammeDetail.youtube_video_player')"
+                            frameborder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowfullscreen class="video-iframe"></iframe>
                         <div v-else class="no-video">
-                            <p>Aucune vidéo d'aperçu disponible.</p>
+                            <p>{{ $t('ProgrammeDetail.aucune_vido_daperu') }}</p>
                         </div>
                     </div>
                 </div>
@@ -60,9 +61,9 @@
 
                 <div class="details-description">
                     <div class="info-block">
-                        <h2 class="section-title">À propos de ce programme</h2>
+                        <h2 class="section-title">{{ $t('ProgrammeDetail.propos_de') }}</h2>
                         <p class="description-text">
-                            {{ program.Descriptions || "Aucune description fournie pour ce programme." }}
+                            {{ program.Descriptions || $t('ProgrammeDetail.AucuneDescription') }}
                         </p>
                     </div>
                 </div>
@@ -70,9 +71,9 @@
                 <!-- Right Column: Curriculum (Now Full Width and Below) -->
                 <div class="details-curriculum">
                     <div class="section-header-flex">
-                        <h2 class="section-title">Au programme</h2>
+                        <h2 class="section-title">{{ $t('ProgrammeDetail.au_programme') }}</h2>
                         <div class="progression-pill">
-                            <span class="prog-label">Votre progression</span>
+                            <span class="prog-label">{{ $t('ProgrammeDetail.votre_progression') }}</span>
                             <span class="prog-value">{{ overallProgress }}%</span>
                         </div>
                     </div>
@@ -131,10 +132,10 @@
                                             </h4>
                                             <div class="lesson-meta-info">
                                                 <span><i class="fas fa-layer-group"></i> {{ (lesson.etapes?.length || 0)
-                                                    }} étape(s)</span>
+                                                }} {{ $t('ProgrammeDetail.Etapes') }}</span>
                                                 <span><i class="fas fa-history"></i> {{ lesson.DelaiDrop ?
                                                     lesson.DelaiDrop + 'h' : '0h'
-                                                    }}</span>
+                                                }}</span>
                                             </div>
                                         </div>
                                         <div class="lesson-action-icon">
@@ -147,7 +148,7 @@
                         </template>
                         <div v-else class="empty-curriculum">
                             <i class="fas fa-book-open"></i>
-                            <p>Le contenu du programme est en cours de création.</p>
+                            <p>{{ $t('ProgrammeDetail.ContenuCreation') }}</p>
                         </div>
                     </div>
                 </div>
@@ -175,21 +176,21 @@
                             <div class="fs-actions-overlay">
                                 <a v-if="isPdfLesson" :href="pdfDownloadUrl" class="premium-btn-link fade-in" download
                                     target="_blank">
-                                    <i class="fas fa-download mr-2"></i> Télécharger le PDF
+                                    <i class="fas fa-download mr-2"></i> {{ $t('ProgrammeDetail.TelechargerPDF') }}
                                 </a>
 
                                 <div v-if="canProceedToSteps" class="fs-completion-actions fade-in">
                                     <template v-if="!currentLesson?.etapes?.length">
                                         <PremiumButton @click="openAskQuestionModal"
                                             :style="{ '--btn-bg': 'rgba(0,0,0,0.6)', '--btn-gradient': 'linear-gradient(90deg, #8A38F5, #5e22ab)' }">
-                                            Poser une question
+                                            {{ $t('ProgrammeDetail.PoserQuestion') }}
                                             <i class="fas fa-question-circle ml-2"></i>
                                         </PremiumButton>
                                     </template>
                                     <template v-else>
                                         <PremiumButton @click="proceedToSteps"
                                             :style="{ '--btn-bg': 'rgba(0,0,0,0.6)', '--btn-gradient': 'linear-gradient(90deg, #8A38F5, #5e22ab)' }">
-                                            Passer aux étapes
+                                            {{ $t('ProgrammeDetail.PasserEtapes') }}
                                             <i class="fas fa-arrow-right ml-2"></i>
                                         </PremiumButton>
                                     </template>
@@ -206,7 +207,9 @@
                     <div v-else class="fs-steps-view fade-in">
                         <div v-if="currentStep" class="fs-step-wrapper">
                             <div class="step-header">
-                                <h3 class="step-main-title">{{ currentStep.Titre || 'Étape ' + (currentStepIndex + 1) }}
+                                <h3 class="step-main-title">{{ currentStep.Titre || $t('ProgrammeDetail.EtapePrefix') +
+                                    ' ' +
+                                    (currentStepIndex + 1) }}
                                 </h3>
                                 <p class="step-desc">{{ currentStep.Descriptions || currentStep.Description }}</p>
                             </div>
@@ -225,30 +228,55 @@
                                     </h5>
 
                                     <div class="options-list">
-                                        <div v-for="option in question.options" :key="option.IdOption"
-                                            class="option-item" :class="{
-                                                'selected': selectedOptions[question.IdQuestion]?.includes(option.IdOption),
-                                                'correct': questionStatus[question.IdQuestion] === 'correct' && option.EstCorrecte,
-                                                'wrong': questionStatus[question.IdQuestion] === 'wrong' && selectedOptions[question.IdQuestion]?.includes(option.IdOption),
-                                                'disabled': (retryTimers[question.IdQuestion] || 0) > 0 || questionStatus[question.IdQuestion] === 'correct'
-                                            }" @click="selectOption(question, option.IdOption)">
-                                            <div class="option-marker"></div>
-                                            <span class="option-text">{{ option.TexteOption }}</span>
-                                        </div>
+                                        <!-- Multi/Single Choice -->
+                                        <template v-if="question.TypeQuestion !== 'Ouverte'">
+                                            <div v-for="option in question.options" :key="option.IdOption"
+                                                class="option-item" :class="{
+                                                    'selected': selectedOptions[question.IdQuestion]?.includes(option.IdOption),
+                                                    'correct': questionStatus[question.IdQuestion] === 'correct' && option.EstCorrecte,
+                                                    'wrong': questionStatus[question.IdQuestion] === 'wrong' && selectedOptions[question.IdQuestion]?.includes(option.IdOption),
+                                                    'disabled': (retryTimers[question.IdQuestion] || 0) > 0 || questionStatus[question.IdQuestion] === 'correct'
+                                                }" @click="selectOption(question, option.IdOption)">
+                                                <div class="option-marker"></div>
+                                                <span class="option-text">{{ option.TexteOption }}</span>
+                                            </div>
+                                        </template>
+
+                                        <!-- Open Ended Question -->
+                                        <template v-else>
+                                            <div class="open-answer-wrapper">
+                                                <textarea v-model="openAnswers[question.IdQuestion]"
+                                                    class="premium-textarea-user"
+                                                    :placeholder="$t('ProgrammeDetail.VotreReponse')"
+                                                    :disabled="questionStatus[question.IdQuestion] === 'sent' || questionStatus[question.IdQuestion] === 'correct'"></textarea>
+
+                                                <div v-if="questionStatus[question.IdQuestion] === 'sent'"
+                                                    class="status-sent">
+                                                    <i class="fas fa-clock mr-2"></i> {{
+                                                        $t('ProgrammeDetail.EnAttenteValidation') }}
+                                                </div>
+                                                <div v-if="questionStatus[question.IdQuestion] === 'correct'"
+                                                    class="status-validated">
+                                                    <i class="fas fa-check-circle mr-2"></i> {{
+                                                        $t('ProgrammeDetail.ReponseValidee') }}
+                                                </div>
+                                            </div>
+                                        </template>
                                     </div>
 
                                     <div class="question-footer">
                                         <div v-if="(retryTimers[question.IdQuestion] || 0) > 0" class="retry-timer">
-                                            <i class="fas fa-clock"></i> Réflechissez bien puis on recommence dans {{
+                                            <i class="fas fa-clock"></i> {{ $t('ProgrammeDetail.ReflechissezBien') }} {{
                                                 retryTimers[question.IdQuestion] }}s 😉
                                         </div>
 
                                         <button
-                                            v-if="questionStatus[question.IdQuestion] !== 'correct' && (retryTimers[question.IdQuestion] || 0) <= 0"
-                                            class="validate-btn"
-                                            :disabled="!selectedOptions[question.IdQuestion] || selectedOptions[question.IdQuestion].length === 0"
+                                            v-if="questionStatus[question.IdQuestion] !== 'correct' && questionStatus[question.IdQuestion] !== 'sent' && (retryTimers[question.IdQuestion] || 0) <= 0"
+                                            class="validate-btn" :disabled="isValidateDisabled(question)"
                                             @click="validateQuestion(question)">
-                                            Valider
+                                            {{ question.TypeQuestion === 'Ouverte' ?
+                                                $t('ProgrammeDetail.EnvoyerPourValidation')
+                                                : $t('ProgrammeDetail.Valider') }}
                                         </button>
                                     </div>
                                 </div>
@@ -257,12 +285,12 @@
 
                         <div class="fs-action-footer">
                             <button v-if="hasNextStep" class="fs-next-btn" @click="nextStep">
-                                Passer à l'étape suivante <i class="fas fa-arrow-right"></i>
+                                {{ $t('ProgrammeDetail.PasserSuivante') }} <i class="fas fa-arrow-right"></i>
                             </button>
                             <div v-else class="fs-final-actions">
                                 <PremiumButton @click="openAskQuestionModal" :disabled="!isStepValidated"
                                     :style="{ '--btn-bg': 'rgba(0,0,0,0.6)', '--btn-gradient': 'linear-gradient(90deg, #8A38F5, #5e22ab)' }">
-                                    Poser une question
+                                    {{ $t('ProgrammeDetail.PoserQuestion') }}
                                     <i class="fas fa-question-circle ml-2"></i>
                                 </PremiumButton>
                             </div>
@@ -275,33 +303,77 @@
 
         <!-- Ask Question Modal -->
         <PremiumModal :isOpen="showAskQuestionModal" :valid="questionForm.processing" :dark="true"
-            header="Avez-vous tout compris ?" @close="handleAskModalClose" width="500px">
+            :header="$t('ProgrammeDetail.AvezToutCompris')" @close="handleAskModalClose" width="500px">
             <div class="ask-modal-body">
                 <p class="ask-instruction">
-                    Est-ce que vous avez tout bien suivi ? Posez une question par rapport à cette leçon et le coach vous
-                    répondra par le biais de consultations.
+                    {{ $t('ProgrammeDetail.SuiviLecon') }}
                 </p>
 
                 <form @submit.prevent="submitQuestion" class="ask-form">
                     <div class="form-group">
-                        <label>Titre de votre question</label>
+                        <label>{{ $t('ProgrammeDetail.TitreQuestionLabel') }}</label>
                         <input type="text" v-model="questionForm.titre" class="dark-input"
-                            placeholder="Sujet de votre question..." required />
+                            :placeholder="$t('ProgrammeDetail.SujetQuestionPlaceholder')" required />
                     </div>
 
                     <div class="form-group">
-                        <label>Votre Question</label>
+                        <label>{{ $t('ProgrammeDetail.VotreQuestionLabel') }}</label>
                         <textarea v-model="questionForm.question" class="dark-input textarea-input" rows="4"
-                            placeholder="Écrivez votre question ici..." required></textarea>
+                            :placeholder="$t('ProgrammeDetail.EcrivezQuestionPlaceholder')" required></textarea>
                     </div>
 
                     <div class="modal-actions">
                         <PremiumButton type="submit" :loading="questionForm.processing"
                             :disabled="!questionForm.question" class="submit-btn">
-                            Envoyer la question
+                            {{ $t('ProgrammeDetail.EnvoyerQuestion') }}
                         </PremiumButton>
                     </div>
                 </form>
+            </div>
+        </PremiumModal>
+
+        <!-- Payment Modal -->
+        <PremiumModal :isOpen="paymentModalOpen" :header="$t('ProgrammeDetail.PaiementMobile')" width="450px" dark
+            @close="paymentModalOpen = false">
+            <div class="modal-body-payment">
+                <p class="payment-intro">{{ $t('ProgrammeDetail.SaisissezNumero') }} <strong>{{ program.Titre
+                        }}</strong>
+                </p>
+
+                <div class="phone-input-group mb-6 text-left">
+                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">{{
+                        $t('ProgrammeDetail.NumeroTelephone') }}</label>
+                    <input type="text" v-model="customerPhone" class="premium-input mb-4" placeholder="034 XX XXX XX"
+                        :disabled="isProcessing" />
+                </div>
+
+                <div class="payment-options">
+                    <button class="pay-btn mvola-btn" @click="initPayment('mvola')"
+                        :disabled="isProcessing || !customerPhone">
+                        <div class="provider-logo">M</div>
+                        <div class="btn-text">
+                            <span class="btn-main-text">{{ $t('ProgrammeDetail.MvolaPayer') }}</span>
+                            <span class="btn-sub-text">{{ $t('ProgrammeDetail.ValidationPush') }}</span>
+                        </div>
+                        <i class="fas fa-chevron-right ml-auto"></i>
+                    </button>
+
+                    <button class="pay-btn orange-btn" @click="initPayment('orange-money')"
+                        :disabled="isProcessing || !customerPhone">
+                        <div class="provider-logo">O</div>
+                        <div class="btn-text">
+                            <span class="btn-main-text">{{ $t('ProgrammeDetail.OrangePayer') }}</span>
+                            <span class="btn-sub-text">{{ $t('ProgrammeDetail.PaiementSecurise') }}</span>
+                        </div>
+                        <i class="fas fa-chevron-right ml-auto"></i>
+                    </button>
+                </div>
+
+                <div v-if="isProcessing" class="processing-overlay">
+                    <div class="spinner"></div>
+                    <p class="mt-4 font-semibold text-white">{{ $t('ProgrammeDetail.ConnexionOperateur') }}</p>
+                    <p class="text-xs text-gray-400">{{ $t('ProgrammeDetail.NeFermezPas') }}</p>
+                </div>
             </div>
         </PremiumModal>
 
@@ -313,14 +385,18 @@
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { gsap } from 'gsap';
-import { router, useForm } from '@inertiajs/vue3';
+import { router, useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import LiquidGlass from '../components/ui/LiquidGlass.vue';
-import PremiumButton from '../components/ui/PremiumButton.vue';
 import PremiumModal from '../components/ui/PremiumModal.vue';
-import LessonContentPlayer from '../components/sections/LessonContentPlayer.vue';
 import { useToast } from "primevue/usetoast";
 import Toast from 'primevue/toast';
+import LessonContentPlayer from '../components/ui/LessonContentPlayer.vue';
+import PremiumButton from '../components/ui/PremiumButton.vue';
+
+const page = usePage();
+const $t = (key) => page.props.translations[key] || key;
+const currentLocale = computed(() => page.props.locale || 'fr');
 
 const toast = useToast();
 
@@ -331,7 +407,7 @@ const addToCart = () => {
         prix: props.program.Prix
     }, {
         onSuccess: () => {
-            toast.add({ severity: 'success', summary: 'Panier', detail: 'Programme ajouté au panier !', life: 3000 });
+            toast.add({ severity: 'success', summary: $t('AjoutePanierSummary') || 'Panier', detail: $t('ProgrammeDetail.AjoutePanier') || 'Programme ajouté au panier !', life: 3000 });
         }
     });
 };
@@ -409,6 +485,36 @@ const handleAskModalClose = () => {
     markLessonComplete();
 };
 
+// Payment Logic
+const paymentModalOpen = ref(false);
+const isProcessing = ref(false);
+const customerPhone = ref('0343500004');
+
+const openPaymentModal = () => {
+    paymentModalOpen.value = true;
+};
+
+const initPayment = async (provider) => {
+    isProcessing.value = true;
+    try {
+        const url = provider === 'mvola' ? '/payment/mvola' : '/payment/orange-money';
+        const response = await axios.post(url, {
+            amount: props.program.Prix,
+            phone: customerPhone.value
+        });
+
+        if (response.data.status === 'success') {
+            window.location.href = response.data.simulated_redirect_url;
+        } else {
+            toast.add({ severity: 'error', summary: $t('ProgrammeDetail.ErreurSummary'), detail: response.data.message || 'Erreur inconnue', life: 5000 });
+        }
+    } catch (error) {
+        toast.add({ severity: 'error', summary: $t('ProgrammeDetail.ErreurSummary'), detail: $t('ProgrammeDetail.ErreurConnexion'), life: 5000 });
+    } finally {
+        isProcessing.value = false;
+    }
+};
+
 
 
 // PDF Logic
@@ -426,6 +532,8 @@ const pdfDownloadUrl = computed(() => {
     return currentLesson.value.Contenu;
 });
 
+const openAnswers = ref({});
+
 const selectedOptions = ref({});
 const questionStatus = ref({});
 const retryTimers = ref({});
@@ -433,9 +541,27 @@ const intervals = {};
 
 const resetQuizState = () => {
     selectedOptions.value = {};
+    openAnswers.value = {};
     questionStatus.value = {};
+
+    // Check if user already has a pending submission for this step
+    if (currentStep.value && props.lessonProgress[currentLesson.value.IdLecon]?.Submissions) {
+        const sub = props.lessonProgress[currentLesson.value.IdLecon].Submissions.find(s => s.IdEtape === currentStep.value.IdEtape);
+        if (sub) {
+            questionStatus.value[sub.IdEtape] = sub.StatutValidation === 'Attente' ? 'sent' : (sub.StatutValidation === 'Validé' ? 'correct' : 'pending');
+            // If we have details, fill them (optional, but good for UX)
+        }
+    }
+
     retryTimers.value = {};
     Object.values(intervals).forEach(clearInterval);
+};
+
+const isValidateDisabled = (question) => {
+    if (question.TypeQuestion === 'Ouverte') {
+        return !openAnswers.value[question.IdQuestion] || openAnswers.value[question.IdQuestion].trim().length < 5;
+    }
+    return !selectedOptions.value[question.IdQuestion] || selectedOptions.value[question.IdQuestion].length === 0;
 };
 
 const selectOption = (question, optionId) => {
@@ -478,42 +604,60 @@ const selectOption = (question, optionId) => {
     }
 };
 
-const validateQuestion = (question) => {
-    const selectedIds = selectedOptions.value[question.IdQuestion] || [];
+const validateQuestion = async (question) => {
+    const qId = question.IdQuestion;
+
+    if (question.TypeQuestion === 'Ouverte') {
+        // Handle Open Question Submission
+        const answer = openAnswers.value[qId];
+        if (!answer) return;
+
+        try {
+            const response = await axios.post(`/steps/${currentStep.value.IdEtape}/submit`, {
+                responses: { [qId]: answer }
+            });
+            if (response.data.success) {
+                questionStatus.value[qId] = 'sent';
+                toast.add({ severity: 'success', summary: $t('ProgrammeDetail.SuccesSummary'), detail: $t('ProgrammeDetail.ReponseEnvoyeeAdmin'), life: 3000 });
+            }
+        } catch (err) {
+            toast.add({ severity: 'error', summary: $t('ProgrammeDetail.ErreurSummary'), detail: $t('ProgrammeDetail.ErreurSurvenue'), life: 3000 });
+        }
+        return;
+    }
+
+    const selectedIds = selectedOptions.value[qId] || [];
     if (selectedIds.length === 0) return;
 
+    /* ... existing quiz logic ... */
     const correctOptions = question.options?.filter(o => o.EstCorrecte) || [];
     const correctIds = correctOptions.map(o => o.IdOption);
 
-    // Loose comparison in case of string/int mismatch
     const isCorrect = selectedIds.length === correctIds.length &&
         selectedIds.every(id => correctIds.some(cId => cId == id));
 
     if (isCorrect) {
-        questionStatus.value[question.IdQuestion] = 'correct';
-        // Play success animation
+        questionStatus.value[qId] = 'correct';
         nextTick(() => {
-            gsap.fromTo(`.question-${question.IdQuestion} .success-icon`,
+            gsap.fromTo(`.question-${qId} .success-icon`,
                 { scale: 0, opacity: 0 },
                 { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.7)' }
             );
         });
     } else {
-        questionStatus.value[question.IdQuestion] = 'wrong';
-        // Play shake animation
-        gsap.to(`.question-${question.IdQuestion}`, { x: [-10, 10, -10, 10, 0], duration: 0.4 });
+        questionStatus.value[qId] = 'wrong';
+        gsap.to(`.question-${qId}`, { x: [-10, 10, -10, 10, 0], duration: 0.4 });
 
-        // Start Timer (10s)
-        retryTimers.value[question.IdQuestion] = 10;
-        if (intervals[question.IdQuestion]) clearInterval(intervals[question.IdQuestion]);
+        retryTimers.value[qId] = 10;
+        if (intervals[qId]) clearInterval(intervals[qId]);
 
-        intervals[question.IdQuestion] = setInterval(() => {
-            if (retryTimers.value[question.IdQuestion] > 0) {
-                retryTimers.value[question.IdQuestion]--;
+        intervals[qId] = setInterval(() => {
+            if (retryTimers.value[qId] > 0) {
+                retryTimers.value[qId]--;
             } else {
-                clearInterval(intervals[question.IdQuestion]);
-                retryTimers.value[question.IdQuestion] = 0;
-                questionStatus.value[question.IdQuestion] = 'pending';
+                clearInterval(intervals[qId]);
+                retryTimers.value[qId] = 0;
+                questionStatus.value[qId] = 'pending';
             }
         }, 1000);
     }
@@ -546,6 +690,9 @@ const currentStep = computed(() => {
 
 const isStepValidated = computed(() => {
     if (!currentStep.value || !currentStep.value.questions || currentStep.value.questions.length === 0) return true;
+
+    // For QuestionReponse, it's validated if it's mark as "correct" (Validated by admin)
+    // For Quiz, it's validated if correct answer selected
     return currentStep.value.questions.every(q => questionStatus.value[q.IdQuestion] === 'correct');
 });
 
@@ -556,11 +703,11 @@ const submitQuestion = () => {
         onSuccess: () => {
             showAskQuestionModal.value = false;
             questionForm.reset();
-            toast.add({ severity: 'success', summary: 'Succès', detail: 'Votre question a été envoyée.', life: 3000 });
+            toast.add({ severity: 'success', summary: $t('ProgrammeDetail.SuccesSummary'), detail: $t('ProgrammeDetail.QuestionEnvoyee'), life: 3000 });
             markLessonComplete();
         },
         onError: () => {
-            toast.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue.', life: 3000 });
+            toast.add({ severity: 'error', summary: $t('ProgrammeDetail.ErreurSummary'), detail: $t('ProgrammeDetail.ErreurSurvenue'), life: 3000 });
         }
     });
 };
@@ -717,6 +864,9 @@ const nextStep = () => {
     if (hasNextStep.value) {
         currentStepIndex.value++;
         resetQuizState();
+    } else {
+        // If last step, we completed it!
+        markLessonComplete();
     }
 };
 
@@ -2109,5 +2259,51 @@ onMounted(() => {
     margin-top: 10px;
     display: flex;
     justify-content: flex-end;
+}
+
+/* Open Answer Styles */
+.open-answer-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.premium-textarea-user {
+    width: 100%;
+    min-height: 150px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    color: white;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.premium-textarea-user:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #8A38F5;
+    box-shadow: 0 0 20px rgba(138, 56, 245, 0.2);
+}
+
+.status-sent {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.status-validated {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
 }
 </style>

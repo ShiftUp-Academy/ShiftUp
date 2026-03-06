@@ -2,7 +2,7 @@
   <div class="monopo-root interaction-scroll-cursor" ref="rootContainer" @mouseenter="isInsideSection = true"
     @mouseleave="isInsideSection = false">
     <div class="custom-cursor" ref="cursorRef">
-      <span>{{ cursorText }}</span>
+      <span>{{ displayCursorText }}</span>
     </div>
 
     <ShaderBackground :colors="themeColors" class="shader-bg-wrapper">
@@ -20,7 +20,7 @@
 
           <div class="hero-subtitle anim-opacity" @click.stop="goToHowItWorks" @mouseenter="isHoveringLink = true"
             @mouseleave="isHoveringLink = false">
-            Comment l'entreprise fonctionne ?
+            {{ $t('ChildHeropageOrganisme.howItWorks') }}
           </div>
 
           <div class="scroll-arrow anim-opacity">
@@ -38,23 +38,38 @@
 <script setup>
 import { onMounted, onBeforeUnmount, ref, computed } from 'vue'
 import { gsap } from 'gsap'
-import { router } from '@inertiajs/vue3'
+import { router, usePage } from '@inertiajs/vue3'
 import ShaderBackground from './ShaderBackground.vue'
+
+const page = usePage();
+const $t = (key) => page.props.translations[key] ?? key;
 
 const props = defineProps({
   title: {
     type: String,
-    default: 'L’organisme ShiftUp a pour vocation <br />d’aider les cadres qui veulent se reconvertir <br />et les dirigeants de TPE / PME à devenir <br />Un Entrepreneur Libre.'
+    default: ''
   },
   mobileTitle: {
     type: String,
-    default: 'L’organisme ShiftUp a pour vocation <br />d’aider les cadres qui <br /> veulent se reconvertir <br />et les dirigeants de TPE / PME à devenir <br />Un Entrepreneur Libre.'
+    default: ''
   },
   cursorText: {
     type: String,
-    default: 'Regardez des vidéos'
+    default: ''
   }
 })
+
+const displayTitle = computed(() => {
+  return props.title || $t('ChildHeropageOrganisme.title');
+});
+
+const displayMobileTitle = computed(() => {
+  return props.mobileTitle || $t('ChildHeropageOrganisme.mobileTitle');
+});
+
+const displayCursorText = computed(() => {
+  return props.cursorText || $t('ChildHeropageOrganisme.cursorText');
+});
 
 
 const themeColors = {
@@ -74,9 +89,9 @@ const updateIsMobile = () => {
 
 const highlights = ['ShiftUp', 'reconvertir', 'dirigeants', 'TPE / PME', 'Entrepreneur Libre', 'liberté', 'entrepreneuriale'];
 const formattedLines = computed(() => {
-  const textToUse = (isMobile.value && props.mobileTitle) ? props.mobileTitle : props.title;
+  const textToUse = (isMobile.value && displayMobileTitle.value) ? displayMobileTitle.value : displayTitle.value;
 
-  return textToUse.split('<br />').map(line => {
+  return (textToUse || '').split('<br />').map(line => {
     let words = line.trim().split(/\s+/);
     let result = [];
     let i = 0;
@@ -191,6 +206,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
 .monopo-root {
   position: relative;
   width: 100%;
@@ -231,14 +248,18 @@ onMounted(() => {
 }
 
 .main-title {
-  font-size: 3.5vw;
-  font-weight: 500;
+  font-size: clamp(2rem, 3.5vw, 4rem);
+  font-weight: 400;
   line-height: 1.1;
   letter-spacing: -0.02em;
   font-family: 'Roboto', sans-serif;
   margin: 0;
-  max-width: 80vw;
+  max-width: 90vw;
   text-transform: none;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .gt-alpina-font {
@@ -289,7 +310,7 @@ onMounted(() => {
   height: 135px;
   background: #f4f4f4;
   border-radius: 50%;
-  z-index: 1000;
+  z-index: 9999;
   pointer-events: none;
   display: flex;
   align-items: center;
@@ -301,7 +322,7 @@ onMounted(() => {
 }
 
 .custom-cursor span {
-  color: #000000;
+  color: #000000 !important;
   font-family: 'Roboto', sans-serif;
   font-size: 0.85rem;
   font-weight: 600;
@@ -344,9 +365,10 @@ onMounted(() => {
 
 @media (max-width: 768px) {
   .main-title {
-    font-size: 8vw;
+    font-size: clamp(1.8rem, 8.5vw, 3rem);
     padding-top: 0 !important;
     width: 95% !important;
+    max-width: 95vw;
   }
 
   .scroll-arrow {
@@ -355,9 +377,9 @@ onMounted(() => {
   }
 
   .hero-subtitle {
-  font-size: 1.2rem;
-  margin-top: 0 !important;
-}
+    font-size: 1.2rem;
+    margin-top: 0 !important;
+  }
 
   .custom-cursor {
     display: none;

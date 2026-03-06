@@ -12,6 +12,13 @@ use App\Http\Controllers\GeminiChatController;
 use App\Http\Controllers\CommandeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ContactController;
+use Illuminate\Http\Request;
+
+Route::post('/locale', function (Request $request) {
+    $request->validate(['locale' => 'required|in:fr,en,mg']);
+    session()->put('locale', $request->locale);
+    return back();
+})->name('locale.change');
 
 Route::get('/', [ProgrammeController::class, 'home']);
 Route::post('/ai/chat', [GeminiChatController::class, 'chat'])->name('ai.chat');
@@ -25,6 +32,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/panier', [CommandeController::class, 'viewPanier'])->name('panier.index');
     Route::post('/panier/ajouter', [CommandeController::class, 'ajouterAuPanier'])->name('panier.add');
     Route::delete('/panier/{id}', [CommandeController::class, 'supprimerDuPanier'])->name('panier.remove');
+
+    Route::post('/payment/mvola', [\App\Http\Controllers\PaymentController::class, 'initMvolaPayment'])->name('payment.mvola');
+    Route::post('/payment/orange-money', [\App\Http\Controllers\PaymentController::class, 'initOrangeMoneyPayment'])->name('payment.orange_money');
+
+    Route::get('/payment/mock-success', [\App\Http\Controllers\PaymentController::class, 'mockSuccess'])->name('payment.mock_success');
+
     Route::get('/reservations', [\App\Http\Controllers\ReservationController::class, 'index'])->name('reservations.index');
     Route::get('/mes-reussites', [\App\Http\Controllers\ReussiteController::class, 'userReussites'])->name('user.reussites');
 });
@@ -66,6 +79,7 @@ Route::post('/logout', [UtilisateurController::class, 'logout'])->name('logout')
 
 Route::get('/auth/google/redirect', [UtilisateurController::class, 'redirectToGoogle'])->name('google.redirect');
 Route::get('/auth/google/callback', [UtilisateurController::class, 'handleGoogleCallback'])->name('google.callback');
+Route::get('/api/public-profile/{id}', [UtilisateurController::class, 'publicProfile'])->name('api.public-profile');
 Route::post('/user/update-attribute', [UtilisateurController::class, 'updateAttribute'])->name('user.update-attribute');
 
 Route::get('/contact', function () {
@@ -125,13 +139,18 @@ Route::prefix('admin')->middleware(['auth', 'moderator'])->group(function () {
     })->name('admin.consultations');
     Route::post('/consultations/store-response', [ConsultationController::class, 'storeResponse'])->name('admin.consultations.storeResponse');
     Route::post('/consultations/update-response/{id}', [ConsultationController::class, 'updateResponse'])->name('admin.consultations.updateResponse');
+    Route::delete('/consultations/{id}', [ConsultationController::class, 'destroy'])->name('admin.consultations.delete');
+    Route::delete('/consultations/reponse/{id}', [ConsultationController::class, 'destroyArchive'])->name('admin.consultations.deleteArchive');
     Route::get('/lives', [\App\Http\Controllers\LiveController::class, 'adminIndex'])->name('admin.lives');
     Route::post('/lives', [\App\Http\Controllers\LiveController::class, 'store'])->name('admin.lives.store');
     Route::post('/lives/{id}', [\App\Http\Controllers\LiveController::class, 'update'])->name('admin.lives.update');
+    Route::delete('/lives/{id}', [\App\Http\Controllers\LiveController::class, 'destroy'])->name('admin.lives.delete');
     Route::get('/coachings', [\App\Http\Controllers\CoachingController::class, 'adminIndex'])->name('admin.coachings');
     Route::post('/coachings/types', [\App\Http\Controllers\CoachingController::class, 'storeType'])->name('admin.coachings.types.store');
     Route::post('/coachings/types/{id}', [\App\Http\Controllers\CoachingController::class, 'updateType'])->name('admin.coachings.types.update');
-    Route::post('/coachings/types/{id}/status', [\App\Http\Controllers\CoachingController::class, 'updateStatus'])->name('admin.coachings.types.status');
+    Route::post('/coachings/types/{id}/status', [CoachingController::class, 'updateStatus'])->name('admin.coachings.types.status');
+    Route::delete('/coachings/types/{id}', [CoachingController::class, 'destroyType'])->name('admin.coachings.types.delete');
+
     Route::post('/coachings/reservations/{id}/update', [\App\Http\Controllers\CoachingController::class, 'updateReservation'])->name('admin.coachings.reservations.update');
     Route::post('/coachings/availabilities', [\App\Http\Controllers\CoachingController::class, 'storeAvailabilities'])->name('admin.coachings.availabilities.store');
     Route::delete('/coachings/availabilities/{id}', [\App\Http\Controllers\CoachingController::class, 'destroyAvailability'])->name('admin.coachings.availabilities.delete');
@@ -172,8 +191,17 @@ Route::prefix('admin')->middleware(['auth', 'moderator'])->group(function () {
     Route::post('/reussites', [\App\Http\Controllers\ReussiteController::class, 'store'])->name('admin.reussites.store');
     Route::post('/reussites/{id}/update', [\App\Http\Controllers\ReussiteController::class, 'update'])->name('admin.reussites.update');
     Route::delete('/reussites/{id}', [\App\Http\Controllers\ReussiteController::class, 'destroy'])->name('admin.reussites.delete');
+
+    // Validations (Submissions d'étapes)
+    Route::get('/programmes/submissions', [ProgrammeController::class, 'getPendingSubmissions'])->name('admin.programmes.submissions');
+    Route::post('/programmes/submissions/{id}/validate', [ProgrammeController::class, 'validateSubmission'])->name('admin.programmes.validate');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::post('/steps/{id}/submit', [ProgrammeController::class, 'submitStepResponse'])->name('steps.submit');
 });
 
 Route::post('/newsletter/subscribe', [UtilisateurController::class, 'subscribeNewsletter'])->name('newsletter.subscribe');
+
 
 

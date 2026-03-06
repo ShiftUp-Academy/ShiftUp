@@ -12,29 +12,37 @@
                 <i class="fas fa-spinner fa-spin"></i> Chargement...
             </div>
 
-            <div v-else-if="currentTab === 'programmes'" class="items-list">
-                <div v-if="trashItems.length === 0" class="empty-state">
+            <div v-else class="items-list">
+                <div v-if="getActiveItems.length === 0" class="empty-state">
                     <i class="fas fa-trash-restore empty-icon"></i>
-                    <p>La corbeille est vide pour les programmes.</p>
+                    <p>La corbeille est vide pour cette catégorie.</p>
                 </div>
 
                 <div v-else class="list-container">
-                    <div v-for="item in trashItems" :key="item.IdProgrammeFormation" class="trash-item-container">
-                        <div class="trash-item" :class="{ 'expanded': expandedItems.has(item.IdProgrammeFormation) }"
-                            @click="toggleExpand(item.IdProgrammeFormation)">
+                    <div v-for="item in getActiveItems"
+                        :key="item.IdProgrammeFormation || item.IdLive || item.IdOffre || item.IdConsultation || item.IdTemoignage || item.IdTypeCoaching || item.IdReponseConsultation || item.IdCategorie || item.id"
+                        class="trash-item-container">
+                        <div class="trash-item"
+                            :class="{ 'expanded': currentTab === 'programs' && expandedItems.has(item.IdProgrammeFormation) }"
+                            @click="currentTab === 'programs' ? toggleExpand(item.IdProgrammeFormation) : null">
+
                             <div class="item-visual">
                                 <img v-if="item.LienPhoto" :src="item.LienPhoto" class="program-thumb" />
                                 <div v-else class="program-thumb-placeholder">
-                                    <i class="fas fa-image"></i>
+                                    <i :class="getIconForTab(currentTab)"></i>
                                 </div>
                             </div>
 
                             <div class="item-details">
-                                <h3 class="item-title">{{ item.Titre }}</h3>
+                                <h3 class="item-title">{{ item.display_title || item.Titre || item.NomDeType }}</h3>
                                 <div class="item-meta">
                                     <span v-if="item.trash_status === 'deleted_program'"
                                         class="badge badge-deleted">Programme Supprimé</span>
-                                    <span v-else class="badge badge-warning">Contenu Supprimé</span>
+                                    <span v-else-if="item.trash_status === 'has_deleted_content'"
+                                        class="badge badge-warning">Contenu Supprimé</span>
+                                    <span v-else class="badge badge-deleted">{{ item.trash_type ===
+                                        'consultation_reponse' ? 'Archive Supprimée' : getBadgeLabel(currentTab)
+                                        }}</span>
 
                                     <span v-if="item.deleted_lessons_count" class="meta-info">
                                         {{ item.deleted_lessons_count }} leçon(s) supprimée(s)
@@ -46,16 +54,20 @@
                             </div>
 
                             <div class="item-actions">
-                                <button v-if="item.trash_status === 'deleted_program'" class="action-btn restore"
-                                    title="Restaurer le programme" @click.stop="handleProgramRestore(item)">
+                                <button v-if="currentTab !== 'programs' || item.trash_status === 'deleted_program'"
+                                    class="action-btn restore" title="Restaurer"
+                                    @click.stop="handleGeneralRestore(item)">
                                     <i class="fas fa-undo"></i> Restaurer
                                 </button>
-                                <i class="fas fa-chevron-down expand-icon"
+                                <i v-if="currentTab === 'programs' && (item.lecons?.length || item.themes?.length)"
+                                    class="fas fa-chevron-down expand-icon"
                                     :class="{ rotated: expandedItems.has(item.IdProgrammeFormation) }"></i>
                             </div>
                         </div>
 
-                        <div v-if="expandedItems.has(item.IdProgrammeFormation)" class="sub-items-container">
+                        <!-- Sub-items for programs -->
+                        <div v-if="currentTab === 'programs' && expandedItems.has(item.IdProgrammeFormation)"
+                            class="sub-items-container">
                             <div v-if="item.lecons && item.lecons.length > 0">
                                 <h4 class="sub-group-title">Leçons Supprimées</h4>
                                 <div v-for="lesson in item.lecons" :key="lesson.IdLecon" class="sub-item"
@@ -80,19 +92,9 @@
                                     </button>
                                 </div>
                             </div>
-
-                            <div v-if="(!item.lecons || item.lecons.length === 0) && (!item.themes || item.themes.length === 0)"
-                                class="no-subs">
-                                Aucun contenu visible.
-                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div v-else class="empty-state">
-                <i class="fas fa-hard-hat empty-icon"></i>
-                <p>Fonctionnalité en cours de développement.</p>
             </div>
         </div>
 
@@ -108,7 +110,7 @@
 
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import axios from 'axios';
 import { router } from '@inertiajs/vue3';
 import PremiumModal from '../ui/PremiumModal.vue';
@@ -124,9 +126,18 @@ const props = defineProps({
 
 const emit = defineEmits(['close']);
 
-const currentTab = ref('programmes');
+const currentTab = ref('programs');
 const loading = ref(false);
-const trashItems = ref([]);
+const trashData = ref({
+    programs: [],
+    lives: [],
+    consultations: [],
+    offres: [],
+    temoignages: [],
+    coachings: [],
+    categories: [],
+    reussites: []
+});
 const expandedItems = ref(new Set());
 
 // Details Modal State
@@ -148,19 +159,51 @@ const onModalConfirm = () => {
 };
 
 const tabs = [
-    { id: 'programmes', label: 'Programmes' },
+    { id: 'programs', label: 'Programmes' },
     { id: 'consultations', label: 'Consultations' },
     { id: 'lives', label: 'Lives' },
     { id: 'coachings', label: 'Coachings' },
     { id: 'offres', label: 'Offres' },
     { id: 'temoignages', label: 'Témoignages' },
+    { id: 'categories', label: 'Catégories' },
+    { id: 'reussites', label: 'Réussites' },
 ];
+
+const getActiveItems = computed(() => {
+    return trashData.value[currentTab.value] || [];
+});
+
+const getIconForTab = (tab) => {
+    switch (tab) {
+        case 'lives': return 'fas fa-video';
+        case 'consultations': return 'fas fa-comments';
+        case 'offres': return 'fas fa-gift';
+        case 'temoignages': return 'fas fa-star';
+        case 'coachings': return 'fas fa-user-tie';
+        case 'categories': return 'fas fa-tags';
+        case 'reussites': return 'fas fa-trophy';
+        default: return 'fas fa-image';
+    }
+};
+
+const getBadgeLabel = (tab) => {
+    switch (tab) {
+        case 'lives': return 'Live Supprimé';
+        case 'consultations': return 'Consultation Supprimée';
+        case 'offres': return 'Offre Supprimée';
+        case 'temoignages': return 'Témoignage Supprimé';
+        case 'coachings': return 'Coaching Supprimé';
+        case 'categories': return 'Catégorie Supprimée';
+        case 'reussites': return 'Réussite Supprimée';
+        default: return 'Élément Supprimé';
+    }
+};
 
 const fetchTrashData = async () => {
     loading.value = true;
     try {
         const response = await axios.get('/admin/programmes/trash/data');
-        trashItems.value = response.data;
+        trashData.value = response.data;
     } catch (error) {
         console.error("Erreur lors de la récupération de la corbeille:", error);
     } finally {
@@ -204,9 +247,21 @@ const handleRestore = (type, id) => {
     };
 };
 
-const handleProgramRestore = (item) => {
-    handleRestore('program', item.IdProgrammeFormation);
+const handleGeneralRestore = (item) => {
+    let type = '';
+    let id = 0;
+
+    if (item.trash_type) {
+        type = item.trash_type;
+        id = item.IdLive || item.IdConsultation || item.IdOffre || item.IdTemoignage || item.IdTypeCoaching || item.IdReponseConsultation || item.IdCategorie || item.id;
+    } else {
+        type = 'program';
+        id = item.IdProgrammeFormation;
+    }
+
+    handleRestore(type, id);
 };
+
 </script>
 
 

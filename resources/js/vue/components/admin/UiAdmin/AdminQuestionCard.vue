@@ -8,8 +8,13 @@
                     <span class="q-date">{{ formatDate(item.DateCreation) }}</span>
                 </div>
             </div>
-            <div v-if="item.Statut" class="q-status-pill" :class="item.Statut.toLowerCase().replace(' ', '-')">
-                {{ item.Statut }}
+            <div class="header-right">
+                <div v-if="item.Statut" class="q-status-pill" :class="item.Statut.toLowerCase().replace(' ', '-')">
+                    {{ item.Statut }}
+                </div>
+                <button class="delete-btn-minimal" title="Supprimer" @click.stop="$emit('delete', item)">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
 
@@ -48,7 +53,7 @@ const props = defineProps({
     }
 });
 
-const emit = defineEmits(['reply', 'view-lesson']);
+const emit = defineEmits(['reply', 'view-lesson', 'delete']);
 
 const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -128,6 +133,27 @@ const formatDate = (dateString) => {
 .q-status-pill.fermée {
     background: #f1f5f9;
     color: #475569;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.delete-btn-minimal {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 0.9rem;
+    opacity: 0.3;
+    transition: opacity 0.2s;
+    padding: 5px;
+}
+
+.delete-btn-minimal:hover {
+    opacity: 1;
 }
 
 .q-title {

@@ -1,13 +1,12 @@
 <template>
-  <ChildHeropage title="Toutes les <br/>Categories<br/> de programmes "
-    description="Explorez toutes les offres, programmes et consultations proposés par ShiftUp regroupés en une seule page."
-    cursorText="Découvrir" :colors="{
+  <ChildHeropage :title="$t('TouteCategorie.hero_title')"
+    :description="$t('TouteCategorie.explorez_toutes_les')" :cursorText="$t('Consultations.dcouvrir')" :colors="{
       primary: '#0A659D',
       secondary: '#8A38F5',
       accent: '#A71543',
       dark: '#000000'
     }" />
-  <AvailableOffersSection :offres="offres" />
+  <AvailableOffersSection v-if="offres && offres.length > 0" :offres="offres" />
   <TrainingProgramsSection :programs="availablePrograms" :categories="categories" />
 
   <div class="consultation-section">
@@ -19,7 +18,7 @@
     </div>
   </div>
 
-  <PremiumModal :isOpen="showDetailModal" :valid="true" :dark="true" header="Détails de la consultation"
+  <PremiumModal :isOpen="showDetailModal" :valid="true" :dark="true" :header="$t('TouteCategorie.dtails_de_la')"
     @close="showDetailModal = false" width="800px">
     <div v-if="selectedConsultation" class="detail-modal-body">
       <div class="video-container" v-if="selectedConsultation.LienVideo">
@@ -32,10 +31,10 @@
         <p class="detail-description">{{ selectedConsultation.Descriptions }}</p>
 
         <div class="archived-questions">
-          <h4>Questions abordées :</h4>
+          <h4>{{ $t('TouteCategorie.questions_abordes') }}</h4>
           <ul class="questions-list">
             <li v-for="q in selectedConsultation.questions" :key="q.IdConsultation" class="question-pill">
-              <span class="q-author">{{ q.utilisateur?.profil?.Prenom || 'Utilisateur' }}</span>
+              <span class="q-author">{{ q.utilisateur?.profil?.Prenom || $t('TouteCategorie.utilisateur') }}</span>
               <span class="q-text">{{ q.Question }}</span>
             </li>
           </ul>
@@ -49,12 +48,16 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import ChildHeropage from '../components/ui/ChildHeropage.vue';
 import AvailableOffersSection from '../components/sections/OffreSection.vue';
 import TrainingProgramsSection from '../components/sections/TrainingProgramsSection.vue';
 import ConsultationSessionsList from '../components/ui/ConsultationSessionsList.vue';
 import FreeConsultationsList from '../components/ui/FreeConsultationsList.vue';
 import PremiumModal from '../components/ui/PremiumModal.vue';
+
+const page = usePage();
+const $t = (key) => page.props.translations[key] || key;
 
 const props = defineProps({
   programmes: {
@@ -105,7 +108,7 @@ const availablePrograms = computed(() => {
       id: p.IdProgrammeFormation,
       title: p.Titre,
       image: p.LienPhoto || '/images/Programmes/Plan de travail1.png',
-      price: Number(p.Prix) > 0 ? Number(p.Prix).toLocaleString() + ' Ar' : 'Gratuit',
+      price: Number(p.Prix) > 0 ? Number(p.Prix).toLocaleString() + ' Ar' : $t('Free'),
       progression: p.progression,
       categoryId: p.IdCategorie,
       type: p.Type

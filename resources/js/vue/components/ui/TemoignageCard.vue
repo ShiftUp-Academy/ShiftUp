@@ -2,7 +2,7 @@
     <div class="temoignage-card" ref="cardRef" @mousemove="handleFlashMove" @mouseleave="handleFlashLeave"
         :style="{ '--mouse-x': flash.x, '--mouse-y': flash.y, '--flash-opacity': flash.opacity }">
         <div class="card-content">
-            <div class="author-info">
+            <div class="author-info" :class="{ 'is-clickable': userId }" @click="handleAuthorClick">
                 <div class="avatar-wrapper">
                     <img v-if="avatar" :src="avatar" :alt="name" class="avatar" />
                     <div v-else class="avatar placeholder">
@@ -32,7 +32,10 @@
 <script setup>
 import { reactive, ref } from 'vue';
 
-defineProps({
+const emit = defineEmits(['open-profile']);
+
+const props = defineProps({
+    userId: [Number, String],
     name: String,
     role: String,
     avatar: String,
@@ -42,6 +45,12 @@ defineProps({
         default: 'text'
     }
 });
+
+const handleAuthorClick = () => {
+    if (props.userId) {
+        emit('open-profile', props.userId);
+    }
+};
 
 const flash = reactive({ x: '50%', y: '50%', opacity: 0 });
 const cardRef = ref(null);
@@ -86,6 +95,16 @@ function handleFlashLeave() {
     align-items: center;
     gap: 15px;
     margin-bottom: 25px;
+    transition: all 0.3s ease;
+}
+
+.author-info.is-clickable {
+    cursor: pointer;
+}
+
+.author-info.is-clickable:hover {
+    transform: translateX(5px);
+    filter: brightness(1.2);
 }
 
 .avatar-wrapper {

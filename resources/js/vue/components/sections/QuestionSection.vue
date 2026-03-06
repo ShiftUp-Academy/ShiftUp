@@ -4,20 +4,20 @@
       <div class="filters-panel-wrapper">
         <div class="filters-grid">
           <div class="filter-group">
-            <label>Contenu de la question</label>
-            <input type="text" v-model="filters.search" placeholder="Recherchez par mot clé"
+            <label>{{ $t('QuestionSection.contenu_de_la') }}</label>
+            <input type="text" v-model="filters.search" :placeholder="$t('QuestionSection.recherchez_par_mot')"
               class="filter-input-simple" />
           </div>
 
           <div class="filter-group">
-            <label>Catégories</label>
-            <Select v-model="filters.category" :options="categories" optionLabel="Nom" placeholder="Catégories..."
-              class="filter-prime-simple" />
+            <label>{{ $t('QuestionSection.catgories') }}</label>
+            <Select v-model="filters.category" :options="categories" optionLabel="Nom"
+              :placeholder="$t('QuestionSection.catgories_2')" class="filter-prime-simple" />
           </div>
 
           <div class="filter-actions-inline">
             <button class="minimal-reset-btn" @click="resetFilters">
-              <i class="fas fa-redo-alt"></i> Réinitialiser
+              <i class="fas fa-redo-alt"></i> {{ $t('QuestionSection.rinitialiser') }}
             </button>
           </div>
         </div>
@@ -25,34 +25,38 @@
 
       <div v-if="isSearching" class="questions-list">
         <div v-for="(item, index) in filteredQuestions" :key="index" class="session-item full-page-item">
-          <div class="item-header">LES QUESTIONS</div>
+          <div class="item-header">{{ $t('QuestionSection.les_questions') }}</div>
           <div class="author-row">
             <img :src="getAuthorAvatar(item)" :alt="getAuthorName(item)" class="avatar" />
             <div class="author-info">
               <span class="author-name">{{ getAuthorName(item) }}</span>
-              <span v-if="item.questions && item.questions[0]?.utilisateur?.Role === 'Admin'"
-                class="admin-badge">Coach</span>
-              <span v-if="getStatusLabel(item)" class="status-badge">{{ getStatusLabel(item) }}</span>
+              <span v-if="item.questionsLibres && item.questionsLibres[0]?.utilisateur?.Role === 'Admin'"
+                class="admin-badge">{{
+                  $t('QuestionSection.coach') }}</span>
+              <span v-if="getStatusLabel(item)" class="status-badge">{{ $t('QuestionSection.' + getStatusLabel(item))
+              }}</span>
             </div>
           </div>
           <p class="question-text">{{ getQuestionShort(item) }}</p>
           <div class="item-footer">
             <div class="meta-info">
-              <span class="category-tag">catégorie : <span class="category-name">{{ item.categorie?.Nom || 'Général'
-              }}</span></span>
+              <span class="category-tag">{{ $t('NosEvenements.catgorie') }} <span class="category-name">{{
+                item.categorie?.Nom || 'Général'
+                  }}</span></span>
             </div>
-            <a href="#" class="consultation-link" @click.prevent="$emit('view-detail', item)">VOIR LA CONSULTATION <span
-                class="arrow">↗</span></a>
+            <a href="#" class="consultation-link" @click.prevent="$emit('view-detail', item)">{{
+              $t('QuestionSection.voir_la_consultation') }} <span class="arrow">{{ $t('QuestionSection.arrow')
+              }}</span></a>
           </div>
         </div>
 
         <div v-if="filteredQuestions.length === 0" class="no-results">
-          <p>Aucune question ne correspond à votre recherche.</p>
+          <p>{{ $t('QuestionSection.aucune_question_ne') }}</p>
         </div>
       </div>
 
       <div v-else class="initial-state">
-        <p class="initial-text">Entrez un mot-clé ou sélectionnez une catégorie pour voir les questions correspondantes.
+        <p class="initial-text">{{ $t('QuestionSection.entrez_un_motcl') }}
         </p>
       </div>
     </div>
@@ -64,6 +68,9 @@ import { ref, reactive, computed } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import AutoComplete from 'primevue/autocomplete';
 import Select from 'primevue/select';
+
+const page = usePage();
+const $t = (key) => page.props.translations?.[key] || key;
 
 const props = defineProps({
   categories: {
@@ -93,13 +100,19 @@ const filteredQuestions = computed(() => {
   const searchLower = filters.search.toLowerCase();
 
   return props.questions.filter(item => {
-    const matchesMain = !filters.search ||
-      item.Titre.toLowerCase().includes(searchLower) ||
-      (item.Descriptions && item.Descriptions.toLowerCase().includes(searchLower));
+    // Consultation fields are Titre and Question
+    const title = item.Titre || '';
+    const description = item.Question || '';
 
-    const matchesQuestions = !filters.search || (item.questions && item.questions.some(q =>
-      q.Question.toLowerCase().includes(searchLower)
-    ));
+    const matchesMain = !filters.search ||
+      title.toLowerCase().includes(searchLower) ||
+      description.toLowerCase().includes(searchLower);
+
+    const matchesQuestions = !filters.search || (item.questionsLibres && item.questionsLibres.some(q => {
+      const qTitle = q.Titre || '';
+      const qContent = q.ContenuQuestion || '';
+      return qTitle.toLowerCase().includes(searchLower) || qContent.toLowerCase().includes(searchLower);
+    }));
 
     const matchesCategory = !filters.category || item.IdCategorie === filters.category.IdCategorie;
 
@@ -113,30 +126,35 @@ const resetFilters = () => {
 };
 
 const getAuthorName = (item) => {
-  if (!item.questions || item.questions.length === 0) return 'Archivé';
-  const u = item.questions[0].utilisateur;
+  if (!item.questionsLibres || item.questionsLibres.length === 0) return 'Archivé';
+  const u = item.questionsLibres[0].utilisateur;
   if (!u || !u.profil) return 'Utilisateur';
   return `${u.profil.Prenom} ${u.profil.Nom}`;
 };
 
 const getAuthorAvatar = (item) => {
-  if (!item.questions || item.questions.length === 0) return '/images/Bibliothèque/Nantenaina.jpg';
-  const u = item.questions[0].utilisateur;
+  if (!item.questionsLibres || item.questionsLibres.length === 0) return '/images/Bibliothèque/Nantenaina.jpg';
+  const u = item.questionsLibres[0].utilisateur;
   return u?.profil?.PhotoProfil || '/images/Bibliothèque/Nantenaina.jpg';
 };
 
 const getQuestionShort = (item) => {
-  if (!item.questions || item.questions.length === 0) return item.Titre;
+  if (!item.questionsLibres || item.questionsLibres.length === 0) return item.Titre;
   // If searching, try to return the specific question that matched
   if (filters.search) {
-    const match = item.questions.find(q => q.Question.toLowerCase().includes(filters.search.toLowerCase()));
-    if (match) return match.Question;
+    const searchLower = filters.search.toLowerCase();
+    const match = item.questionsLibres.find(q => {
+      const qTitle = q.Titre || '';
+      const qContent = q.ContenuQuestion || '';
+      return qTitle.toLowerCase().includes(searchLower) || qContent.toLowerCase().includes(searchLower);
+    });
+    if (match) return match.ContenuQuestion || match.Titre;
   }
-  return item.questions[0].Question;
+  return item.questionsLibres[0].ContenuQuestion || item.questionsLibres[0].Titre;
 };
 
 const getStatusLabel = (item) => {
-  return item.Statut === 'Publié' ? null : 'Non publié';
+  return item.Statut === 'Publié' ? null : 'non_publie';
 };
 </script>
 

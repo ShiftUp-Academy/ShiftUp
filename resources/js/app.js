@@ -29,6 +29,8 @@ const Noir = definePreset(Aura, {
     }
 });
 
+import { router } from '@inertiajs/vue3';
+
 createInertiaApp({
     resolve: (name) => {
         return resolvePageComponent(`./vue/pages/${name}.vue`, import.meta.glob('./vue/pages/**/*.vue'))
@@ -43,6 +45,16 @@ createInertiaApp({
     },
     setup({ el, App, props }) {
         const app = createApp({ render: () => h(App, props) });
+
+        // Reactive $t helper: always reads from latest page props
+        app.config.globalProperties.$t = function (key) {
+            // 'this' is the Vue component instance; access page via $page if available
+            const translations = (this?.$page?.props?.translations)
+                ?? props.initialPage.props.translations
+                ?? {};
+            return translations[key] ?? key;
+        };
+
         app.use(PrimeVue, {
             theme: {
                 preset: Noir,
@@ -56,4 +68,16 @@ createInertiaApp({
     },
 });
 
-// InertiaProgress.init();
+// Gérer l'erreur 419 (CSRF Token Mismatch / Session Expired) globalement
+router.on('error', (event) => {
+    if (event.detail.errors && Object.values(event.detail.errors).includes('419')) {
+        window.location.reload();
+    }
+});
+
+// Intercepter les erreurs de statut HTTP via l'événement 'finish' ou 'invalid' pour 419
+router.on('invalid', (event) => {
+    if (event.detail.response.status === 419) {
+        window.location.reload();
+    }
+});

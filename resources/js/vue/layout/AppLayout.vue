@@ -17,28 +17,29 @@ import RewardNotification from '../components/ui/RewardNotification.vue';
 
 const toast = useToast();
 const page = usePage();
+const $t = (key) => page.props.translations?.[key] || key;
 
 // Watch for errors and flash messages
 watch(() => page.props.errors, (errors) => {
   if (errors && Object.keys(errors).length > 0) {
     Object.values(errors).forEach(error => {
-      toast.add({ severity: 'error', summary: 'Erreur', detail: error, life: 5000 });
+      toast.add({ severity: 'error', summary: $t('AppLayout.erreur'), detail: error, life: 5000 });
     });
   }
 }, { immediate: true, deep: true });
 
 watch(() => page.props.flash, (flash) => {
   if (flash?.success) {
-    toast.add({ severity: 'success', summary: 'Succès', detail: flash.success, life: 3000 });
+    toast.add({ severity: 'success', summary: $t('AppLayout.succes'), detail: flash.success, life: 3000 });
   }
   if (flash?.error) {
-    toast.add({ severity: 'error', summary: 'Erreur', detail: flash.error, life: 5000 });
+    toast.add({ severity: 'error', summary: $t('AppLayout.erreur'), detail: flash.error, life: 5000 });
   }
   if (flash?.warning) {
-    toast.add({ severity: 'warn', summary: 'Attention', detail: flash.warning, life: 4000 });
+    toast.add({ severity: 'warn', summary: $t('AppLayout.attention'), detail: flash.warning, life: 4000 });
   }
   if (flash?.info) {
-    toast.add({ severity: 'info', summary: 'Information', detail: flash.info, life: 3000 });
+    toast.add({ severity: 'info', summary: $t('AppLayout.information'), detail: flash.info, life: 3000 });
   }
   if (flash?.Bonjour) {
     toast.add({ severity: 'success', summary: 'Bonjour', detail: flash.Bonjour, life: 4000 });
@@ -325,7 +326,7 @@ unbindTransitionFinish = router.on('finish', (event) => {
     <Toast />
 
     <div class="custom-scroll-cursor" ref="cursorRef">
-      <span class="cursor-text">FAITES<br>DÉFILER</span>
+      <span class="cursor-text" v-html="$t('AppLayout.faites_defiler').replace('\n', '<br>')"></span>
     </div>
 
     <AppHeader class="absolute top-0 inset-x-0 z-50" />

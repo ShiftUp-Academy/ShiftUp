@@ -28,6 +28,9 @@
                         <button class="edit-btn" @click="openEditModal(cat)">
                             <i class="fas fa-pen"></i> Modifier
                         </button>
+                        <button class="delete-btn-simple" @click="deleteCategory(cat)">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -62,6 +65,8 @@
                 </div>
             </form>
         </PremiumModal>
+        <ConfirmModal :isOpen="confirmData.isOpen" :title="confirmData.title" :message="confirmData.message"
+            :type="confirmData.type" @confirm="onModalConfirm" @cancel="confirmData.isOpen = false" />
         <Toast />
     </div>
 </template>
@@ -74,6 +79,7 @@ import PremiumModal from '../../components/ui/PremiumModal.vue';
 import PremiumSlideToggle from '../../components/ui/PremiumSlideToggle.vue';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
+import ConfirmModal from '../../components/ui/ConfirmModal.vue';
 import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
 
@@ -146,6 +152,40 @@ const updateStatus = (cat) => {
         }
     });
 };
+
+// CONFIRM MODAL STATE
+const confirmData = ref({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'danger',
+    action: null
+});
+
+const triggerConfirm = (title, message, type, action) => {
+    confirmData.value = { isOpen: true, title, message, type, action };
+};
+
+const onModalConfirm = () => {
+    if (confirmData.value.action) confirmData.value.action();
+    confirmData.value.isOpen = false;
+};
+
+const deleteCategory = (cat) => {
+    triggerConfirm(
+        "Supprimer la catégorie",
+        `Voulez-vous vraiment supprimer la catégorie "${cat.Nom}" ?`,
+        'danger',
+        () => {
+            router.delete('/admin/categories/' + cat.IdCategorie, {
+                onSuccess: () => {
+                    toast.add({ severity: 'info', summary: 'Supprimé', detail: "La catégorie a été supprimée", life: 3000 });
+                }
+            });
+        }
+    );
+};
+
 </script>
 
 <style scoped>
@@ -253,6 +293,26 @@ const updateStatus = (cat) => {
 
 .edit-btn:hover {
     background: #333;
+}
+
+.delete-btn-simple {
+    background: none;
+    border: 1px solid #eee;
+    color: #ef4444;
+    width: 45px;
+    height: 45px;
+    border-radius: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    margin-left: 10px;
+}
+
+.delete-btn-simple:hover {
+    background: #fee2e2;
+    border-color: #ef4444;
 }
 
 .create-form {

@@ -2,24 +2,25 @@
     <div class="lesson-content-player" :style="fullScreenMode ? 'overflow: visible !important;' : ''">
         <div v-if="isVideo" class="video-container">
             <template v-if="videoUrl">
-                <iframe v-if="isEmbeddable" :src="videoUrl" title="Lesson Video" frameborder="0"
+                <iframe v-if="isEmbeddable" :src="videoUrl" :title="$t('LessonContentPlayer.lesson_video')"
+                    frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen class="video-iframe"></iframe>
                 <video v-else controls class="video-iframe" controlsList="nodownload"
                     @ended="$emit('content-finished')">
                     <source :src="videoUrl" type="video/mp4">
-                    Your browser does not support the video tag.
+                    {{ $t('LessonContentPlayer.your_browser_does') }}
                 </video>
             </template>
             <div v-else class="no-content">
                 <i class="fas fa-video-slash"></i>
-                <p>Vidéo indisponible</p>
+                <p>{{ $t('LessonContentPlayer.video_indisponible') }}</p>
             </div>
         </div>
 
         <div v-else-if="isPdf" class="pdf-container" :class="{ 'fullscreen-mode': fullScreenMode }">
             <div v-if="isLoadingPdf" class="pdf-loading">
-                <i class="fas fa-spinner fa-spin"></i> Chargement du document...
+                <i class="fas fa-spinner fa-spin"></i> {{ $t('LessonContentPlayer.chargement_document') }}
             </div>
 
             <VuePdfEmbed v-if="pdfSource && !pdfError" :source="pdfSource" class="pdf-renderer" @loaded="onPdfLoaded"
@@ -27,9 +28,9 @@
 
             <div v-if="pdfError || !pdfUrl" class="no-content">
                 <i class="fas fa-file-pdf"></i>
-                <p>Impossible d'afficher le PDF directement.</p>
+                <p>{{ $t('LessonContentPlayer.impossible_afficher_pdf') }}</p>
                 <a v-if="pdfUrl" :href="pdfUrl + '?download=1'" class="download-fallback-link" download target="_blank">
-                    <i class="fas fa-download mr-1"></i> Télécharger le fichier
+                    <i class="fas fa-download mr-1"></i> {{ $t('LessonContentPlayer.telecharger_fichier') }}
                 </a>
             </div>
         </div>
@@ -256,7 +257,7 @@ const isEmbeddable = computed(() => {
 });
 
 const formattedText = computed(() => {
-    let content = props.lesson.Contenu || props.lesson.Descriptions || 'Aucun contenu texte disponible.';
+    let content = props.lesson.Contenu || props.lesson.Descriptions || $t('LessonContentPlayer.aucun_contenu_texte');
 
     content = content.replace(/\n/g, '<br>');
 

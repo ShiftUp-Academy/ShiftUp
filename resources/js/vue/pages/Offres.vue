@@ -8,17 +8,24 @@
             </video>
             <div class="hero-content">
                 <h1 class="hover-title">
-                    <span v-for="(char, index) in titleChars" :key="index" class="char"
-                        :class="{ 'break-word': char === ' ' }" :ref="el => charRefs[index] = el"
-                        :style="{ fontWeight: 300 }">
+                    <span v-for="(char, index) in ($t('Offres.exclusives') || 'OFFRES EXCLUSIVES').split('')"
+                        :key="index" class="char" :class="{ 'break-word': char === ' ' }"
+                        :ref="el => charRefs[index] = el" :style="{ fontWeight: 300 }">
                         {{ char === ' ' ? '&nbsp;' : char }}
                     </span>
                 </h1>
-                <p class="page-subtitle">Profitez de nos packs d'offres pour accélérer votre progression.</p>
+                <p class="page-subtitle">{{ $t('Offres.profitez_de_nos') }}</p>
             </div>
         </div>
 
         <div class="offers-list">
+            <div v-if="offres.length === 0" class="empty-offers">
+                <div class="empty-content">
+                    <i class="fas fa-gift"></i>
+                    <p>{{ $t('Offres.aucune_offre') || "Pas d'offre pour le moment" }}</p>
+                </div>
+            </div>
+
             <div v-for="offre in offres" :key="offre.IdOffre" class="offer-item"
                 :class="{ 'is-open': isOpen(offre.IdOffre) }">
 
@@ -30,10 +37,10 @@
 
                     <div class="offer-info">
                         <div class="offer-badges">
-                            <span v-if="offre.ReductionGlobal > 0" class="badge reduction">Prix à -{{
+                            <span v-if="offre.ReductionGlobal > 0" class="badge reduction">{{ $t('Offres.prix_a') }} -{{
                                 Number(offre.ReductionGlobal) }}%</span>
-                            <span class="badge duration" v-if="offre.DureeJours">Profitez de cette offre exceptionelle
-                                pendant {{ offre.DureeJours }} Jours</span>
+                            <span class="badge duration" v-if="offre.DureeJours">{{ $t('Offres.profitez_pendant') }} {{
+                                offre.DureeJours }} {{ $t('Offres.jours') }}</span>
                         </div>
 
                         <h2 class="offer-title">{{ offre.Titre }}</h2>
@@ -45,22 +52,22 @@
                                     <i class="fas fa-clock"></i> {{ countdowns[offre.IdOffre] }}
                                 </span>
                                 <span class="offer-total-price">
-                                    <span class="price-label">PACK À SEULEMENT </span>
+                                    <span class="price-label">{{ $t('Offres.pack__seulement') }} </span>
                                     {{ formatPrice(calcPackPrice(offre)) }}
                                 </span>
                             </div>
 
                             <span class="view-details-btn">
-                                {{ isOpen(offre.IdOffre) ? 'Masquer les détails' : 'Voir le contenu du pack' }}
+                                {{ isOpen(offre.IdOffre) ? $t('Offres.masquer_details') : $t('Offres.voir_contenu') }}
                                 <i class="fas" :class="isOpen(offre.IdOffre) ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </span>
 
                             <div class="offer-actions">
                                 <button class="cart-btn" @click.stop="addToCart(offre)">
-                                    <i class="fas fa-shopping-cart"></i> Ajouter au panier
+                                    <i class="fas fa-shopping-cart"></i> {{ $t('Offres.ajouter_au_panier') }}
                                 </button>
                                 <PremiumButton class="buy-btn-premium" @click.stop="">
-                                    <span>Acheter maintenant</span>
+                                    <span>{{ $t('Offres.acheter_maintenant') }}</span>
                                     <i class="fas fa-arrow-right ml-2"></i>
                                 </PremiumButton>
                             </div>
@@ -75,7 +82,7 @@
 
                                 <div v-if="getRegularPrograms(offre).length > 0" class="content-column">
                                     <div class="column-header">
-                                        <h3 class="column-title">Programmes</h3>
+                                        <h3 class="column-title">{{ $t('Programmes') }}</h3>
                                         <span class="item-count">{{ getRegularPrograms(offre).length }}</span>
                                     </div>
                                     <div class="cards-column">
@@ -89,7 +96,7 @@
 
                                 <div v-if="getSeminarPrograms(offre).length > 0" class="content-column">
                                     <div class="column-header">
-                                        <h3 class="column-title">Programmes Séminaire</h3>
+                                        <h3 class="column-title">{{ $t('Offres.programmes_sminaire') }}</h3>
                                         <span class="item-count">{{ getSeminarPrograms(offre).length }}</span>
                                     </div>
                                     <div class="cards-column">
@@ -103,11 +110,11 @@
 
                                 <div v-if="offre.coachings && offre.coachings.length > 0" class="content-column">
                                     <div class="column-header">
-                                        <h3 class="column-title">Coaching</h3>
+                                        <h3 class="column-title">{{ $t('Coachings.coaching') }}</h3>
                                         <span class="item-count">{{ offre.coachings.length }}</span>
                                     </div>
                                     <div class="cards-column">
-                                        <CoachingCard v-for="oc in offre.coachings" :key="'coach-' + oc.id"
+                                        <CoachingCard v-for="oc in offre.coachings" :key="'coach-' + oc.IdOffreCoaching"
                                             :title="oc.coaching.NomDeType" :description="oc.coaching.Descriptions"
                                             :price="Number(oc.coaching.Prix)" :reduction="oc.ReductionSpecifique"
                                             @reserve="openBookingModal(oc.coaching)" />
@@ -131,9 +138,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { Head, router } from '@inertiajs/vue3';
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { usePage, Link } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+const page = usePage();
+const $t = (key) => page.props.translations?.[key] || key;
 import ProgramCard from '../components/ui/ProgramCard.vue';
 import CoachingCard from '../components/ui/CoachingCard.vue';
 import ModalReservationCoaching from '../components/ui/ModalReservationCoaching.vue';
@@ -155,8 +166,6 @@ const openOffers = ref(new Set());
 const showReservationModal = ref(false);
 const selectedCoaching = ref(null);
 
-const titleString = "OFFRES EXCLUSIVES";
-const titleChars = computed(() => titleString.split(''));
 const charRefs = ref([]);
 const heroRef = ref(null);
 
@@ -219,7 +228,7 @@ const calculateTimeRemaining = (offre) => {
     const now = new Date();
     const diff = endDate - now;
 
-    if (diff <= 0) return "Terminé";
+    if (diff <= 0) return $t('Offres.termine');
 
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -282,7 +291,7 @@ const addToCart = (offre) => {
         prix: calcPackPrice(offre)
     }, {
         onSuccess: () => {
-            toast.add({ severity: 'success', summary: 'Panier', detail: 'Pack ajouté au panier !', life: 3000 });
+            toast.add({ severity: 'success', summary: $t('Panier'), detail: $t('Offres.pack_ajoute'), life: 3000 });
         }
     });
 };
@@ -389,6 +398,51 @@ const closeReservationModal = () => {
     font-size: 1.2rem;
     max-width: 600px;
     margin: 0 auto;
+}
+
+.empty-offers {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 40vh;
+    width: 100%;
+    z-index: 2;
+}
+
+.empty-content {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 60px 100px;
+    border-radius: 40px;
+    text-align: center;
+    animation: fadeIn 1s ease;
+}
+
+.empty-content i {
+    font-size: 3rem;
+    color: #8A38F5;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-content p {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #888;
+    margin: 0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .offers-list {

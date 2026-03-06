@@ -4,10 +4,10 @@
 
       <div class="left-content" ref="titleRef">
         <h2 class="title-main">
-          TOUTES LES <br> OFFRES <br> DISPONIBLES DU MOMENT
+          {{ $t('CategorySection.toutes_les') }} <br> {{ $t('CategorySection.offres') }} <br> {{ $t('CategorySection.disponibles_du_moment') }}
         </h2>
         <p class="description-text">
-          Explorez toutes les offres proposer par ShiftUp regrouper en une seule page.
+          {{ $t('CategorySection.explorez_toutes_les') }}
         </p>
 
         <div class="navigation-buttons">
@@ -31,9 +31,9 @@
 
       <div class="right-content">
         <div class="section-header">
-          <h3 class="section-title">Les offres disponibles</h3>
+          <h3 class="section-title">{{ $t('CategorySection.les_offres_disponibles') }}</h3>
           <div class="view-all">
-            <span>TOUT VOIR</span>
+            <span>{{ $t('CategorySection.tout_voir') }}</span>
             <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round" class="arrow-icon">
               <polyline points="7 14 14 7 7 0"></polyline>

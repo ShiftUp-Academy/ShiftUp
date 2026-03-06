@@ -20,7 +20,7 @@
           <span class="prog-text">{{ progression }}%</span>
         </div>
         <button v-if="showAddToCart" class="add-to-cart">
-          <span class="btn-text">AJOUTER AU PANIER</span>
+          <span class="btn-text">{{ $t('ProgramCard.ajouter_au_panier') }}</span>
           <svg viewBox="0 0 24 24" fill="none" class="arrow-icon">
             <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"
               stroke-linejoin="round" />

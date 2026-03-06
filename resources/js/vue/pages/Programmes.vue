@@ -49,22 +49,17 @@
         </div>
 
         <div class="separator-line" ref="separatorRef"></div>
-
-        <div class="scroll-indicator" ref="indicatorRef">
-            FAITES DEFILER
-        </div>
-
-        <div class="bottom-label" ref="labelRef">
-            NOS PROGRAMMES DE FORMATION
-        </div>
     </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, reactive, watch, nextTick } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+const page = usePage();
+const $t = (key) => page.props.translations?.[key] || key;
 import SectionFilters from '../components/ui/SectionFilters.vue';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -88,7 +83,7 @@ const programs = computed(() => {
             id: p.IdProgrammeFormation,
             title: p.Titre,
             image: p.LienPhoto || '/images/Programmes/Plan de travail1.png',
-            price: Number(p.Prix) > 0 ? Number(p.Prix).toLocaleString() + ' Ar' : 'Gratuit',
+            price: Number(p.Prix) > 0 ? Number(p.Prix).toLocaleString() + ' ' + $t('Currency') : $t('Free'),
             progression: p.progression,
             categoryId: p.IdCategorie,
             type: p.Type
@@ -170,7 +165,7 @@ const digits = computed(() => getFormattedString(activeIndex.value).split(''));
 
 const initScrollTriggers = () => {
     ScrollTrigger.getAll().forEach(t => t.kill());
-    imageRefs.value = []; // Reset refs before re-render
+    imageRefs.value = [];
 
     nextTick(() => {
         imageRefs.value.forEach((img, i) => {
@@ -184,7 +179,6 @@ const initScrollTriggers = () => {
             });
         });
 
-        // Speed-based scaling effect
         ScrollTrigger.create({
             onUpdate: (self) => {
                 const velocity = Math.abs(self.getVelocity());
@@ -222,7 +216,6 @@ const animateTransition = (newIndex) => {
     const yExit = direction * -100;
     const yEnter = direction * 100;
 
-    // TITLE & PRICE ANIM
     const tl = gsap.timeline();
     tl.to([titleRef.value, priceRef.value], {
         y: yExit,
@@ -297,14 +290,9 @@ onMounted(() => {
 
     if (displayPrograms.value.length > 0) {
         const lastImg = imageRefs.value[displayPrograms.value.length - 1];
-        const elementsToAnimate = [
-            separatorRef.value,
-            indicatorRef.value,
-            labelRef.value,
-            document.querySelectorAll('.info-col')
-        ];
 
-        gsap.to(elementsToAnimate, {
+        // Se déclenche exactement quand la dernière image finit de défiler
+        gsap.to([".info-col", ".separator-line"], {
             y: "-100vh",
             ease: "none",
             scrollTrigger: {
@@ -332,6 +320,15 @@ onBeforeUnmount(() => {
     min-height: 100vh;
 }
 
+:global(body:has(.programmes-page) footer:not(.footer-menu)),
+:global(body:has(.programmes-page) .app-footer) {
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
 .content-wrapper {
     position: relative;
     width: 100%;
@@ -340,7 +337,7 @@ onBeforeUnmount(() => {
 }
 
 .info-col {
-    position: sticky;
+    position: fixed;
     top: 0;
     height: 100vh;
     display: flex;
@@ -348,24 +345,28 @@ onBeforeUnmount(() => {
     padding: 2vh 4vw;
     width: 25vw;
     z-index: 10;
-    /* Lowered from 9999 */
     pointer-events: none;
 }
 
-/* Re-enable interaction for content inside fixed columns */
-.info-col * {
+.info-col.left {
+    left: 0;
+}
+
+.info-col.right {
+    right: 0;
+}
+
+.filter-wrapper {
     pointer-events: auto;
 }
 
 .info-col.left .col-split {
     align-items: flex-start;
-    /* Title & Price align Left */
     text-align: left;
 }
 
 .info-col.right .col-split {
     align-items: flex-end;
-    /* Filters & Numbers align Right */
     text-align: right;
 }
 
@@ -424,7 +425,7 @@ onBeforeUnmount(() => {
 
 .scroll-col {
     width: 50vw;
-    margin: 0;
+    margin: 0 auto;
     padding-top: 20vh;
     display: flex;
     flex-direction: column;

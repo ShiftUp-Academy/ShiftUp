@@ -8,36 +8,53 @@ use Gemini\Laravel\Facades\Gemini;
 
 class GeminiChatService
 {
+    public function translateText(string $text, string $targetLocale)
+    {
+        try {
+            $prompt = "Expert Translator. Translate from French to " . $this->getLanguageName($targetLocale) . ". 
+            RULES:
+            - Output ONLY the translated text.
+            - NO explanations.
+            - Keep formatting (HTML tags, etc) if present.
+            - If it's already in " . $this->getLanguageName($targetLocale) . ", just return it.
+            
+            TEXT: $text";
+
+            $result = Gemini::generativeModel('gemini-1.5-flash')->generateContent($prompt);
+            $translated = trim($result->text());
+            \Log::info("Gemini Translated: [$text] ($targetLocale) -> [$translated]");
+            return $translated;
+        } catch (\Exception $e) {
+            \Log::error('Gemini Translation Error: ' . $e->getMessage());
+            return $text;
+        }
+    }
+
+    private function getLanguageName($code)
+    {
+        return [
+            'fr' => 'Français',
+            'en' => 'Anglais',
+            'mg' => 'Malgache'
+        ][$code] ?? 'Français';
+    }
+
     public function getResponse(string $userMessage, array $history = [])
     {
         try {
             \Log::info('GeminiChatService: Starting request', ['message' => $userMessage]);
             
-            $siteStructure = "STRUCTURE ET COMPOSANTS DU SITE :
-            - Header (Haut) : Contient le logo ShiftUp (retour accueil) et le menu principal.
-            - Navigation Principale (Menu) : 
-                * 'Accueil' : Page principale.
-                * 'Offres' : Packs promotionnels et réductions exclusives.
-                * 'Programmes' : Liste complète des formations et séminaires.
-                * 'Coachings' : Services d'accompagnement personnalisé.
-                * 'Témoignages' : Retours d'expérience de nos membres.
-                * 'Contact' : Pour nous joindre directement.
-                * 'L'organisme' : Informations sur notre structure.
-            - Sections de la page d'Accueil :
-                * 'Hero' : Présentation principale de ShiftUp.
-                * 'Séminaires' : Nos événements intensifs de formation.
-                * 'Ressources Gratuites' : Formations accessibles sans frais.
-                * 'Événements' : Calendrier de nos prochaines rencontres.
-                * 'Témoignages' : Mur social de nos succès.
-                * 'Vidéos' : Galerie de contenus inspirants.
-                * 'Fondateur' (Founder Section) : L'histoire et la vision de l'initiateur.
-            - Boutons Flottants (En bas) : 
-                * 'Se connecter' : Pour accéder à votre espace membre.
-                * 'Les programmes' : Raccourci vers les formations.
-                * 'Coaching' : Raccourci vers le support personnalisé.
-                * 'Bouton Flèche' : Pour remonter en haut de la page.
-                * 'Icône Enveloppe' : Pour ouvrir le formulaire de contact.
-                * 'Le Robot Assistant' : C'est moi ! On clique dessus pour voir les notifications ou me parler.";
+            $siteStructure = "STRUCTURE ET LIENS DU SITE (UTILISE LES [Nom](LienMD) !) :
+            - Accueil : /
+            - Offres (Promotionnels) : /offres
+            - Programmes (Formations) : /programmes
+            - Coachings (Personnalisé) : /coaching
+            - Témoignages (Avis clients) : /temoignages
+            - Contact : /contact
+            - Panier (Mes achats) : /panier
+            - Mes Réservations (Historique) : /reservations
+            - Mes Réussites (Badges) : /mes-reussites
+            - L'organisme : /organisme";
 
             $context = $this->getSiteContext();
             
@@ -54,7 +71,8 @@ class GeminiChatService
             DONNÉES ACTUELLES (DB) :
             $context
             
-            Réponds de manière concise, efficace, en Markdown.";
+            Réponds de manière concise, efficace, en Markdown. 
+            IMPORTANT : Propose toujours des liens cliquables à l'utilisateur vers les sections correspondantes s'il en a besoin.";
 
             $fullPrompt = "INSTRUCTIONS :\n$systemPrompt\n\nMESSAGE UTILISATEUR : $userMessage";
 

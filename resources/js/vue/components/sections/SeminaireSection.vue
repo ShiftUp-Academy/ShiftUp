@@ -2,7 +2,8 @@
     <section class="seminaire-section no-global-reveal" ref="sectionRef">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Nos évènements <br />imminents</h2>
+                <h2 class="section-title">{{ $t('SeminaireSection.nos_vnements') }} <br />{{
+                    $t('SeminaireSection.imminents') }}</h2>
             </div>
             <div v-for="(sem, index) in seminaires" :key="sem.IdProgrammeFormation || index" class="seminaire-card">
                 <div class="card-content">
@@ -15,20 +16,20 @@
                             <span class="huge-date">{{ formatDate(sem.DateSeminaire) }}</span>
                             <div class="v-divider"></div>
                             <div class="modality-container">
-                                <span class="en-label">En</span>
+                                <span class="en-label">{{ $t('In') }}</span>
                                 <span class="modality-text">{{ sem.ModaliteSeminaire ?
-                                    sem.ModaliteSeminaire.toUpperCase() : 'PRESENTIEL' }}</span>
+                                    sem.ModaliteSeminaire.toUpperCase() : $t('Presentiel') }}</span>
                             </div>
                         </div>
 
                         <div class="bottom-row">
                             <div class="location-container">
-                                <span class="lieu-label">Lieu</span>
-                                <span class="lieu-text">{{ sem.LieuSeminaire || 'LIEU' }}</span>
+                                <span class="lieu-label">{{ $t('SeminaireSection.lieu') }}</span>
+                                <span class="lieu-text">{{ sem.LieuSeminaire || $t('Location') }}</span>
                             </div>
                             <div class="v-divider small"></div>
                             <Link :href="`/seminaires/${sem.IdProgrammeFormation}`" class="savoir-plus">
-                                EN SAVOIR PLUS
+                                {{ $t('SeminaireSection.en_savoir_plus') }}
                                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
                                     xmlns="http://www.w3.org/2000/svg" class="arrow-icon">
                                     <path d="M1 11L11 1M11 1H3M11 1V9" stroke="currentColor" stroke-width="2"
@@ -46,15 +47,15 @@
             </div>
 
             <div v-if="seminaires.length === 0" class="no-seminaires">
-                <p>Aucun séminaire prévu pour le moment.</p>
+                <p>{{ $t('SeminaireSection.aucun_sminaire_prvu') }}</p>
             </div>
         </div>
     </section>
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3';
-import { ref, onMounted } from 'vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import { ref, onMounted, computed } from 'vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -66,6 +67,9 @@ const props = defineProps({
         default: () => []
     }
 });
+
+const page = usePage();
+const currentLocale = computed(() => page.props.locale || 'fr');
 
 const sectionRef = ref(null);
 
@@ -97,13 +101,9 @@ onMounted(() => {
 });
 
 function formatDate(dateString) {
-    if (!dateString) return '30 MARS 2026';
+    if (!dateString) return '';
     const date = new Date(dateString);
-    const day = date.getDate();
-    const months = ['JANVIER', 'FEVRIER', 'MARS', 'AVRIL', 'MAI', 'JUIN', 'JUILLET', 'AOUT', 'SEPTEMBRE', 'OCTOBRE', 'NOVEMBRE', 'DECEMBRE'];
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
+    return new Intl.DateTimeFormat(currentLocale.value, { day: 'numeric', month: 'long', year: 'numeric' }).format(date).toUpperCase();
 }
 </script>
 
@@ -333,7 +333,7 @@ function formatDate(dateString) {
     }
 
     .lieu-text,
-    .lieu-label{
+    .lieu-label {
         font-size: 1.1rem;
     }
 

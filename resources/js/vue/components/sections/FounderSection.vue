@@ -8,23 +8,15 @@
 
       <div class="bio-content">
         <div class="bio-text">
-          <p>Entrepreneur et conseiller de dirigeants de TPE/PME, passionné par le marketing et l’audiovisuel,
-            Nantenaina
-            bouscule le paysage du business coaching et du digital Marketing.</p>
-          <p>Fondateur et dirigeant de ShiftUp, comptant une équipe de 5 personnes, Nantenaina compte pour clients des
-            dirigeant de TPE/PME en quête de croissance et des cadres d’entreprise qui veulent entrer dans le monde de
-            l’entrepreneuriat.</p>
-          <p>Il accompagne ces personnes à améliorer leur performance ainsi que la croissance de leur business.</p>
-          <p>Fasciné par l’optimisation constante sur différente aspect qui peuvent radicalement transformer notre vie
-            ou
-            nos résultats, il apprend des meilleurs entrepreneurs dans plusieurs domaine. Son obsession réside dans le
-            fait de partager les outils concrets de ses mentors de la manière la plus captivante et pédagogique
-            possible.
+          <p>{{ $t('FounderSection.entrepreneur_et_conseiller') }}</p>
+          <p>{{ $t('FounderSection.fondateur_et_dirigeant') }}</p>
+          <p>{{ $t('FounderSection.il_accompagne_ces') }}</p>
+          <p>{{ $t('FounderSection.fascin_par_loptimisation') }}
           </p>
         </div>
 
         <div class="signature">
-          <span class="signature-name">Nantenaina Randria</span>
+          <span class="signature-name">{{ $t('FounderSection.nantenaina_randria') }}</span>
         </div>
       </div>
     </div>

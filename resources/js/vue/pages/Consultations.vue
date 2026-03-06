@@ -1,14 +1,14 @@
 <template>
-  <ChildHeropage title="Toutes les <br/>Consultations<br/> "
-    description="Explorez toutes vos scéances de consultation et les consultations publié gratuitement regroupées en une seule page."
-    cursorText="Découvrir" :colors="{
+  <ChildHeropage :title="$t('Consultations.title_html')" :description="$t('Consultations.explorez_toutes_vos')"
+    :cursorText="$t('Consultations.dcouvrir')" :colors="{
       primary: '#1A888D',
       secondary: '#0E7EC3',
       accent: '#F7B455',
       dark: '#000000'
     }">
     <template #action>
-      <a href="#" class="hero-subtitle" @click.prevent="showQuestionModal = true">Poser une question</a>
+      <a href="#" class="hero-subtitle" @click.prevent="showQuestionModal = true">{{
+        $t('Consultations.poser_une_question') }}</a>
     </template>
   </ChildHeropage>
 
@@ -24,7 +24,7 @@
     </div>
   </div>
 
-  <PremiumModal :isOpen="showDetailModal" :valid="true" :dark="true" header="Détails de la consultation"
+  <PremiumModal :isOpen="showDetailModal" :valid="true" :dark="true" :header="$t('Consultations.detail_modal_header')"
     @close="showDetailModal = false" width="800px">
     <div v-if="selectedConsultation" class="detail-modal-body">
       <div class="video-container" v-if="selectedConsultation.LienVideo">
@@ -37,10 +37,10 @@
         <p class="detail-description">{{ selectedConsultation.Descriptions }}</p>
 
         <div class="archived-questions">
-          <h4>Questions abordées :</h4>
+          <h4>{{ $t('Consultations.addressed_questions') }}</h4>
           <ul class="questions-list">
             <li v-for="q in selectedConsultation.questions" :key="q.IdConsultation" class="question-pill">
-              <span class="q-author">{{ q.utilisateur?.profil?.Prenom || 'Utilisateur' }}</span>
+              <span class="q-author">{{ q.utilisateur?.profil?.Prenom || $t('Consultations.Utilisateur') }}</span>
               <span class="q-text">{{ q.Question }}</span>
             </li>
           </ul>
@@ -49,36 +49,37 @@
     </div>
   </PremiumModal>
 
-  <PremiumModal :isOpen="showQuestionModal" :valid="questionForm.processing" :dark="true" header="Poser une question"
-    @close="showQuestionModal = false" width="500px">
+  <PremiumModal :isOpen="showQuestionModal" :valid="questionForm.processing" :dark="true"
+    :header="$t('Consultations.ask_modal_header')" @close="showQuestionModal = false" width="500px">
     <div class="ask-modal-body">
       <p class="ask-instruction">
-        Posez votre question et choisissez la catégorie correspondante. Le coach vous répondra dès que possible.
+        {{ $t('Consultations.ask_modal_instruction') }}
       </p>
 
       <form @submit.prevent="submitQuestion" class="ask-form">
         <div class="form-group">
-          <label>Titre de votre question</label>
-          <input type="text" v-model="questionForm.titre" class="dark-input" placeholder="Sujet de votre question..."
-            required />
+          <label>{{ $t('Consultations.ask_modal_title_label') }}</label>
+          <input type="text" v-model="questionForm.titre" class="dark-input"
+            :placeholder="$t('Consultations.ask_modal_title_placeholder')" required />
         </div>
 
         <div class="form-group">
-          <label>Catégorie</label>
+          <label>{{ $t('Consultations.ask_modal_category_label') }}</label>
           <Select v-model="questionForm.category_obj" :options="categories" optionLabel="Nom"
-            placeholder="Choisir une catégorie..." class="premium-select" @change="onCategoryChange" />
+            :placeholder="$t('Consultations.ask_modal_category_placeholder')" class="premium-select"
+            @change="onCategoryChange" />
         </div>
 
         <div class="form-group">
-          <label>Votre Question</label>
+          <label>{{ $t('Consultations.ask_modal_question_label') }}</label>
           <textarea v-model="questionForm.question" class="dark-input textarea-input" rows="5"
-            placeholder="Détaillez votre question ici..." required></textarea>
+            :placeholder="$t('Consultations.ask_modal_question_placeholder')" required></textarea>
         </div>
 
         <div class="modal-actions">
           <PremiumButton type="submit" :loading="questionForm.processing"
             :disabled="!questionForm.question || !questionForm.category_id" class="submit-btn" width="100%">
-            Envoyer
+            {{ $t('Consultations.ask_modal_submit') }}
           </PremiumButton>
         </div>
       </form>
@@ -88,7 +89,7 @@
 </template>
 <script setup>
 import { ref } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { router, useForm, usePage } from '@inertiajs/vue3';
 import ChildHeropage from '../components/ui/ChildHeropage.vue';
 import ConsultationSessionsList from '../components/ui/ConsultationSessionsList.vue';
 import FreeConsultationsList from '../components/ui/FreeConsultationsList.vue';
@@ -96,6 +97,9 @@ import QuestionSection from '../components/sections/QuestionSection.vue';
 import PremiumModal from '../components/ui/PremiumModal.vue';
 import PremiumButton from '../components/ui/PremiumButton.vue';
 import Select from 'primevue/select';
+
+const page = usePage();
+const $t = (key) => page.props.translations?.[key] || key;
 
 import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
@@ -153,10 +157,10 @@ const submitQuestion = () => {
     onSuccess: () => {
       showQuestionModal.value = false;
       questionForm.reset();
-      toast.add({ severity: 'success', summary: 'Succès', detail: 'Votre question a été envoyée avec succès.', life: 3000 });
+      toast.add({ severity: 'success', summary: $t('Success'), detail: $t('Consultations.SuccessDetail'), life: 3000 });
     },
     onError: () => {
-      toast.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue lors de l\'envoi.', life: 3000 });
+      toast.add({ severity: 'error', summary: $t('Error'), detail: $t('Consultations.ErrorDetail'), life: 3000 });
     }
   });
 };
