@@ -391,7 +391,7 @@ import LiquidGlass from '../components/ui/LiquidGlass.vue';
 import PremiumModal from '../components/ui/PremiumModal.vue';
 import { useToast } from "primevue/usetoast";
 import Toast from 'primevue/toast';
-import LessonContentPlayer from '../components/ui/LessonContentPlayer.vue';
+import LessonContentPlayer from '../components/sections/LessonContentPlayer.vue';
 import PremiumButton from '../components/ui/PremiumButton.vue';
 
 const page = usePage();
