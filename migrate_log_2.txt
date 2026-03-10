@@ -1,5 +1,0 @@
-
-   INFO  Running migrations.  
-
-  2026_01_20_102000_fix_timestamps_formation_tables  86.31ms DONE
-

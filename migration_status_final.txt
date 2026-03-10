@@ -1,6 +1,0 @@
-
-  Migration name  Batch / Status  
-  2026_01_04_093620_create_utilisateurs_tables  [1] Ran  
-  2026_01_05_061633_add_email_contact_and_create_reseaux_sociaux  [1] Ran  
-  2026_01_14_131135_create_formation_system_tables  [1] Ran  
-
