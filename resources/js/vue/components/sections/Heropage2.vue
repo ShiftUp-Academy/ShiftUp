@@ -57,7 +57,7 @@ import ShaderBackground from '../ui/ShaderBackground.vue';
 gsap.registerPlugin(ScrollTrigger);
 
 const page = usePage();
-const $t = (key) => page.props.translations[key] ?? key;
+const $t = (key) => page.props.translations?.[key] ?? key;
 
 const themeColors = {
     primary: '#202020',

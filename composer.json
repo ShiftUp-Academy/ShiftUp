@@ -10,6 +10,7 @@
         "google-gemini-php/laravel": "^2.0",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/framework": "^12.49",
+        "laravel/octane": "^2.14",
         "laravel/socialite": "^5.24",
         "laravel/tinker": "^2.10.1",
         "predis/predis": "^3.4",
