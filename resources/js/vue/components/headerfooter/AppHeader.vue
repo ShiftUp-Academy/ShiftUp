@@ -383,7 +383,7 @@ const startSwipeHintTimer = () => {
 
 const currentLocale = computed(() => page.props.locale || 'fr');
 const availableLanguages = [
-  { code: 'fr', name: 'Français', gif: 'https://res.cloudinary.com/dzgdjei0h/image/upload/v1772797651/%D8%B9%D9%84%D9%85_%D9%81%D8%B1%D9%86%D8%B3%D8%A7_GIF_-_French_Flag_Drapeau_Francais_France_-_D%C3%A9couvrir_et_partager_des_GIF_otskhk.gif' },
+  { code: 'fr', name: 'Français', gif: 'https://res.cloudinary.com/dzgdjei0h/image/upload/v1772994723/france-flag-gif_lqygo7.gif' },
   { code: 'en', name: 'English', gif: 'https://res.cloudinary.com/dzgdjei0h/image/upload/v1772798239/United_Kingdom_United_Kingdom_Flag_GIF_United_Kingdom_United_Kingdom_Flag_Flag_Waving_discover_and_share_GIFs_1_ennasn.gif' },
   { code: 'mg', name: 'Malagasy', gif: 'https://res.cloudinary.com/dzgdjei0h/image/upload/v1772798282/Madagascar_Flag_Gif_GIF_-_Madagascar_Flag_Gif_Africa_-_Discover_Share_GIFs_1_xfbaa4.gif' }
 ];
