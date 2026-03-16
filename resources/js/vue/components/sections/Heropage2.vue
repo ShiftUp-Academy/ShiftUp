@@ -229,11 +229,19 @@ onMounted(() => {
         window.addEventListener('mousemove', handleGlobalMouseMove);
     }
 
-    initAnimations();
+    if (document.fonts) {
+        document.fonts.ready.then(() => {
+            initAnimations();
+        }).catch(() => {
+            initAnimations();
+        });
+    } else {
+        initAnimations();
+    }
 
     setTimeout(() => {
         ScrollTrigger.refresh();
-    }, 300);
+    }, 1000);
 });
 
 onBeforeUnmount(() => {
@@ -273,7 +281,7 @@ onBeforeUnmount(() => {
     align-items: center;
     justify-content: center;
     position: relative;
-    z-index: 10;
+    z-index: 1; /* Derrière le scroll vidéo */
 }
 
 .hero-content {
@@ -308,6 +316,7 @@ onBeforeUnmount(() => {
 
 .word {
     display: inline-block;
+    will-change: transform;
 }
 
 .gt-alpina-font {
@@ -341,10 +350,10 @@ onBeforeUnmount(() => {
     flex-direction: column;
     align-items: center;
     position: relative;
-    z-index: 20;
+    z-index: 5; /* Entre le background et les éléments interactifs */
     pointer-events: none;
-    margin-bottom: 15vh;
-    margin-top: -53vh;
+    margin-bottom: 5vh;
+    margin-top: -45vh; /* Plus stable pour PC Prod */
 }
 
 .black-curve-bg {
