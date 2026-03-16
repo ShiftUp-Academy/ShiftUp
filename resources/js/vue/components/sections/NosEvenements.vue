@@ -268,9 +268,12 @@ const themeColors = {
   background: #000;
   border-radius: 24px;
   margin-top: 4vh;
-  overflow: hidden;
+  overflow: hidden !important;
   height: 85vh;
+  min-height: 85vh;
+  max-height: 90%;
   width: 90%;
+  position: relative;
 }
 
 .sidebar {
@@ -279,6 +282,7 @@ const themeColors = {
   flex: 0 0 35%;
   padding: 60px 40px;
   align-items: flex-start;
+  height: 100%;
 }
 
 .sidebar-title {

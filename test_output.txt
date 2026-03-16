@@ -1,0 +1,21 @@
+
+   TypeError 
+
+  array_diff_key(): Argument #2 must be of type array, string given
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connectors\Connector.php:101
+     97Ôûò     public function getOptions(array $config)
+     98Ôûò     {
+     99Ôûò         $options = $config['options'] ?? [];
+    100Ôûò 
+  Ô×£ 101Ôûò         return array_diff_key($this->options, $options) + $options;
+    102Ôûò     }
+    103Ôûò 
+    104Ôûò     /**
+    105Ôûò      * Get the default PDO connection options.
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connectors\Connector.php:101
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connectors\PostgresConnector.php:36
+      Illuminate\Database\Connectors\Connector::getOptions()
+

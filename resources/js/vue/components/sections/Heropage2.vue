@@ -273,7 +273,7 @@ onBeforeUnmount(() => {
     align-items: center;
     justify-content: center;
     position: relative;
-    z-index: 1;
+    z-index: 10;
 }
 
 .hero-content {
@@ -341,7 +341,7 @@ onBeforeUnmount(() => {
     flex-direction: column;
     align-items: center;
     position: relative;
-    z-index: 50;
+    z-index: 20;
     pointer-events: none;
     margin-bottom: 15vh;
     margin-top: -53vh;

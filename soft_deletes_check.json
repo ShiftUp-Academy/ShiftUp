@@ -1,0 +1,62 @@
+[
+    {
+        "model": "App\\Models\\Categorie",
+        "table": "Categories",
+        "has_deleted_at": false
+    },
+    {
+        "model": "App\\Models\\Consultation",
+        "table": "Consultations",
+        "has_deleted_at": true
+    },
+    {
+        "model": "App\\Models\\Etape",
+        "table": "Etapes",
+        "has_deleted_at": true
+    },
+    {
+        "model": "App\\Models\\Lecon",
+        "table": "Lecons",
+        "has_deleted_at": true
+    },
+    {
+        "model": "App\\Models\\Live",
+        "table": "Lives",
+        "has_deleted_at": true
+    },
+    {
+        "model": "App\\Models\\Offre",
+        "table": "Offres",
+        "has_deleted_at": true
+    },
+    {
+        "model": "App\\Models\\ProgrammeFormation",
+        "table": "ProgrammeFormation",
+        "has_deleted_at": true
+    },
+    {
+        "model": "App\\Models\\ReponseConsultation",
+        "table": "ReponseConsultations",
+        "has_deleted_at": true
+    },
+    {
+        "model": "App\\Models\\Reussite",
+        "table": "reussites",
+        "has_deleted_at": false
+    },
+    {
+        "model": "App\\Models\\Temoignage",
+        "table": "Temoignage",
+        "has_deleted_at": true
+    },
+    {
+        "model": "App\\Models\\Theme",
+        "table": "Themes",
+        "has_deleted_at": true
+    },
+    {
+        "model": "App\\Models\\TypeDeCoaching",
+        "table": "TypeDeCoaching",
+        "has_deleted_at": true
+    }
+]
