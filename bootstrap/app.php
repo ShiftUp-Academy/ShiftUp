@@ -11,6 +11,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(\App\Http\Middleware\LogRequestResponse::class);
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
             \App\Http\Middleware\HandleInertiaRequests::class,
@@ -20,5 +21,14 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\Throwable $e, \Illuminate\Http\Request $request) {
+            if ($e->getCode() >= 500 || $e instanceof \Symfony\Component\HttpKernel\Exception\HttpException) {
+                \Illuminate\Support\Facades\Log::critical('EXCEPTION-CAUGHT: ' . $e->getMessage(), [
+                    'url' => $request->fullUrl(),
+                    'method' => $request->method(),
+                    'input' => $request->except(['password']),
+                    'trace' => $e->getTraceAsString()
+                ]);
+            }
+        });
     })->create();

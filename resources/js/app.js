@@ -70,14 +70,25 @@ createInertiaApp({
 
 // Gérer l'erreur 419 (CSRF Token Mismatch / Session Expired) globalement
 router.on('error', (event) => {
+    console.error('[INERTIA ERROR]', event.detail.errors || event);
     if (event.detail.errors && Object.values(event.detail.errors).includes('419')) {
         window.location.reload();
     }
 });
 
-// Intercepter les erreurs de statut HTTP via l'événement 'finish' ou 'invalid' pour 419
+// Intercepter les erreurs de statut HTTP via l'événement 'finish' ou 'invalid'
 router.on('invalid', (event) => {
-    if (event.detail.response.status === 419) {
+    const status = event.detail.response.status;
+    console.group(`[INERTIA INVALID-RESPONSE ${status}]`);
+    console.error('URL:', event.detail.response.url);
+    console.error('Data:', event.detail.response.data);
+    console.groupEnd();
+
+    if (status === 419) {
         window.location.reload();
     }
+});
+
+router.on('exception', (event) => {
+    console.error('[INERTIA EXCEPTION]', event.detail.exception);
 });

@@ -1,5 +1,5 @@
 <template>
-  <div class="video-sessions-list" id="nos-evenements-section" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave"
+  <div class="video-sessions-list no-global-reveal" id="nos-evenements-section" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave"
     @mousedown="onMouseDown" @mouseup="onMouseUp" @click="goToFacebook">
     <div ref="cursorRef" class="fb-isolated-marquee-cursor">
       <div class="marquee-wrapper">

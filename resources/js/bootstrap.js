@@ -13,8 +13,18 @@ if (token) {
 window.axios.interceptors.response.use(
     response => response,
     error => {
-        if (error.response && error.response.status === 419) {
-            window.location.reload();
+        if (error.response) {
+            console.error('[AXIOS ERROR]', {
+                status: error.response.status,
+                url: error.config.url,
+                data: error.response.data,
+                message: error.message
+            });
+            if (error.response.status === 419) {
+                window.location.reload();
+            }
+        } else {
+            console.error('[AXIOS ERROR] Network or unknown error', error.message);
         }
         return Promise.reject(error);
     }
