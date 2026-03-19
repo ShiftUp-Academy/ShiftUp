@@ -749,7 +749,7 @@ watch(() => page.url, () => {
 }
 
 .menu-items>a {
-  font-size: 1.1vw;
+  font-size: 1.2vw;
   color: white;
   padding: 0.8rem 1.8rem;
   border-radius: 20px;
@@ -843,10 +843,10 @@ watch(() => page.url, () => {
 .action-button {
   cursor: pointer;
   color: #090909;
-  font-size: 1vw;
+  font-size: 1.1vw;
   overflow: hidden;
   height: 1.3vw;
-  line-height: 1.3vw;
+  line-height: 1.1vw;
   text-decoration: none;
   display: inline-block;
   background: none;
@@ -986,7 +986,7 @@ watch(() => page.url, () => {
 .cart-label {
   color: #ffffff;
   font-weight: 500;
-  font-size: 0.8vw;
+  font-size: 1vw;
   text-transform: uppercase;
   letter-spacing: 1px;
   pointer-events: none;
@@ -1149,7 +1149,7 @@ watch(() => page.url, () => {
 }
 
 .lang-name {
-  font-size: 0.9vw;
+  font-size: 1vw;
   font-weight: 700;
   z-index: 1;
   text-transform: uppercase;

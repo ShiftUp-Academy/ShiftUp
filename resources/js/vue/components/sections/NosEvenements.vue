@@ -134,6 +134,36 @@ const updateMouse = (e) => {
     x: e.clientX - 75,
     y: e.clientY - 20
   });
+
+  // Détection de collision pour les liens et triggers vidéo
+  let isTouchingInteractive = false;
+  const interactiveElements = document.querySelectorAll('#nos-evenements-section .session-link, #nos-evenements-section .video-manual-trigger, #nos-evenements-section iframe');
+  
+  interactiveElements.forEach(el => {
+    if (isTouchingInteractive) return;
+    const rect = el.getBoundingClientRect();
+    const radius = 75; // Largeur du marquee est 150px
+    
+    const closestX = Math.max(rect.left, Math.min(e.clientX, rect.right));
+    const closestY = Math.max(rect.top, Math.min(e.clientY, rect.bottom));
+    
+    const distanceX = e.clientX - closestX;
+    const distanceY = e.clientY - closestY;
+    const distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
+    
+    if (distanceSquared < (radius * radius)) {
+      isTouchingInteractive = true;
+    }
+  });
+
+  const section = document.getElementById('nos-evenements-section');
+  if (isTouchingInteractive || isCursorForcedHidden.value) {
+    hideCursor();
+    if (section) section.style.cursor = 'pointer';
+  } else {
+    showCursor();
+    if (section) section.style.cursor = 'none';
+  }
 };
 
 const onMouseEnter = (e) => {
@@ -234,7 +264,7 @@ const themeColors = {
 
 .marquee-content i {
   margin-right: 5px;
-  font-size: 0.9rem;
+  font-size: 1.2vw;
 }
 
 @keyframes marquee-animation {
@@ -253,18 +283,14 @@ const themeColors = {
   justify-content: center;
   background: #000;
   padding-bottom: 9vh;
+  cursor: none;
 }
 
 .session-link,
 .video-manual-trigger,
 .video-wrapper iframe {
   cursor: pointer !important;
-}
-
-.session-link,
-.video-manual-trigger,
-.video-wrapper iframe {
-  cursor: pointer !important;
+  pointer-events: auto;
 }
 
 .list-container-bg {
@@ -393,7 +419,7 @@ const themeColors = {
   width: 100px;
   height: 100px;
   color: white;
-  font-size: 1.5rem;
+  font-size: 1.5vw;
   z-index: 2;
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }

@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 
 Route::post('/locale', function (Request $request) {
     $request->validate(['locale' => 'required|in:fr,en,mg']);
-    session()->put('locale', $request->locale);
+    session()->put('locale', $request->input('locale'));
     return back();
 })->name('locale.change');
 
@@ -101,6 +101,7 @@ Route::post('/lecons/record-opening', [ProgrammeController::class, 'recordOpenin
 Route::post('/consultations', [ConsultationController::class, 'store'])->name('consultations.store');
 
 Route::prefix('admin')->middleware(['auth', 'moderator'])->group(function () {
+    Route::post('/heropage-video', [\App\Http\Controllers\HeropageVideoController::class, 'update'])->name('admin.heropage-video.update');
     Route::get('/programmes', [ProgrammeController::class, 'index'])->name('admin.programmes');
     Route::post('/programmes/insertion', [ProgrammeController::class, 'InsertionProgramme'])->name('admin.programmes.insertion');
     Route::post('/programmes/{id}/update', [ProgrammeController::class, 'majProgramme'])->name('admin.programmes.update');

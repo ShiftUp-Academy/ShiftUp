@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ProgrammeFormation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use App\Models\Utilisateur;
@@ -20,6 +21,8 @@ use App\Models\ReponseConsultation;
 use App\Models\Categorie;
 use App\Models\Reussite;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\NouveauContenuNotification;
+use App\Notifications\StepValidationNotification;
 
 class ProgrammeController extends Controller
 {
@@ -208,7 +211,7 @@ class ProgrammeController extends Controller
             
             if (Storage::disk('public')->exists($relativePath)) {
                 if ($request->has('download')) {
-                    return Storage::disk('public')->download($relativePath);
+                    return response()->download(Storage::disk('public')->path($relativePath));
                 }
 
                 return redirect($lesson->Contenu);
@@ -234,10 +237,10 @@ class ProgrammeController extends Controller
         }
 
         $typeMap = [
-            'Programme' => \App\Models\ProgrammeFormation::class,
+            'Programme' => ProgrammeFormation::class,
             'Theme' => \App\Models\Theme::class,
             'Lecon' => \App\Models\Lecon::class,
-            'Etape' => \App\Models\Etape::class,
+            'Etape' => Etape::class,
         ];
 
         $modelClass = $typeMap[$request->entite_type] ?? null;
@@ -308,7 +311,6 @@ class ProgrammeController extends Controller
             ]
         );
 
-        // If it already existed but DateOuverture was null (though shouldn't happen with firstOrCreate defaults)
         if (!$avancement->DateOuverture) {
             $avancement->update(['DateOuverture' => now()]);
         }
@@ -364,9 +366,12 @@ class ProgrammeController extends Controller
             ->orderBy('DateCreation', 'desc')
             ->get();
 
+        $heroVideo = \App\Models\HeropageVideo::first()?->video_url;
+
         return Inertia::render('Home', [
             'programmes' => $programmes,
-            'temoignages' => $temoignages
+            'temoignages' => $temoignages,
+            'heroVideo' => $heroVideo
         ]);
     }
 
@@ -497,7 +502,7 @@ class ProgrammeController extends Controller
             'NombreDeJours' => $valide['NombreDeJours'] ?? null,
             'ModaliteSeminaire' => $valide['ModaliteSeminaire'] ?? 'Présentiel',
             'LienGoogleMeet' => $valide['LienGoogleMeet'] ?? null,
-            'idAuteur' => Auth::id() ?? \App\Models\Utilisateur::where('Role', 'admin')->first()?->IdUtilisateur,
+            'idAuteur' => Auth::id() ?? Utilisateur::where('Role', 'admin')->first()?->IdUtilisateur,
         ]);
         
         if (($valide['Type'] ?? 'Formation') === 'Formation') {
@@ -510,7 +515,6 @@ class ProgrammeController extends Controller
             ]);
         }
 
-        // Notification Automatique à tous les utilisateurs
         if ($programme->Statut === 'Publié') {
             $users = Utilisateur::where('Role', '!=', 'admin')->get();
             Notification::send($users, new NouveauContenuNotification($programme, $programme->Type ?? 'Programme'));
@@ -574,13 +578,11 @@ class ProgrammeController extends Controller
             'NombreDeJours' => $valide['NombreDeJours'] ?? null,
             'ModaliteSeminaire' => $valide['ModaliteSeminaire'] ?? $programme->ModaliteSeminaire,
             'LienGoogleMeet' => $valide['LienGoogleMeet'] ?? null,
-            'idAuteur' => Auth::id() ?? $programme->idAuteur ?? \App\Models\Utilisateur::where('Role', 'admin')->first()?->IdUtilisateur,
+            'idAuteur' => Auth::id() ?? $programme->idAuteur ?? Utilisateur::where('Role', 'admin')->first()?->IdUtilisateur,
         ]);
 
-        // Notification si le programme est publié et ne l'était pas avant (Republication ou 1ère publication après brouillon)
         if ($valide['Statut'] === 'Publié' && !$wasPublished) {
             $users = Utilisateur::where('Role', '!=', 'admin')->get();
-            // On peut rafraîchir le programme pour avoir les données à jour dans la notif si besoin
              $programme->refresh();
             Notification::send($users, new NouveauContenuNotification($programme, $programme->Type ?? 'Programme'));
         }
@@ -610,11 +612,10 @@ class ProgrammeController extends Controller
         
         $copy = $original->replicate();
         $copy->Titre = $original->Titre . ' (Copie)';
-        $copy->Statut = 'Dépublié'; // Default to unpublished for safety
+        $copy->Statut = 'Dépublié';
         $copy->DateCreation = now();
         $copy->save();
         
-        // Duplicate themes and their lessons
         foreach ($original->themes as $theme) {
             $themeCopy = $theme->replicate();
             $themeCopy->IdProgramme = $copy->IdProgrammeFormation;
@@ -720,11 +721,8 @@ class ProgrammeController extends Controller
             $path = $file->store('lessons/pdfs', 'public');
             $validated['Contenu'] = '/storage/' . $path;
         } else if ($validated['TypeLecon'] === 'PDF' && !$request->has('Contenu')) {
-            // If TypeLecon is PDF, no new file, and no Contenu field in request, retain existing Contenu
-            // This handles cases where the user updates other fields but not the PDF file
-            unset($validated['Contenu']); // Do not update Contenu field if no new file and no Contenu in request
+            unset($validated['Contenu']);
         } else if ($validated['TypeLecon'] !== 'PDF' && $lesson->TypeLecon === 'PDF' && $lesson->Contenu && str_starts_with($lesson->Contenu, '/storage/')) {
-            // If TypeLecon changed from PDF to something else, delete the old PDF file
             Storage::disk('public')->delete(str_replace('/storage/', '', $lesson->Contenu));
         }
 
@@ -737,12 +735,11 @@ class ProgrammeController extends Controller
     {
         $lesson = \App\Models\Lecon::findOrFail($id);
         
-        // If the lesson has a PDF file, delete it from storage
         if ($lesson->TypeLecon === 'PDF' && $lesson->Contenu && str_starts_with($lesson->Contenu, '/storage/')) {
             Storage::disk('public')->delete(str_replace('/storage/', '', $lesson->Contenu));
         }
 
-        $lesson->etapes()->delete(); // Soft delete etapes
+        $lesson->etapes()->delete();
         $lesson->delete();
 
         return back()->with('success', 'La leçon a été supprimée.');
@@ -1123,12 +1120,10 @@ class ProgrammeController extends Controller
         ]);
 
         if ($request->StatutValidation === 'Validé') {
-            // Attribution des points
             if ($submission->etape->PointsOfferts > 0) {
                 $submission->utilisateur->increment('Points', $submission->etape->PointsOfferts);
             }
 
-            // Marquer l'avancement comme terminé
             \App\Models\Avancement::updateOrCreate(
                 [
                     'IdUtilisateur' => $submission->IdUtilisateur,
@@ -1141,7 +1136,6 @@ class ProgrammeController extends Controller
                 ]
             );
 
-            // Vérifier si la leçon est terminée
             $lesson = $submission->etape->lecon;
             $allStepsCount = $lesson->etapes()->where('Statut', 'Publié')->count();
             $completedStepsCount = \App\Models\Avancement::where('IdUtilisateur', $submission->IdUtilisateur)
@@ -1165,7 +1159,6 @@ class ProgrammeController extends Controller
             }
         }
 
-        // Envoyer la notification
         $submission->utilisateur->notify(new StepValidationNotification(
             $submission->etape,
             $request->ReponseAdmin,

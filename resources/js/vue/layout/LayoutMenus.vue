@@ -158,6 +158,32 @@ const moveCursor = (e) => {
         duration: 0.1,
         ease: "power2.out"
     });
+
+    // Détection de collision "bords du cercle" pour le bouton PremiumButton dans Témoignages
+    const premiumBtn = document.querySelector('.card-testimonials .mobile-temoignage-btn');
+    if (premiumBtn) {
+        const btnRect = premiumBtn.getBoundingClientRect();
+        const radius = 40; // La moitié de 80px
+        
+        const closestX = Math.max(btnRect.left, Math.min(e.clientX, btnRect.right));
+        const closestY = Math.max(btnRect.top, Math.min(e.clientY, btnRect.bottom));
+        
+        const distanceX = e.clientX - closestX;
+        const distanceY = e.clientY - closestY;
+        const distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
+        
+        if (distanceSquared < (radius * radius)) {
+            gsap.to(cursorRef.value, { scale: 0, opacity: 0, duration: 0.2 });
+            const section = document.querySelector('.bento-section');
+            if (section) section.style.cursor = 'pointer';
+        } else {
+            const section = document.querySelector('.bento-section');
+            if (section) section.style.cursor = 'none';
+        }
+    } else {
+        const section = document.querySelector('.bento-section');
+        if (section) section.style.cursor = 'none';
+    }
 };
 
 const showCursor = (color = 'white') => {
@@ -199,6 +225,7 @@ const onLiveLeaveCustom = () => {
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    cursor: none;
 }
 
 .bento-grid {
@@ -237,11 +264,12 @@ const onLiveLeaveCustom = () => {
 
 .card-testimonials {
     grid-area: 1 / 1 / 3 / 2;
+    cursor: auto;
 }
 
 .card-coaching {
     grid-area: 3 / 1 / 4 / 2;
-    cursor: none;
+    cursor: inherit;
 }
 
 .card-categories {
@@ -249,21 +277,22 @@ const onLiveLeaveCustom = () => {
     height: 50.5vh;
     margin-top: 11vh;
     z-index: 10;
+    cursor: auto;
 }
 
 .card-live {
     grid-area: 3 / 2 / 4 / 3;
-    cursor: none;
+    cursor: inherit;
 }
 
 .card-articles {
     grid-area: 1 / 3 / 2 / 4;
-    cursor: none;
+    cursor: inherit;
 }
 
 .card-organisme {
     grid-area: 2 / 3 / 4 / 4;
-    cursor: none;
+    cursor: inherit;
 }
 
 .card {

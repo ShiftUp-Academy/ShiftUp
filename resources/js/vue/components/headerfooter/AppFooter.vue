@@ -171,9 +171,9 @@ const linksClients = [
 
 .newsletter-text {
   margin-top: 1.5rem;
-  font-size: 1.3vw;
+  font-size: 2vw;
   color: #e7e7e7;
-  line-height: 1.3;
+  line-height: 1.1;
   max-width: 35vw;
 }
 
@@ -218,9 +218,9 @@ const linksClients = [
 
 .newsletter-disclaimer {
   margin-top: 1.5rem;
-  font-size: 0.9vw;
+  font-size: 1.2vw;
   color: #888;
-  line-height: 1.5;
+  line-height: 1.1;
   max-width: 40vw;
 }
 
@@ -247,7 +247,7 @@ const linksClients = [
 .link {
   text-decoration: none;
   color: #999;
-  font-size: 1.1vw;
+  font-size: 1.3vw;
   transition: color 0.2s;
 }
 
@@ -297,7 +297,7 @@ const linksClients = [
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.9vw;
+  font-size: 1.1vw;
   color: #ffffff;
   padding-top: 2rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -310,7 +310,7 @@ const linksClients = [
 
 .social-icon {
   color: white;
-  font-size: 1vw;
+  font-size: 1.2vw;
   transition: transform 0.3s ease;
 }
 

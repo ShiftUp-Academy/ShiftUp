@@ -16,7 +16,8 @@ const props = defineProps({
   temoignages: {
     type: Array,
     default: () => []
-  }
+  },
+  heroVideo: String
 });
 
 const seminaires = computed(() => {
@@ -37,7 +38,7 @@ const freeResources = computed(() => {
 </script>
 
 <template>
-  <Heropage2 />
+  <Heropage2 :hero-video="props.heroVideo" />
   <SeminaireSection v-if="seminaires.length > 0" :seminaires="seminaires" />
   <RessourceGratuites :resources="freeResources" />
   <NosEvenements />

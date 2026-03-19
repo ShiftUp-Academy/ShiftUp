@@ -161,8 +161,28 @@ onMounted(() => {
 
     const isOverHeader = e.clientY < 110;
 
-    const targetScale = (isHoveringLink.value || isOverHeader || !isInsideSection.value) ? 0 : 1;
-    const targetOpacity = (isHoveringLink.value || isOverHeader || !isInsideSection.value) ? 0 : 1;
+    // Détection de collision "bords du cercle" pour le lien hero-subtitle
+    let isTouchingLink = false;
+    const linkBtn = document.querySelector('.hero-subtitle');
+    if (linkBtn && isInsideSection.value) {
+      const linkRect = linkBtn.getBoundingClientRect();
+      const radius = 67.5; // La moitié de 135px
+      
+      const closestX = Math.max(linkRect.left, Math.min(e.clientX, linkRect.right));
+      const closestY = Math.max(linkRect.top, Math.min(e.clientY, linkRect.bottom));
+      
+      const distanceX = e.clientX - closestX;
+      const distanceY = e.clientY - closestY;
+      const distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
+      
+      if (distanceSquared < (radius * radius)) {
+        isTouchingLink = true;
+      }
+    }
+
+    const isHidden = (isHoveringLink.value || isTouchingLink || isOverHeader || !isInsideSection.value);
+    const targetScale = isHidden ? 0 : 1;
+    const targetOpacity = isHidden ? 0 : 1;
 
     gsap.to(cursorRef.value, {
       scale: targetScale,
@@ -170,6 +190,14 @@ onMounted(() => {
       duration: 0.3,
       ease: "power2.out"
     })
+
+    if (rootContainer.value) {
+      if (isHidden) {
+        rootContainer.value.style.cursor = (isHoveringLink.value || isTouchingLink) ? 'pointer' : 'auto';
+      } else {
+        rootContainer.value.style.cursor = 'none';
+      }
+    }
 
     // Auto-hide si on arrête de bouger
     clearTimeout(cursorTimeout)

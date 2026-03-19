@@ -27,6 +27,12 @@
             <div class="black-curve-bg" ref="curveBgRef"></div>
 
             <div class="video-wrapper" ref="videoWrapperRef">
+                <!-- Admin Edit Button -->
+                <div v-if="isAdmin" class="admin-edit-video" @click.stop="openEditModal">
+                    <LiquidGlass borderRadius="50%" center class="edit-btn-glass">
+                        <i class="fas fa-edit"></i>
+                    </LiquidGlass>
+                </div>
                 <div class="video-overlay" ref="videoOverlayRef">
                     <div class="scroll-indicator">
                         <div class="scroll-pill">
@@ -37,15 +43,37 @@
                         </div>
                     </div>
                 </div>
-                <video class="transition-video" ref="videoRef" muted loop playsinline autoplay preload="metadata"
-                    :src="heroVideoSrc">
+                <video class="transition-video" ref="videoRef" :muted="isMuted" loop playsinline autoplay preload="metadata"
+                    :src="currentVideoSrc">
                 </video>
+
+                <div class="mute-control-container" @click="isMuted = !isMuted">
+                    <LiquidGlass borderRadius="50px" center class="mute-glass-btn">
+                        <div class="mute-btn-content">
+                            <i v-if="isMuted" class="fas fa-volume-mute"></i>
+                            <i v-else class="fas fa-volume-up"></i>
+                        </div>
+                    </LiquidGlass>
+                </div>
             </div>
         </div>
 
         <div class="custom-cursor" ref="cursorRef" @click="handleCursorClick">
             <span ref="cursorTextRef">{{ $t('Heropage2.voir_programme') }}</span>
         </div>
+
+        <!-- Premium Modal for Video Update -->
+        <PremiumModal :isOpen="isModalOpen" @close="isModalOpen = false" header="Modifier la Vidéo Hero" dark width="600px">
+            <form @submit.prevent="submitVideoUpdate" class="video-update-form">
+                <div class="form-group">
+                    <label>Lien Cloudinary de la vidéo</label>
+                    <input type="url" v-model="form.video_url" placeholder="https://res.cloudinary.com/..." required class="premium-input" />
+                </div>
+                <div class="form-actions">
+                    <PremiumButton type="submit" text="Mettre à jour" :disabled="form.processing" />
+                </div>
+            </form>
+        </PremiumModal>
     </div>
 </template>
 
@@ -53,8 +81,18 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { router, usePage } from '@inertiajs/vue3';
+import { router, usePage, useForm } from '@inertiajs/vue3';
 import ShaderBackground from '../ui/ShaderBackground.vue';
+import LiquidGlass from '../ui/LiquidGlass.vue';
+import PremiumModal from '../ui/PremiumModal.vue';
+import PremiumButton from '../ui/PremiumButton.vue';
+
+const props = defineProps({
+    heroVideo: {
+        type: String,
+        default: null
+    }
+});
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -67,7 +105,28 @@ const themeColors = {
     accent: '#1A888D',
     dark: '#000000'
 };
-const heroVideoSrc = "https://res.cloudinary.com/dzgdjei0h/video/upload/v1766751142/Shift_Up_1_Workflow_1_lzre8i.mp4";
+const defaultVideoSrc = "https://res.cloudinary.com/dzgdjei0h/video/upload/v1766751142/Shift_Up_1_Workflow_1_lzre8i.mp4";
+const currentVideoSrc = computed(() => props.heroVideo || defaultVideoSrc);
+const isMuted = ref(true);
+
+const isAdmin = computed(() => usePage().props.auth.user?.Role === 'admin');
+const isModalOpen = ref(false);
+
+const form = useForm({
+    video_url: props.heroVideo || defaultVideoSrc
+});
+
+const openEditModal = () => {
+    isModalOpen.value = true;
+};
+
+const submitVideoUpdate = () => {
+    form.post('/admin/heropage-video', {
+        onSuccess: () => {
+            isModalOpen.value = false;
+        }
+    });
+};
 
 const titleWords = computed(() => {
     const fullTitle = $t('Heropage2.title') !== 'Heropage2.title'
@@ -184,13 +243,36 @@ const handleGlobalMouseMove = (e) => {
     const isOverHeader = elementUnderMouse?.closest('header') ||
         elementUnderMouse?.closest('.menu') ||
         elementUnderMouse?.closest('.footer-menu') ||
-        elementUnderMouse?.closest('.robot-container');
+        elementUnderMouse?.closest('.robot-container') ||
+        elementUnderMouse?.closest('.admin-edit-video');
 
-    if (!isInside || isOverHeader) {
-        gsap.set(cursorRef.value, { opacity: 0, scale: 0 });
+    let isTouchingMute = false;
+    const muteBtn = document.querySelector('.mute-control-container');
+    if (muteBtn && isInside) {
+        const muteRect = muteBtn.getBoundingClientRect();
+        const radius = (window.innerWidth * 0.045);
+        
+        const closestX = Math.max(muteRect.left, Math.min(e.clientX, muteRect.right));
+        const closestY = Math.max(muteRect.top, Math.min(e.clientY, muteRect.bottom));
+        
+        const distanceX = e.clientX - closestX;
+        const distanceY = e.clientY - closestY;
+        const distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
+        
+        if (distanceSquared < (radius * radius)) {
+            isTouchingMute = true;
+        }
+    }
+
+    const isOverInteractive = isOverHeader || isTouchingMute;
+
+    if (!isInside || isOverInteractive) {
+        gsap.to(cursorRef.value, { opacity: 0, scale: 0, duration: 0.2 });
+        if (rootRef.value) rootRef.value.style.cursor = isOverInteractive ? 'pointer' : 'auto';
         return;
     } else {
         gsap.to(cursorRef.value, { opacity: 1, scale: 1, duration: 0.2 });
+        if (rootRef.value) rootRef.value.style.cursor = 'none';
     }
 
     const isOverVideo = videoWrapperRef.value?.contains(elementUnderMouse) ||
@@ -259,13 +341,13 @@ onBeforeUnmount(() => {
     position: relative;
     scrollbar-width: none;
     background-color: #010101;
-    cursor: none !important;
+    cursor: none;
 }
 
 .hero-section-bg,
 .video-wrapper,
 .black-curve-bg {
-    cursor: none !important;
+    cursor: inherit;
 }
 
 .hero-section-bg {
@@ -301,7 +383,7 @@ onBeforeUnmount(() => {
     top: 12%;
     transform: translateX(-50%);
     font-weight: 400;
-    font-size: 4vw; /* Échelle responsive */
+    font-size: 4vw;
     line-height: 80%;
     color: #FFFFFF;
     text-align: center;
@@ -383,6 +465,36 @@ onBeforeUnmount(() => {
     object-fit: cover;
 }
 
+.mute-control-container {
+    position: absolute;
+    bottom: 2.5vh;
+    left: 2vw;
+    z-index: 30;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.mute-glass-btn {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.mute-glass-btn:hover {
+    transform: scale(1.1);
+}
+
+.mute-btn-content {
+    color: white;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .video-overlay {
     position: absolute;
     inset: 0;
@@ -409,7 +521,6 @@ onBeforeUnmount(() => {
 .mouse-icon {
     width: 20px;
     height: 32px;
-    border: 1.5px solid rgba(255, 255, 255, 0.4);
     border-radius: 10px;
     position: relative;
     display: flex;
@@ -598,6 +709,89 @@ onBeforeUnmount(() => {
 
     .video-transition-container {
         margin-top: -50vh;
+    }
+}
+
+/* Admin Edit Video Button */
+.admin-edit-video {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.edit-btn-glass {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #fff;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.edit-btn-glass:hover {
+    transform: scale(1.15);
+}
+
+/* Video Update Form */
+.video-update-form {
+    padding-top: 1.5rem;
+}
+
+.video-update-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.video-update-form label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.video-update-form .premium-input {
+    width: 100%;
+    padding: 14px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
+}
+
+.video-update-form .premium-input:focus {
+    border-color: #1A888D;
+    box-shadow: 0 0 0 3px rgba(26, 136, 141, 0.2);
+}
+
+.video-update-form .premium-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.video-update-form .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+    .admin-edit-video {
+        top: 1vh;
+        right: 3vw;
+    }
+
+    .edit-btn-glass {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
     }
 }
 </style>
