@@ -222,7 +222,7 @@ const themeColors = {
 
 .marquee-content span {
   font-family: sans-serif;
-  font-size: 0.70rem;
+  font-size: 0.6vw;
   font-weight: 600;
   color: #ffffff;
   display: flex;
@@ -296,7 +296,7 @@ const themeColors = {
 }
 
 .sidebar-title {
-  font-size: 3.5rem;
+  font-size: 3vw;
   margin-left: 2vw;
   margin-top: 0;
   font-weight: 300;
@@ -308,7 +308,7 @@ const themeColors = {
 
 .description-text {
   color: #ffffff;
-  font-size: 1.4rem;
+  font-size: 1.2vw;
   line-height: 1.3;
   margin-left: 2.3vw;
   font-weight: 300;
@@ -348,7 +348,7 @@ const themeColors = {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.8rem;
+  font-size: 0.7vw;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.8);
   margin-bottom: 15px;
@@ -409,7 +409,7 @@ const themeColors = {
 }
 
 .category-tag {
-  font-size: 0.9rem;
+  font-size: 0.8vw;
   color: rgba(255, 255, 255, 0.8);
 }
 
@@ -419,7 +419,7 @@ const themeColors = {
 }
 
 .session-link {
-  font-size: 0.8rem;
+  font-size: 0.7vw;
   font-weight: 700;
   color: #fff;
   text-decoration: none;

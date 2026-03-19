@@ -352,7 +352,7 @@ const initPayment = async (provider) => {
 }
 
 .hover-title {
-    font-size: 5rem;
+    font-size: 5vw;
     line-height: 1.1;
     margin: 0 0 20px 0;
     cursor: default;
@@ -371,7 +371,7 @@ const initPayment = async (provider) => {
 
 .premium-subtitle {
     color: rgba(255, 255, 255, 0.859);
-    font-size: 1.3rem;
+    font-size: 1.2vw;
     font-weight: 300;
 }
 
@@ -437,7 +437,7 @@ const initPayment = async (provider) => {
 }
 
 .item-title {
-    font-size: 1.4rem;
+    font-size: 1.3vw;
     font-weight: 600;
     color: #fff;
     margin: 0;
@@ -450,7 +450,7 @@ const initPayment = async (provider) => {
 }
 
 .item-price {
-    font-size: 1.5rem;
+    font-size: 1.4vw;
     font-weight: 700;
     color: #ffffff;
 }
@@ -481,7 +481,7 @@ const initPayment = async (provider) => {
 }
 
 .summary-title {
-    font-size: 0.9rem;
+    font-size: 0.8vw;
     font-weight: 800;
     letter-spacing: 2px;
     margin-bottom: 30px;
@@ -499,7 +499,7 @@ const initPayment = async (provider) => {
     display: flex;
     justify-content: space-between;
     color: rgba(255, 255, 255, 0.897);
-    font-size: 1rem;
+    font-size: 0.9vw;
 }
 
 .summary-divider {
@@ -523,7 +523,7 @@ const initPayment = async (provider) => {
 }
 
 .final-price {
-    font-size: 3rem;
+    font-size: 2.8vw;
     font-weight: 200;
     color: #ffffff;
     line-height: 1;

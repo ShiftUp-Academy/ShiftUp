@@ -381,7 +381,7 @@ const onLiveLeaveCustom = () => {
 }
 
 .card-title-temoignage {
-    font-size: 2.2rem;
+    font-size: 2.2vw;
     font-weight: 700;
     margin-top: 11vh;
     margin-bottom: 0;
@@ -389,7 +389,7 @@ const onLiveLeaveCustom = () => {
 }
 
 .card-desc-temoignage {
-    font-size: 1.2em;
+    font-size: 1.1vw;
     margin-top: 10px;
     margin-bottom: 2rem;
 }
@@ -401,7 +401,7 @@ const onLiveLeaveCustom = () => {
 }
 
 .card-title-organisme {
-    font-size: 2.2rem;
+    font-size: 2.2vw;
     margin-top: 11vh;
     margin-bottom: 0;
     font-weight: 600;
@@ -409,7 +409,7 @@ const onLiveLeaveCustom = () => {
 }
 
 .card-desc-organisme {
-    font-size: 1.2em;
+    font-size: 1.1vw;
     color: rgb(255, 255, 255);
     margin-top: 10px;
     margin-bottom: 0;
@@ -422,21 +422,21 @@ const onLiveLeaveCustom = () => {
 }
 
 .card-title {
-    font-size: 2.2rem;
+    font-size: 2.2vw;
     font-weight: 600;
 }
 
 .sub-label {
     margin-bottom: 1.5vh;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.9vw;
     text-transform: uppercase;
     letter-spacing: 2px;
     display: block;
 }
 
 .cat-desc {
-    font-size: 1.2em;
+    font-size: 1.1vw;
     margin-bottom: 1.5vh;
     line-height: 1.4;
 }
@@ -450,7 +450,7 @@ const onLiveLeaveCustom = () => {
 
 .cat-link {
     color: #ebebeb;
-    font-size: 1.8rem;
+    font-size: 1.6vw;
     line-height: 1.3;
     font-weight: 600;
     text-decoration: none;
@@ -555,6 +555,20 @@ const onLiveLeaveCustom = () => {
         width: 140px !important;
         margin-top: 20px !important;
         font-size: 1rem !important;
+    }
+
+    /* Overrides for mobile readability */
+    .card-title, .card-title-temoignage, .card-title-organisme {
+        font-size: 2rem !important;
+    }
+    .card-desc-temoignage, .card-desc-organisme, .cat-desc {
+        font-size: 1rem !important;
+    }
+    .sub-label {
+        font-size: 0.8rem !important;
+    }
+    .cat-link {
+        font-size: 1.4rem !important;
     }
 }
 </style>

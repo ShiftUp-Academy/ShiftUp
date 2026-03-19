@@ -171,7 +171,7 @@ const linksClients = [
 
 .newsletter-text {
   margin-top: 1.5rem;
-  font-size: 1.6rem;
+  font-size: 1.3vw;
   color: #e7e7e7;
   line-height: 1.3;
   max-width: 35vw;
@@ -195,7 +195,7 @@ const linksClients = [
   color: #ffffff;
   flex-grow: 1;
   outline: none;
-  font-size: 2.5rem;
+  font-size: 2.2vw;
   font-weight: 300;
   letter-spacing: -1px;
 }
@@ -218,7 +218,7 @@ const linksClients = [
 
 .newsletter-disclaimer {
   margin-top: 1.5rem;
-  font-size: 1rem;
+  font-size: 0.9vw;
   color: #888;
   line-height: 1.5;
   max-width: 40vw;
@@ -231,7 +231,7 @@ const linksClients = [
 
 /* Sections de liens & Animation de chute */
 .section-title {
-  font-size: 1.3rem;
+  font-size: 1.2vw;
   font-weight: 600;
   margin-bottom: 1.5rem;
 }
@@ -247,7 +247,7 @@ const linksClients = [
 .link {
   text-decoration: none;
   color: #999;
-  font-size: 1.3rem;
+  font-size: 1.1vw;
   transition: color 0.2s;
 }
 
@@ -297,7 +297,7 @@ const linksClients = [
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 1rem;
+  font-size: 0.9vw;
   color: #ffffff;
   padding-top: 2rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -310,7 +310,7 @@ const linksClients = [
 
 .social-icon {
   color: white;
-  font-size: 1.2rem;
+  font-size: 1vw;
   transition: transform 0.3s ease;
 }
 

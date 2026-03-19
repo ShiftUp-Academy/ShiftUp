@@ -258,14 +258,14 @@ const submitForm = async () => {
 }
 
 .content-value {
-  font-size: 1.1rem;
+  font-size: 1.1vw;
   font-weight: 600;
   color: #ffffff;
   margin: 0;
 }
 
 .content-label {
-  font-size: 0.65rem;
+  font-size: 0.6vw;
   font-weight: 700;
   color: #aaa;
   text-transform: uppercase;
@@ -287,7 +287,7 @@ const submitForm = async () => {
   align-items: center;
   gap: 12px;
   color: #ccc;
-  font-size: 0.9rem;
+  font-size: 0.8vw;
   font-weight: 500;
 }
 
@@ -345,7 +345,7 @@ const submitForm = async () => {
 }
 
 .bubble-inner p {
-  font-size: 1.25rem;
+  font-size: 1.1vw;
   font-weight: 900;
   margin-right: -5vw;
   margin: 0;
@@ -518,7 +518,7 @@ const submitForm = async () => {
 }
 
 .form-line-group label {
-  font-size: 0.75rem;
+  font-size: 0.7vw;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -532,7 +532,7 @@ const submitForm = async () => {
   border-bottom: 1px solid rgba(255, 255, 255, 0.4);
   padding: 10px 0;
   color: white;
-  font-size: 1.1rem;
+  font-size: 1vw;
   outline: none;
   font-family: inherit;
 }

@@ -154,7 +154,7 @@ const splitText = (text) => {
 }
 
 .impact-title {
-  font-size: 2.5rem;
+  font-size: 2.5vw;
   width: 160vh;
   font-weight: 500;
   line-height: 1.2;
@@ -170,7 +170,7 @@ const splitText = (text) => {
 }
 
 .supporting-text p {
-  font-size: 1.25rem;
+  font-size: 1.2vw;
   font-weight: 400;
   line-height: 1.6;
   margin: 0;
@@ -221,12 +221,12 @@ const splitText = (text) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: 1vw;
   font-weight: 600;
 }
 
 .asset-text {
-  font-size: 1rem;
+  font-size: 0.9vw;
   line-height: 1.3;
   color: #ffffff;
   margin: 0;
@@ -238,7 +238,7 @@ const splitText = (text) => {
   font-weight: 800;
   display: block;
   margin-bottom: 0.5rem;
-  font-size: 1.1rem;
+  font-size: 1.1vw;
 }
 
 .remaining-text {
@@ -283,6 +283,7 @@ const splitText = (text) => {
   }
 
   .supporting-text p {
+    font-size: 1.1rem;
     line-height: 1.3;
   }
 

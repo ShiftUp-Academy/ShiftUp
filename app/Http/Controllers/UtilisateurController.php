@@ -401,12 +401,10 @@ class UtilisateurController extends Controller
             'content' => 'required|string',
         ]);
 
-        $subject = $request->subject;
-        $content = $request->content;
+        $subject = $request->input('subject');
+        $content = $request->input('content');
 
-        // Get all registered users who subscribed
         $userEmails = Utilisateur::where('Newsletter', true)->pluck('Email')->toArray();
-        // Get all footer subscribers
         $subscriberEmails = NewsletterSubscription::pluck('Email')->toArray();
 
         $allEmails = array_unique(array_merge($userEmails, $subscriberEmails));

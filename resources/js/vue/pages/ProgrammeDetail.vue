@@ -1068,7 +1068,7 @@ onMounted(() => {
 }
 
 .hover-title {
-    font-size: 5rem;
+    font-size: 5vw;
     line-height: 1.1;
     margin: 0 0 30px 0;
     cursor: default;
@@ -1094,7 +1094,7 @@ onMounted(() => {
 .tag {
     padding: 8px 16px;
     border-radius: 30px;
-    font-size: 0.9rem;
+    font-size: 0.8vw;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -1102,7 +1102,7 @@ onMounted(() => {
 
 .tag.premium {
     color: #878787;
-    font-size: 2rem;
+    font-size: 1.8vw;
     font-weight: 500;
 }
 
@@ -1261,7 +1261,7 @@ onMounted(() => {
 }
 
 .section-title {
-    font-size: 2.5rem;
+    font-size: 2.5vw;
     font-weight: 500;
     margin-bottom: 25px;
     width: 30vw;
@@ -1273,7 +1273,7 @@ onMounted(() => {
 .description-text {
     line-height: 1.6;
     color: #e6e6e6;
-    font-size: 1.25rem;
+    font-size: 1.2vw;
     opacity: 0.85;
     white-space: pre-wrap;
 }
@@ -1363,7 +1363,7 @@ onMounted(() => {
 }
 
 .theme-number {
-    font-size: 1.7rem;
+    font-size: 1.5vw;
     font-weight: 700;
     color: #ffffff;
     margin-right: 20px;
@@ -1373,7 +1373,7 @@ onMounted(() => {
 .theme-title {
     flex: 1;
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1vw;
     font-weight: 600;
     color: white;
 }
@@ -2153,7 +2153,7 @@ onMounted(() => {
     }
 
     .description-text {
-        font-size: 1.1rem;
+        font-size: 1.1rem !important;
     }
 
     .fs-hover-nav {

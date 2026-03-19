@@ -123,13 +123,13 @@ defineEmits(['update:searchValue', 'update:selectedCategory', 'complete', 'reset
   border-radius: 0 !important;
   color: #fff !important;
   font-family: 'Plus Jakarta Sans', sans-serif !important;
-  font-size: 1rem !important;
+  font-size: 0.9vw !important;
   padding: 10px 0 !important;
   box-shadow: none !important;
 }
 
 :deep(.p-autocomplete-input::placeholder) {
-  font-size: 1rem;
+  font-size: 0.9vw;
   font-family: 'Plus Jakarta Sans', sans-serif;
   color: rgba(255, 255, 255, 0.4);
 }
@@ -146,7 +146,7 @@ defineEmits(['update:searchValue', 'update:selectedCategory', 'complete', 'reset
   background: transparent !important;
   color: #fff !important;
   font-family: 'Plus Jakarta Sans', sans-serif !important;
-  font-size: 1rem !important;
+  font-size: 0.9vw !important;
 }
 
 :deep(.p-select-option) {
@@ -191,7 +191,7 @@ defineEmits(['update:searchValue', 'update:selectedCategory', 'complete', 'reset
   border: none;
   color: #fff;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.8vw;
   font-weight: 600;
   cursor: pointer;
   padding: 12px 10px 0 0px;
@@ -209,7 +209,7 @@ defineEmits(['update:searchValue', 'update:selectedCategory', 'complete', 'reset
   color: #ffffff;
   border: none;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1rem;
+  font-size: 0.9vw;
   font-weight: 800;
   cursor: pointer;
   display: flex;
@@ -221,7 +221,7 @@ defineEmits(['update:searchValue', 'update:selectedCategory', 'complete', 'reset
 
 .view-all-button .btn-text {
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.8vw;
   transition: transform 0.4s;
 }
 

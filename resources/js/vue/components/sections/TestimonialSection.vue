@@ -237,13 +237,13 @@ onMounted(() => {
 }
 
 .title {
-  font-size: 2.5rem;
+  font-size: 2.5vw;
   font-weight: 700;
   margin-bottom: 0;
 }
 
 .subtitle {
-  font-size: 1.1rem;
+  font-size: 1.1vw;
   color: #aaa;
   margin: 0;
 }

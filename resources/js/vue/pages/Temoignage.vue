@@ -516,7 +516,7 @@ const videoTestimonials = computed(() => {
 }
 
 .column-header h2 {
-    font-size: 1.8rem;
+    font-size: 1.8vw;
     font-weight: 700;
     margin: 0;
     background: linear-gradient(90deg, #fff, #aaa);
@@ -560,7 +560,7 @@ const videoTestimonials = computed(() => {
 }
 
 .text-content {
-    font-size: 0.9rem;
+    font-size: 0.8vw;
     line-height: 1.2;
     color: #e0dfdf;
     margin-bottom: 20px;
@@ -623,12 +623,12 @@ const videoTestimonials = computed(() => {
 .author-name {
     font-weight: 700;
     color: white;
-    font-size: 0.95rem;
+    font-size: 0.85vw;
     line-height: 1.2;
 }
 
 .author-job {
-    font-size: 0.8rem;
+    font-size: 0.7vw;
     color: #888;
     margin-top: 2px;
 }
@@ -719,7 +719,7 @@ const videoTestimonials = computed(() => {
 
     .prompt-text,
     .trigger-text {
-        font-size: 0.9rem;
+        font-size: 0.8vw;
     }
 
     .author-name {

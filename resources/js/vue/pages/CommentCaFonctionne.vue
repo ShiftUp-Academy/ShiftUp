@@ -185,7 +185,7 @@ onBeforeUnmount(() => {
 }
 
 .impact-title {
-    font-size: clamp(3rem, 8vw, 5rem);
+    font-size: clamp(3rem, 5vw, 5rem);
     margin-bottom: 2rem;
     font-weight: 400;
     line-height: 1;
@@ -194,7 +194,7 @@ onBeforeUnmount(() => {
 }
 
 .subtitle {
-    font-size: clamp(1.1rem, 3vw, 1.8rem);
+    font-size: clamp(1.1rem, 1.5vw, 1.8rem);
     line-height: 1.5;
     opacity: 0.85;
     max-width: 850px;
@@ -245,7 +245,7 @@ onBeforeUnmount(() => {
 }
 
 .card-number {
-    font-size: clamp(4rem, 10vw, 7rem);
+    font-size: clamp(4rem, 6vw, 7rem);
     font-weight: 900;
     opacity: 0.12;
     margin-bottom: -1rem;
@@ -253,7 +253,7 @@ onBeforeUnmount(() => {
 }
 
 .card-title {
-    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-size: clamp(1.5rem, 2.5vw, 2.2rem);
     font-weight: 700;
     margin-bottom: 2rem;
     line-height: 1.1;
@@ -261,7 +261,7 @@ onBeforeUnmount(() => {
 }
 
 .card-body {
-    font-size: clamp(1rem, 2vw, 1.2rem);
+    font-size: clamp(1rem, 1.1vw, 1.2rem);
     line-height: 1.5;
     opacity: 0.92;
     max-height: 52vh;

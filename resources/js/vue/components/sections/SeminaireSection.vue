@@ -127,7 +127,7 @@ function formatDate(dateString) {
 }
 
 .section-title {
-    font-size: 2.5rem;
+    font-size: 2.5vw;
     font-weight: 600;
     color: #fefefe;
     line-height: 1;
@@ -156,7 +156,7 @@ function formatDate(dateString) {
 }
 
 .title-label {
-    font-size: 1.7rem;
+    font-size: 1.5vw;
     text-transform: uppercase;
     font-weight: 550;
     letter-spacing: 1px;
@@ -171,7 +171,7 @@ function formatDate(dateString) {
 }
 
 .huge-date {
-    font-size: clamp(2.8rem, 5vw, 3.8rem);
+    font-size: clamp(2.8rem, 4.5vw, 3.8rem);
     font-weight: 300;
     color: #f5f5f5;
     letter-spacing: -1px;
@@ -198,13 +198,13 @@ function formatDate(dateString) {
 }
 
 .en-label {
-    font-size: 1rem;
+    font-size: 0.8vw;
     color: #f9f9f9;
     font-weight: 500;
 }
 
 .modality-text {
-    font-size: 2.2rem;
+    font-size: 2vw;
     color: #fff;
     letter-spacing: 0.5px;
 }
@@ -218,7 +218,7 @@ function formatDate(dateString) {
 .location-container {
     display: flex;
     gap: 10px;
-    font-size: 1.4rem;
+    font-size: 1.2vw;
 }
 
 .lieu-label {
@@ -228,14 +228,14 @@ function formatDate(dateString) {
 .lieu-text {
     color: #fff;
     font-weight: 500;
-    font-size: 1.4rem;
+    font-size: 1.2vw;
 }
 
 .savoir-plus {
     color: #fff;
     text-decoration: none;
     font-weight: 600;
-    font-size: 1.2rem;
+    font-size: 1vw;
     display: flex;
     align-items: center;
     gap: 10px;

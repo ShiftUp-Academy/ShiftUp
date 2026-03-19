@@ -302,7 +302,7 @@ onBeforeUnmount(() => {
 }
 
 .scroll-text {
-  font-size: 0.85rem;
+  font-size: 0.8vw;
   font-weight: 600;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -364,7 +364,7 @@ onBeforeUnmount(() => {
 }
 
 .title-main {
-  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-size: clamp(2rem, 3.5vw, 2.5rem);
   font-weight: 600;
   color: #242424;
   line-height: 1.1;
@@ -374,7 +374,7 @@ onBeforeUnmount(() => {
 
 .description-text {
   color: #161616;
-  font-size: 1.2rem;
+  font-size: 1.1vw;
   line-height: 1.1;
   margin-bottom: auto;
 }
@@ -414,7 +414,7 @@ onBeforeUnmount(() => {
 }
 
 .section-title {
-  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
   font-weight: 500;
   color: #111;
   margin: 0;
@@ -425,7 +425,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 5px;
   margin-right: 3vw;
-  font-size: 0.9rem;
+  font-size: 0.8vw;
   font-weight: 600;
   color: #111;
   cursor: pointer;
@@ -466,7 +466,7 @@ onBeforeUnmount(() => {
   position: absolute;
   bottom: 1vh;
   left: 0;
-  font-size: 1rem;
+  font-size: 0.9vw;
   margin-left: 1vw;
   font-weight: 600;
   color: #ccc;

@@ -188,7 +188,7 @@ function goToDetail() {
 }
 
 .prog-text {
-  font-size: 0.75rem;
+  font-size: 0.7vw;
   font-weight: 700;
   color: #8A38F5;
 }
@@ -198,7 +198,7 @@ function goToDetail() {
   border: none;
   display: flex;
   align-items: center;
-  font-size: 1rem;
+  font-size: 0.9vw;
   font-weight: 600;
   color: #fff;
   cursor: pointer;

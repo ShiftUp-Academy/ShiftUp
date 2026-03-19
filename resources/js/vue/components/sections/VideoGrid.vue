@@ -300,7 +300,7 @@ onBeforeUnmount(() => {
 
 .reveal-text {
     color: #fff;
-    font-size: 4em;
+    font-size: 3.5vw;
     font-weight: 400;
     line-height: 1.2;
     position: relative;

@@ -301,7 +301,7 @@ onBeforeUnmount(() => {
     top: 12%;
     transform: translateX(-50%);
     font-weight: 400;
-    font-size: 3.8em;
+    font-size: 4vw; /* Échelle responsive */
     line-height: 80%;
     color: #FFFFFF;
     text-align: center;
@@ -427,7 +427,7 @@ onBeforeUnmount(() => {
 }
 
 .scroll-text {
-    font-size: 0.7rem;
+    font-size: 0.6vw;
     font-weight: 500;
     letter-spacing: 0.35em;
     color: rgba(255, 255, 255, 0.9);
@@ -470,7 +470,7 @@ onBeforeUnmount(() => {
     justify-content: center;
     align-items: center;
     color: #fcfcfc;
-    font-size: 0.9rem;
+    font-size: 0.8vw;
     font-weight: 500;
     text-transform: uppercase;
     text-align: center;
@@ -577,7 +577,7 @@ onBeforeUnmount(() => {
 
 @media (max-width: 480px) {
     .hero-title {
-        font-size: 1.8em;
+        font-size: 1.8rem !important;
         top: 15%;
     }
 

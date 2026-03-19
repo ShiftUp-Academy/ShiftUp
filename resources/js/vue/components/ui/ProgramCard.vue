@@ -188,7 +188,7 @@ function goToDetail() {
 }
 
 .program-title {
-  font-size: 1.2rem;
+  font-size: 1.1vw;
   font-weight: 500;
   color: #fff;
   margin: 0 0 12px 0;
@@ -202,7 +202,7 @@ function goToDetail() {
 }
 
 .price-tag {
-  font-size: 1.5rem;
+  font-size: 1.4vw;
   font-weight: 600;
   color: #fff;
   letter-spacing: -0.02em;
@@ -231,7 +231,7 @@ function goToDetail() {
 }
 
 .prog-text {
-  font-size: 0.75rem;
+  font-size: 0.7vw;
   font-weight: 700;
   color: #8A38F5;
 }
@@ -241,7 +241,7 @@ function goToDetail() {
   border: none;
   display: flex;
   align-items: center;
-  font-size: 1rem;
+  font-size: 0.9vw;
   font-weight: 600;
   color: #fff;
   cursor: pointer;
@@ -286,7 +286,7 @@ function goToDetail() {
   padding: 6px 14px;
   border-radius: 12px;
   font-weight: 800;
-  font-size: 0.9rem;
+  font-size: 0.8vw;
   animation: gradient-move 3s linear infinite, pulse 2s infinite;
   overflow: hidden;
 }

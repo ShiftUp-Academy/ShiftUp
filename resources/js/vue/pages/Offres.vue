@@ -376,7 +376,7 @@ const closeReservationModal = () => {
 }
 
 .hover-title {
-    font-size: 5rem;
+    font-size: 5vw;
     line-height: 1.1;
     margin: 0 0 20px 0;
     cursor: default;
@@ -395,7 +395,7 @@ const closeReservationModal = () => {
 
 .page-subtitle {
     color: #ffffff;
-    font-size: 1.2rem;
+    font-size: 1.1vw;
     max-width: 600px;
     margin: 0 auto;
 }
@@ -514,7 +514,7 @@ const closeReservationModal = () => {
 .badge {
     padding: 5px 12px;
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 0.7vw;
     font-weight: 600;
 }
 
@@ -550,7 +550,7 @@ const closeReservationModal = () => {
 }
 
 .offer-title {
-    font-size: 2.2rem;
+    font-size: 2.1vw;
     margin: 0 0 10px;
     font-weight: 700;
 }
@@ -581,7 +581,7 @@ const closeReservationModal = () => {
 }
 
 .offer-countdown {
-    font-size: 1.1rem;
+    font-size: 1vw;
     font-weight: 700;
     color: #ff4b4b;
     display: flex;
@@ -591,7 +591,7 @@ const closeReservationModal = () => {
 }
 
 .offer-total-price {
-    font-size: 3.5rem;
+    font-size: 3.2vw;
     font-weight: 400;
     color: #fff;
     letter-spacing: -0.02em;
@@ -602,7 +602,7 @@ const closeReservationModal = () => {
 }
 
 .price-label {
-    font-size: 0.7rem;
+    font-size: 0.6vw;
     font-weight: 600;
     color: #fafafa;
     text-align: end;

@@ -201,7 +201,7 @@ onMounted(async () => {
 }
 
 .section-title {
-  font-size: 2.5rem;
+  font-size: 2.5vw;
   font-weight: 600;
   color: #ffffff;
   line-height: 1;

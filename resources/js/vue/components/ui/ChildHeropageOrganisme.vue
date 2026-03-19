@@ -271,7 +271,7 @@ onMounted(() => {
 
 .hero-subtitle {
   font-family: 'Roboto', sans-serif;
-  font-size: 1.2rem;
+  font-size: 1vw;
   font-weight: 400;
   text-transform: uppercase;
   margin-top: 3rem;
@@ -324,7 +324,7 @@ onMounted(() => {
 .custom-cursor span {
   color: #000000 !important;
   font-family: 'Roboto', sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.75vw;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;

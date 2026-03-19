@@ -98,7 +98,7 @@ onBeforeUnmount(() => {
 }
 
 .bio-text p {
-  font-size: 1.2rem;
+  font-size: 1.1vw;
   margin: 0;
   margin-bottom: 1.8vh;
   font-weight: 300;
@@ -113,7 +113,7 @@ onBeforeUnmount(() => {
 }
 
 .title {
-  font-size: 2.22rem !important;
+  font-size: 2.1vw !important;
   font-weight: 700;
   margin-bottom: 2rem;
   letter-spacing: -0.02em;
@@ -128,7 +128,7 @@ onBeforeUnmount(() => {
 
 .signature-name {
   font-family: 'Signature December', cursive;
-  font-size: 1.2rem;
+  font-size: 1.1vw;
   line-height: 1.3;
   color: #fff;
   margin-left: 20px;

@@ -146,7 +146,7 @@ const goToDetail = () => {
 .tag {
   padding: 4px 12px;
   border-radius: 5px;
-  font-size: 0.8rem;
+  font-size: 0.7vw;
   font-weight: 500;
   text-transform: uppercase;
   backdrop-filter: blur(2px);
@@ -176,7 +176,7 @@ const goToDetail = () => {
 }
 
 .card-title {
-  font-size: 1.5rem;
+  font-size: 1.4vw;
   font-weight: 700;
   color: #f8f8f8;
   margin: 0 0 10px 0;
@@ -223,7 +223,7 @@ const goToDetail = () => {
 }
 
 .author-name {
-  font-size: 0.9rem;
+  font-size: 0.8vw;
   /* Couleur ajustée pour être visible */
   color: #fbfbfb;
   margin: 0;
@@ -250,7 +250,7 @@ const goToDetail = () => {
 
 .description {
   color: #f6f6f6;
-  font-size: 1rem;
+  font-size: 0.9vw;
   line-height: 1.5;
   margin: 0 0 15px 0;
 }
@@ -268,7 +268,7 @@ const goToDetail = () => {
 
 /* Prix */
 .price {
-  font-size: 1.2rem;
+  font-size: 1.1vw;
   font-weight: 500;
   color: white;
   margin: 0;
@@ -289,7 +289,7 @@ const goToDetail = () => {
 
 .btn-text {
   font-weight: 500;
-  font-size: 1rem;
+  font-size: 0.9vw;
   margin-right: 0.5vw;
   text-transform: uppercase;
 }

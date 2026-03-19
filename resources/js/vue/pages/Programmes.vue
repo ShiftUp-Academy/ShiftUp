@@ -477,7 +477,7 @@ onBeforeUnmount(() => {
 }
 
 .program-title {
-    font-size: 3.2rem;
+    font-size: 3vw;
     font-weight: 400;
     line-height: 1;
     margin: 0;
@@ -486,7 +486,7 @@ onBeforeUnmount(() => {
 }
 
 .program-price {
-    font-size: 2rem;
+    font-size: 1.5vw;
     font-weight: 400;
     margin-top: 1.5vh;
     color: #888;
@@ -503,7 +503,7 @@ onBeforeUnmount(() => {
 }
 
 .program-number {
-    font-size: 4rem;
+    font-size: 3.5vw;
     font-weight: 300;
     display: inline-block;
 }
@@ -513,7 +513,7 @@ onBeforeUnmount(() => {
     bottom: 40px;
     left: 40px;
     margin-left: 1.5vw;
-    font-size: 1.1rem;
+    font-size: 0.9vw;
     font-weight: 800;
     text-transform: uppercase;
     color: white;
@@ -525,7 +525,7 @@ onBeforeUnmount(() => {
     bottom: 40px;
     right: 40px;
     margin-right: 1.5vw;
-    font-size: 1.1rem;
+    font-size: 0.9vw;
     font-weight: 600;
     color: #666;
     text-transform: uppercase;

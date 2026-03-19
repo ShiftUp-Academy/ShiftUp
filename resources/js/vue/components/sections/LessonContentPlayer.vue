@@ -387,7 +387,7 @@ const handleFlashLeave = (event) => {
     align-items: center;
     height: 200px;
     color: #fff;
-    font-size: 1.2rem;
+    font-size: 1.1vw;
     gap: 15px;
 }
 
@@ -401,7 +401,7 @@ const handleFlashLeave = (event) => {
     color: #8A38F5;
     text-decoration: underline;
     margin-top: 10px;
-    font-size: 1rem;
+    font-size: 0.9vw;
     display: flex;
     align-items: center;
 }
@@ -538,7 +538,7 @@ const handleFlashLeave = (event) => {
 
 .text-content {
     line-height: 1.8;
-    font-size: 1.05rem;
+    font-size: 1vw;
     overflow-wrap: break-word;
     word-break: normal;
     hyphens: none;

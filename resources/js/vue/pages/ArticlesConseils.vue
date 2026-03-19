@@ -260,7 +260,7 @@ onMounted(() => {
 }
 
 .impact-title {
-    font-size: clamp(3rem, 8vw, 5rem);
+    font-size: clamp(3rem, 5vw, 5rem);
     margin-bottom: 2rem;
     margin-top: 0;
     font-weight: 300;
@@ -271,7 +271,7 @@ onMounted(() => {
 }
 
 .subtitle {
-    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    font-size: clamp(1.1rem, 1.2vw, 1.4rem);
     line-height: 1.2;
     opacity: 0.6;
     max-width: 50%;
@@ -350,7 +350,7 @@ onMounted(() => {
 }
 
 .article-title {
-    font-size: 1.8rem;
+    font-size: 1.6vw;
     font-weight: 700;
     line-height: 1.2;
     margin-bottom: 0;
@@ -359,7 +359,7 @@ onMounted(() => {
 .article-desc {
     color: rgba(255, 255, 255, 0.8);
     line-height: 1.6;
-    font-size: 1rem;
+    font-size: 0.9vw;
     flex-grow: 1;
 }
 

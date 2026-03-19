@@ -473,7 +473,7 @@ watch(() => props.isOpen, (newVal) => {
     background: none;
     border: none;
     padding: 8px 0;
-    font-size: 0.85rem;
+    font-size: 0.8vw;
     font-weight: 600;
     z-index: 2;
     cursor: pointer;
@@ -521,7 +521,7 @@ watch(() => props.isOpen, (newVal) => {
 
 .input-group label {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.7vw;
     font-weight: 600;
     color: #111;
     text-transform: uppercase;
@@ -535,7 +535,7 @@ watch(() => props.isOpen, (newVal) => {
     border: none;
     border-bottom: 1px solid #ccc;
     padding: 10px 0;
-    font-size: 1.1rem;
+    font-size: 1vw;
     color: #111;
     outline: none;
     transition: border-bottom-color 0.4s ease;
@@ -552,7 +552,7 @@ watch(() => props.isOpen, (newVal) => {
 }
 
 .forgot-pass {
-    font-size: 1.1rem;
+    font-size: 1vw;
     color: #8A38F5;
     text-decoration: none;
     transition: all 0.3s ease;
@@ -586,7 +586,7 @@ watch(() => props.isOpen, (newVal) => {
     gap: 8px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.8vw;
     color: #444;
     text-decoration: none;
     transition: all 0.3s ease;
@@ -686,7 +686,7 @@ watch(() => props.isOpen, (newVal) => {
 }
 
 .otp-title {
-    font-size: 1.5rem;
+    font-size: 1.4vw;
     font-weight: 700;
     line-height: 1.1;
     margin-bottom: 1vh;
@@ -694,7 +694,7 @@ watch(() => props.isOpen, (newVal) => {
 
 .otp-subtitle {
     margin-top: 0;
-    font-size: 1.1rem;
+    font-size: 1vw;
     color: #666;
     line-height: 1.1;
 }
