@@ -562,18 +562,27 @@ onBeforeUnmount(() => {
 
 @media (max-width: 480px) {
     .hero-title {
-        font-size: 2.5em;
-        top: 12%;
+        font-size: 1.8em;
+        top: 15%;
     }
 
     .highlight-text-wrapper {
-        width: 450px;
-        height: 150px;
-        top: 32%;
+        width: 180px;
+        height: 100px;
+        top: 35%;
+    }
+
+    .svg-text {
+        font-size: 10em;
     }
 
     .video-wrapper {
-        height: 350px;
+        height: 250px;
+        border-radius: 15px !important;
+    }
+
+    .video-transition-container {
+        margin-top: -50vh;
     }
 }
 </style>

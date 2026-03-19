@@ -719,4 +719,47 @@ const getReplayFlashStyle = (id) => {
         border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
 }
+
+@media (max-width: 480px) {
+    .impact-title {
+        font-size: 2.2rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    .coaching-grid-section {
+        padding: 30px 4vw;
+    }
+
+    .gc-title {
+        font-size: 1.6rem;
+    }
+
+    .gc-time {
+        font-size: 2.5rem;
+    }
+
+    .gc-date {
+        font-size: 1.1rem;
+    }
+
+    .gradient-card {
+        padding: 20px;
+    }
+
+    .h-title {
+        font-size: 1.4rem;
+    }
+
+    .h-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        width: 100%;
+    }
+}
 </style>

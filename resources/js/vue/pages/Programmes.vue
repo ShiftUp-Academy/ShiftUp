@@ -656,4 +656,32 @@ onBeforeUnmount(() => {
         align-items: center !important;
     }
 }
+
+@media (max-width: 480px) {
+    .info-col.left {
+        padding-top: 10vh;
+        height: 18%;
+    }
+
+    .program-title {
+        font-size: 1.2rem;
+    }
+
+    .program-price {
+        font-size: 1rem;
+    }
+
+    .program-image-wrapper {
+        height: 25vh;
+        border-radius: 12px;
+    }
+
+    .info-col.right {
+        padding-top: 22vh;
+    }
+
+    .scroll-col {
+        padding-bottom: 60px;
+    }
+}
 </style>

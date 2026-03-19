@@ -634,4 +634,32 @@ const submitForm = async () => {
     gap: 15px;
   }
 }
+
+@media (max-width: 480px) {
+  .contact-right-outer {
+    padding-top: 5vh;
+  }
+
+  .full-box-shader {
+    padding: 30px 20px;
+  }
+
+  .form-line-group input,
+  .form-line-group textarea {
+    font-size: 1rem;
+  }
+
+  .content-value {
+    font-size: 1rem;
+  }
+
+  .bubble-inner p {
+    font-size: 0.9rem;
+  }
+
+  .paper-bubble-rectangular {
+    min-width: 160px;
+    padding: 15px 25px;
+  }
+}
 </style>

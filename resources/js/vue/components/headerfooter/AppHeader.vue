@@ -1638,44 +1638,51 @@ spline-viewer.is-ready {
 
 @media (max-width: 480px) {
   .menu {
-    width: 90%;
-    border-radius: 25px;
+    width: 95%;
+    border-radius: 20px;
+    gap: 4px;
   }
 
   .menu-items>a {
-    font-size: 1.1rem;
-    padding: 1rem 1.5rem;
+    font-size: 0.95rem;
+    padding: 0.8rem 1rem;
+  }
+
+  .logo-image {
+    min-width: 60px;
+    margin-right: 2vw;
   }
 
   .action-buttons {
-    padding: 15px 20px;
-    gap: 10px;
+    padding: 12px 15px;
+    gap: 8px;
   }
 
   .action-button {
-    font-size: 1.1rem;
-    height: 1.6rem;
-    line-height: 1.6rem;
+    font-size: 0.95rem;
+    height: 1.4rem;
+    line-height: 1.4rem;
   }
 
   .profile-icon-wrapper,
   .top-icon-wrapper {
-    width: 55px;
-    height: 55px;
+    width: 50px;
+    height: 50px;
   }
 
   .profile-icon,
   .top-icon {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
   }
 
   spline-viewer {
-    width: 150px;
-    height: 150px;
+    width: 130px;
+    height: 130px;
   }
 
   .robot-bubble {
-    bottom: 140px;
+    bottom: 120px;
+    font-size: 0.8rem;
   }
 }
 </style>

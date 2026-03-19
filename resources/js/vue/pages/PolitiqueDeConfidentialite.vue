@@ -343,4 +343,40 @@ onMounted(() => {
     margin: 0 auto;
 }
 }
+
+@media (max-width: 480px) {
+    .premium-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-desc {
+        font-size: 1rem;
+    }
+
+    .legal-hero {
+        padding-top: 100px;
+        padding-bottom: 40px;
+    }
+
+    .legal-section {
+        padding: 20px 10px;
+        margin-bottom: 40px;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+    }
+
+    .section-body :deep(p) {
+        font-size: 0.95rem;
+    }
+
+    .bottom-card h3 {
+        font-size: 1.5rem;
+    }
+
+    .bottom-card p {
+        font-size: 1rem;
+    }
+}
 </style>

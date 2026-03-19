@@ -337,4 +337,23 @@ onMounted(() => {
     font-size: 2rem;
   }
 }
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.7rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .testimonial-wrapper {
+    min-width: 92vw;
+  }
+
+  .nav-arrow {
+    width: 40px;
+    height: 40px;
+  }
+}
 </style>

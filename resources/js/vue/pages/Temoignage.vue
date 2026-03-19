@@ -727,6 +727,41 @@ const videoTestimonials = computed(() => {
     }
 }
 
+@media (max-width: 480px) {
+    .split-container {
+        padding-top: 60px;
+    }
+
+    .column {
+        min-width: 90vw;
+        max-width: 90vw;
+        padding-top: 10px;
+    }
+
+    .column-header h2 {
+        font-size: 1.4rem;
+    }
+
+    .submission-container {
+        width: 95%;
+        bottom: 15px;
+    }
+
+    .submission-glass,
+    .submission-glass2 {
+        height: 50px;
+    }
+
+    .prompt-text,
+    .trigger-text {
+        font-size: 0.85rem;
+    }
+
+    .text-content {
+        font-size: 0.85rem;
+    }
+}
+
 .submission-container {
     position: absolute;
     bottom: 13vh;

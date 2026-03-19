@@ -634,6 +634,55 @@ const initPayment = async (provider) => {
     }
 }
 
+@media (max-width: 480px) {
+    .panier-wrapper {
+        padding-top: 50px;
+    }
+
+    .hover-title {
+        font-size: 2.2rem !important;
+        line-height: 1.2;
+    }
+
+    .premium-subtitle {
+        font-size: 1rem;
+    }
+
+    .item-inner {
+        padding: 15px;
+        gap: 15px;
+    }
+
+    .item-thumb {
+        height: 140px;
+    }
+
+    .item-title {
+        font-size: 1.1rem;
+    }
+
+    .item-price {
+        font-size: 1.2rem;
+    }
+
+    .final-price {
+        font-size: 2rem;
+    }
+
+    .checkout-btn {
+        height: 50px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .empty-content {
+        padding: 40px 20px;
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+    }
+}
+
 @media (max-width: 600px) {
     .item-inner {
         flex-direction: column;

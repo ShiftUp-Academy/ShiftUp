@@ -514,4 +514,27 @@ onBeforeUnmount(() => {
     width: 80vw;
   }
 }
+
+@media (max-width: 480px) {
+  .title-main {
+    font-size: 1.8rem;
+  }
+
+  .description-text {
+    font-size: 1rem;
+  }
+
+  .card-wrapper {
+    width: 88vw;
+  }
+
+  .nav-arrow {
+    width: 45px;
+    height: 35px;
+  }
+
+  .scroll-text {
+    font-size: 0.7rem;
+  }
+}
 </style>

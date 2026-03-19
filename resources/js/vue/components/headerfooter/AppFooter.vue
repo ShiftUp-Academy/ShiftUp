@@ -385,4 +385,36 @@ const linksClients = [
     margin-top: 10px;
   }
 }
+
+@media (max-width: 480px) {
+  .footer {
+    padding: 3rem 1.5rem;
+  }
+
+  .newsletter-text {
+    font-size: 1.2rem;
+    max-width: 100%;
+  }
+
+  .email-input {
+    font-size: 1.4rem;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+
+  .link {
+    font-size: 1rem;
+  }
+
+  .social-links {
+    gap: 1rem;
+  }
+
+  .copyright {
+    font-size: 0.8rem;
+  }
+}
 </style>

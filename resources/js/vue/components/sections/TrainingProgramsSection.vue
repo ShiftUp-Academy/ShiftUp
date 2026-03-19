@@ -252,4 +252,15 @@ onMounted(async () => {
     /* Matching RessourceGratuites */
   }
 }
+
+@media (max-width: 480px) {
+  .section-title {
+    font-size: 1.8rem;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 0 15px;
+  }
+}
 </style>

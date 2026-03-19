@@ -915,6 +915,48 @@ const closeReservationModal = () => {
     }
 }
 
+@media (max-width: 480px) {
+    .hero-section {
+        min-height: 25vh;
+        padding-top: 2vh;
+    }
+
+    .hover-title {
+        font-size: 2rem;
+    }
+
+    .page-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .offer-summary {
+        padding: 20px 15px;
+    }
+
+    .offer-title {
+        font-size: 1.3rem;
+    }
+
+    .offer-total-price {
+        font-size: 2rem;
+    }
+
+    .price-label {
+        font-size: 0.6rem;
+    }
+
+    .badge {
+        font-size: 0.7rem;
+        padding: 4px 10px;
+    }
+
+    .cart-btn,
+    .buy-btn-premium {
+        padding: 12px 15px !important;
+        font-size: 0.8rem !important;
+    }
+}
+
 @keyframes gradient-move {
     0% {
         background-position: 0% 50%;

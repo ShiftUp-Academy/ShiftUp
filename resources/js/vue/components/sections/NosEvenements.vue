@@ -504,7 +504,6 @@ const themeColors = {
 
   .item-footer {
     margin-top: 2px;
-    /* Rapproche le bouton au max */
     width: 100%;
   }
 
@@ -515,9 +514,49 @@ const themeColors = {
     align-items: center;
     padding: 8px 12px;
     background: rgba(255, 255, 255, 0.08);
-    /* Légèrement plus visible */
     border-radius: 8px;
     margin-top: 0 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    padding: 30px 15px;
+  }
+
+  .sidebar-title {
+    font-size: 1.8rem;
+  }
+
+  .description-text {
+    font-size: 0.95rem;
+    max-width: 95%;
+  }
+
+  .list-container {
+    width: 96%;
+    border-radius: 20px;
+    max-height: 80vh;
+  }
+
+  .main-content {
+    max-height: 60vh;
+    padding: 10px 10px 100px 10px;
+  }
+
+  .play-btn-glass {
+    width: 45px;
+    height: 45px;
+    font-size: 0.8rem;
+  }
+
+  .session-link {
+    font-size: 0.7rem;
+    padding: 8px 10px;
+  }
+
+  .category-tag {
+    font-size: 0.75rem;
   }
 }
 </style>
