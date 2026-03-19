@@ -9,42 +9,44 @@
       </div>
     </div>
 
-    <ShaderBackground :colors="themeColors" class="list-container">
-      <div class="sidebar">
-        <h2 class="sidebar-title">{{ $t('NosEvenements.nos_evenements') }}</h2>
-        <p class="description-text">
-          {{ $t('NosEvenements.multipliez_votre_chiffre') }}
-        </p>
-      </div>
+    <ShaderBackground :colors="themeColors" class="list-container-bg">
+      <div class="list-container-content">
+        <div class="sidebar">
+          <h2 class="sidebar-title">{{ $t('NosEvenements.nos_evenements') }}</h2>
+          <p class="description-text">
+            {{ $t('NosEvenements.multipliez_votre_chiffre') }}
+          </p>
+        </div>
 
-      <div class="main-content scrollable" data-lenis-prevent @click.stop>
-        <div v-for="(item, index) in videoSessions" :key="index" class="session-item">
-          <div class="item-header">
-            <span>{{ $t('Sequence') }} {{ index + 1 }}</span>
-            <span class="category-tag">{{ $t('NosEvenements.catgorie') }} <span class="category-name">{{
-              $t(item.category) }}</span></span>
-          </div>
-
-          <div class="video-wrapper" @mouseenter="onVideoEnter" @mouseleave="onVideoLeave">
-            <div v-if="!activatedVideos[index]" class="video-manual-trigger"
-              :style="{ backgroundImage: `url(${item.thumbnail})` }" @click.stop="activateVideo(index)">
-              <LiquidGlass class="play-btn-glass" border-radius="50%" center> <i class="fas fa-play"></i>
-              </LiquidGlass>
+        <div class="main-content scrollable" data-lenis-prevent @click.stop>
+          <div v-for="(item, index) in videoSessions" :key="index" class="session-item">
+            <div class="item-header">
+              <span>{{ $t('Sequence') }} {{ index + 1 }}</span>
+              <span class="category-tag">{{ $t('NosEvenements.catgorie') }} <span class="category-name">{{
+                $t(item.category) }}</span></span>
             </div>
 
-            <iframe v-if="activatedVideos[index]"
-              :src="`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(item.videoUrl)}&show_text=0&autoplay=1&loop=1&muted=0`"
-              width="100%" height="100%" style="border:none;overflow:hidden; pointer-events: auto;" scrolling="no"
-              frameborder="0" allowfullscreen="true"
-              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
-          </div>
+            <div class="video-wrapper" @mouseenter="onVideoEnter" @mouseleave="onVideoLeave">
+              <div v-if="!activatedVideos[index]" class="video-manual-trigger"
+                :style="{ backgroundImage: `url(${item.thumbnail})` }" @click.stop="activateVideo(index)">
+                <LiquidGlass class="play-btn-glass" border-radius="50%" center> <i class="fas fa-play"></i>
+                </LiquidGlass>
+              </div>
 
-          <div class="item-footer">
-            <a :href="item.videoUrl" target="_blank" class="session-link" @click.stop @mouseenter="onLinkEnter"
-              @mouseleave="onLinkLeave">
-              {{ $t('Coachings.voir_la_session') }}
-              <img :src="ArrowIcon" alt="Flèche" class="arrow-icon" />
-            </a>
+              <iframe v-if="activatedVideos[index]"
+                :src="`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(item.videoUrl)}&show_text=0&autoplay=1&loop=1&muted=0`"
+                width="100%" height="100%" style="border:none;overflow:hidden; pointer-events: auto;" scrolling="no"
+                frameborder="0" allowfullscreen="true"
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+            </div>
+
+            <div class="item-footer">
+              <a :href="item.videoUrl" target="_blank" class="session-link" @click.stop @mouseenter="onLinkEnter"
+                @mouseleave="onLinkLeave">
+                {{ $t('Coachings.voir_la_session') }}
+                <img :src="ArrowIcon" alt="Flèche" class="arrow-icon" />
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -263,9 +265,7 @@ const themeColors = {
   cursor: pointer !important;
 }
 
-.list-container {
-  display: flex;
-  background: #000;
+.list-container-bg {
   border-radius: 24px;
   margin-top: 4vh;
   overflow: hidden !important;
@@ -274,6 +274,14 @@ const themeColors = {
   max-height: 90%;
   width: 90%;
   position: relative;
+}
+
+.list-container-content {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 10;
 }
 
 .sidebar {
@@ -431,10 +439,13 @@ const themeColors = {
 }
 
 @media (max-width: 1024px) {
-  .list-container {
-    flex-direction: column;
+  .list-container-bg {
     height: auto;
     width: 95%;
+  }
+
+  .list-container-content {
+    flex-direction: column;
   }
 
   .sidebar {
@@ -455,11 +466,6 @@ const themeColors = {
     max-width: 90%;
   }
 
-  .list-container {
-    height: auto;
-    width: 95%;
-  }
-
   .main-content {
     padding: 20px;
     height: auto;
@@ -478,7 +484,7 @@ const themeColors = {
     display: none !important;
   }
 
-  .list-container {
+  .list-container-bg {
     border-radius: 30px;
     max-height: 75vh;
   }
@@ -533,7 +539,7 @@ const themeColors = {
     max-width: 95%;
   }
 
-  .list-container {
+  .list-container-bg {
     width: 96%;
     border-radius: 20px;
     max-height: 80vh;
