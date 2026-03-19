@@ -43,55 +43,63 @@ class UtilisateurController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+        try {
+            $credentials = $request->validate([
+                'email' => ['required', 'email'],
+                'password' => ['required'],
+            ]);
 
-        $email = trim($credentials['email']);
-        $password = $credentials['password'];
+            $email = trim($credentials['email']);
+            $password = $credentials['password'];
 
-        $user = Utilisateur::where('Email', $email)->first();
+            $user = Utilisateur::where('Email', $email)->first();
 
-        if ($user && Hash::check($password, $user->MotDePasseHash)) {
-            $user->update(['DerniereConnexion' => now()]);
-            Auth::login($user, $request->has('remember'));
-            $request->session()->regenerate();
+            if ($user && Hash::check($password, $user->MotDePasseHash)) {
+                $user->update(['DerniereConnexion' => now()]);
+                Auth::login($user, $request->has('remember'));
+                $request->session()->regenerate();
 
-            if ($user->Role === 'admin' || $user->Role === 'moderateur') {
-                $greeting = ($email === 'monsieuradmin@gmail.com') ? 'Bienvenue Monsieur l\'Administrateur !' : 'Bienvenue dans votre espace d\'administration !';
-                
-                if ($user->Role === 'moderateur') {
-                    $permissions = $user->PermissionsModerateur ?? [];
-                    // Mapping permission key to relative URL
-                    $mapping = [
-                        'programmes' => '/admin/programmes',
-                        'consultations' => '/admin/consultations',
-                        'lives' => '/admin/lives',
-                        'coachings' => '/admin/coachings',
-                        'offres' => '/admin/offres',
-                        'utilisateurs' => '/admin/utilisateurs',
-                        'temoignages' => '/admin/temoignages',
-                    ];
+                if ($user->Role === 'admin' || $user->Role === 'moderateur') {
+                    $greeting = ($email === 'monsieuradmin@gmail.com') ? 'Bienvenue Monsieur l\'Administrateur !' : 'Bienvenue dans votre espace d\'administration !';
                     
-                    foreach ($mapping as $key => $targetUrl) {
-                        if (in_array($key, $permissions)) {
-                            return redirect()->intended($targetUrl)->with('Bonjour', $greeting);
+                    if ($user->Role === 'moderateur') {
+                        $permissions = $user->PermissionsModerateur ?? [];
+                        // Mapping permission key to relative URL
+                        $mapping = [
+                            'programmes' => '/admin/programmes',
+                            'consultations' => '/admin/consultations',
+                            'lives' => '/admin/lives',
+                            'coachings' => '/admin/coachings',
+                            'offres' => '/admin/offres',
+                            'utilisateurs' => '/admin/utilisateurs',
+                            'temoignages' => '/admin/temoignages',
+                        ];
+                        
+                        foreach ($mapping as $key => $targetUrl) {
+                            if (in_array($key, $permissions)) {
+                                return redirect()->intended($targetUrl)->with('Bonjour', $greeting);
+                            }
                         }
+                        
+                        return redirect()->intended('/')->with('error', 'Compte modérateur sans permissions actives.');
                     }
-                    
-                    return redirect()->intended('/')->with('error', 'Compte modérateur sans permissions actives.');
+
+                    return redirect()->intended('/admin/programmes')->with('Bonjour', $greeting);
                 }
 
-                return redirect()->intended('/admin/programmes')->with('Bonjour', $greeting);
+                return redirect()->intended('/')->with('Bonjour', 'Connexion réussie. Ravi de vous revoir!');
             }
 
-            return redirect()->intended('/')->with('Bonjour', 'Connexion réussie. Ravi de vous revoir!');
-        }
+            return back()->withErrors([
+                'email' => 'Les identifiants fournis ne correspondent pas à nos enregistrements.',
+            ])->onlyInput('email');
 
-        return back()->withErrors([
-            'email' => 'Les identifiants fournis ne correspondent pas à nos enregistrements.',
-        ])->onlyInput('email');
+        } catch (\Exception $e) {
+            \Log::error('ERREUR LOGIN: ' . $e->getMessage());
+            return back()->withErrors([
+                'email' => 'DÉTAIL ERREUR SERVEUR : ' . $e->getMessage() . ' à la ligne ' . $e->getLine(),
+            ])->onlyInput('email');
+        }
     }
 
     public function sendOtp(Request $request)
