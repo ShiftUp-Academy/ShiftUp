@@ -19,10 +19,37 @@ body {
 }
 
 @font-face {
-    font-family: 'GT Alpina Fine Trial';
-    src: url('/font/GT-Alpina-Fine-Standard-Medium-Italic-Trial.otf') format('opentype');
+    font-family: 'GT Alpina';
+    src: url('../fonts/GT-Alpina.otf') format('opentype');
     font-weight: 500;
     font-style: italic;
+}
+
+@font-face {
+    font-family: 'GT Alpina Extended';
+    src: url('../fonts/GT-Alpina-Extended.otf') format('opentype');
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'GT Alpina Condensed';
+    src: url('../fonts/GT-Alpina-Condensed.otf') format('opentype');
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Xtradex';
+    src: url('../fonts/Xtradex.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Signature-December';
+    src: url('../fonts/Signature-December.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Core-Serif';
+    src: url('../fonts/Core-Serif.ttf') format('truetype');
 }
 
 .p-icon {

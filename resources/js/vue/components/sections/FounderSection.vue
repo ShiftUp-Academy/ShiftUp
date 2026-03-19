@@ -105,12 +105,7 @@ onBeforeUnmount(() => {
   color: #ececec;
 }
 
-@font-face {
-  font-family: 'Signature December';
-  src: url('/font/Signature December.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
-}
+
 
 .title {
   font-size: 2.1vw !important;
@@ -127,7 +122,7 @@ onBeforeUnmount(() => {
 }
 
 .signature-name {
-  font-family: 'Signature December', cursive;
+  font-family: 'Signature-December', cursive;
   font-size: 1.1vw;
   line-height: 1.3;
   color: #fff;

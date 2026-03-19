@@ -320,26 +320,30 @@ class ProgrammeController extends Controller
 
     public function home()
     {
-        $programmes = ProgrammeFormation::where('Statut', 'Publié')
-            ->where(function ($query) {
-                $query->where('Type', '!=', 'Seminaire')
-                    ->orWhereNull('Type')
-                    ->orWhere(function ($q) {
-                        $q->where('Type', 'Seminaire')
-                            ->where(function ($sub) {
-                                $sub->where('DateSeminaire', '>', now()->toDateString())
-                                    ->orWhere(function ($subTime) {
-                                        $subTime->where('DateSeminaire', now()->toDateString())
-                                            ->where('HeureSeminaire', '>', now()->format('H:i'));
-                                    });
-                            });
-                    });
-            })
-            ->with(['lecons' => function ($query) {
-                $query->where('Statut', 'Publié')->select('IdLecon', 'IdProgramme');
-            }])
-            ->orderBy('DateCreation', 'desc')
-            ->get();
+        $cache = \Illuminate\Support\Facades\Cache::store('file');
+
+        $programmes = $cache->remember('home_programmes', 300, function () {
+            return ProgrammeFormation::where('Statut', 'Publié')
+                ->where(function ($query) {
+                    $query->where('Type', '!=', 'Seminaire')
+                        ->orWhereNull('Type')
+                        ->orWhere(function ($q) {
+                            $q->where('Type', 'Seminaire')
+                                ->where(function ($sub) {
+                                    $sub->where('DateSeminaire', '>', now()->toDateString())
+                                        ->orWhere(function ($subTime) {
+                                            $subTime->where('DateSeminaire', now()->toDateString())
+                                                ->where('HeureSeminaire', '>', now()->format('H:i'));
+                                        });
+                                });
+                        });
+                })
+                ->with(['lecons' => function ($query) {
+                    $query->where('Statut', 'Publié')->select('IdLecon', 'IdProgramme');
+                }])
+                ->orderBy('DateCreation', 'desc')
+                ->get();
+        });
 
         $userId = Auth::id();
         $userAvancements = $userId ? \App\Models\Avancement::where('IdUtilisateur', $userId)
@@ -360,21 +364,29 @@ class ProgrammeController extends Controller
             unset($p->lecons);
         });
             
-        $temoignages = \App\Models\Temoignage::where('Type', 'Texte')
-            ->where('Statut', 'Publié')
-            ->with(['utilisateur.profil'])
-            ->orderBy('DateCreation', 'desc')
-            ->get();
+        $temoignages = $cache->remember('home_temoignages', 300, function () {
+            return \App\Models\Temoignage::where('Type', 'Texte')
+                ->where('Statut', 'Publié')
+                ->with(['utilisateur.profil'])
+                ->orderBy('DateCreation', 'desc')
+                ->get();
+        });
 
-        $heroVideo = \App\Models\HeropageVideo::first()?->video_url;
+        $heroVideo = $cache->remember('home_hero_video', 300, function () {
+            return \App\Models\HeropageVideo::first()?->video_url;
+        });
         
-        $homeLives = \App\Models\Live::where('Statut', 'Publié')
-            ->whereNotNull('LienReplay')
-            ->with('categorie')
-            ->orderBy('DateDebut', 'desc')
-            ->get();
+        $homeLives = $cache->remember('home_lives', 300, function () {
+            return \App\Models\Live::where('Statut', 'Publié')
+                ->whereNotNull('LienReplay')
+                ->with('categorie')
+                ->orderBy('DateDebut', 'desc')
+                ->get();
+        });
             
-        $categories = \App\Models\Categorie::all();
+        $categories = $cache->remember('home_categories', 300, function () {
+            return \App\Models\Categorie::all();
+        });
 
         return Inertia::render('Home', [
             'programmes' => $programmes,
@@ -387,26 +399,30 @@ class ProgrammeController extends Controller
 
     public function programmesPublic()
     {
-        $programmes = ProgrammeFormation::where('Statut', 'Publié')
-            ->where(function ($query) {
-                $query->where('Type', '!=', 'Seminaire')
-                    ->orWhereNull('Type')
-                    ->orWhere(function ($q) {
-                        $q->where('Type', 'Seminaire')
-                            ->where(function ($sub) {
-                                $sub->where('DateSeminaire', '>', now()->toDateString())
-                                    ->orWhere(function ($subTime) {
-                                        $subTime->where('DateSeminaire', now()->toDateString())
-                                            ->where('HeureSeminaire', '>', now()->format('H:i'));
-                                    });
-                            });
-                    });
-            })
-            ->with(['lecons' => function ($query) {
-                $query->where('Statut', 'Publié')->select('IdLecon', 'IdProgramme');
-            }])
-            ->orderBy('DateCreation', 'desc')
-            ->get();
+        $cache = \Illuminate\Support\Facades\Cache::store('file');
+
+        $programmes = $cache->remember('public_programmes', 300, function () {
+            return ProgrammeFormation::where('Statut', 'Publié')
+                ->where(function ($query) {
+                    $query->where('Type', '!=', 'Seminaire')
+                        ->orWhereNull('Type')
+                        ->orWhere(function ($q) {
+                            $q->where('Type', 'Seminaire')
+                                ->where(function ($sub) {
+                                    $sub->where('DateSeminaire', '>', now()->toDateString())
+                                        ->orWhere(function ($subTime) {
+                                            $subTime->where('DateSeminaire', now()->toDateString())
+                                                ->where('HeureSeminaire', '>', now()->format('H:i'));
+                                        });
+                                });
+                        });
+                })
+                ->with(['lecons' => function ($query) {
+                    $query->where('Statut', 'Publié')->select('IdLecon', 'IdProgramme');
+                }])
+                ->orderBy('DateCreation', 'desc')
+                ->get();
+        });
 
         $userId = Auth::id();
         $userAvancements = $userId ? \App\Models\Avancement::where('IdUtilisateur', $userId)
@@ -427,7 +443,9 @@ class ProgrammeController extends Controller
             unset($p->lecons);
         });
 
-        $categories = \App\Models\Categorie::where('Statut', 'Publié')->get();
+        $categories = $cache->remember('public_categories', 300, function () {
+            return \App\Models\Categorie::where('Statut', 'Publié')->get();
+        });
 
         return Inertia::render('Programmes', [
             'programmes' => $programmes,
@@ -437,26 +455,32 @@ class ProgrammeController extends Controller
 
     public function articlesConseils()
     {
-        $articles = ProgrammeFormation::where('Statut', 'Publié')
-            ->where(function ($query) {
-                $query->where('Prix', 0)
-                    ->orWhereNull('Prix');
-            })
-            ->where('Type', '!=', 'Seminaire')
-            ->whereHas('lecons', function ($query) {
-                $query->where('TypeLecon', 'Texte');
-            })
-            ->with(['auteur', 'lecons' => function ($query) {
-                $query->where('Statut', 'Publié')->where('TypeLecon', 'Texte')->orderBy('Ordre');
-            }, 'themes' => function ($query) {
-                $query->where('Statut', 'Publié')->orderBy('Ordre');
-            }, 'themes.lecons' => function ($query) {
-                $query->where('Statut', 'Publié')->where('TypeLecon', 'Texte')->orderBy('Ordre');
-            }])
-            ->orderBy('DateCreation', 'desc')
-            ->get();
+        $cache = \Illuminate\Support\Facades\Cache::store('file');
 
-        $categories = \App\Models\Categorie::where('Statut', 'Publié')->get();
+        $articles = $cache->remember('public_articles', 300, function () {
+            return ProgrammeFormation::where('Statut', 'Publié')
+                ->where(function ($query) {
+                    $query->where('Prix', 0)
+                        ->orWhereNull('Prix');
+                })
+                ->where('Type', '!=', 'Seminaire')
+                ->whereHas('lecons', function ($query) {
+                    $query->where('TypeLecon', 'Texte');
+                })
+                ->with(['auteur', 'lecons' => function ($query) {
+                    $query->where('Statut', 'Publié')->where('TypeLecon', 'Texte')->orderBy('Ordre');
+                }, 'themes' => function ($query) {
+                    $query->where('Statut', 'Publié')->orderBy('Ordre');
+                }, 'themes.lecons' => function ($query) {
+                    $query->where('Statut', 'Publié')->where('TypeLecon', 'Texte')->orderBy('Ordre');
+                }])
+                ->orderBy('DateCreation', 'desc')
+                ->get();
+        });
+
+        $categories = $cache->remember('public_categories', 300, function () {
+            return \App\Models\Categorie::where('Statut', 'Publié')->get();
+        });
 
         return Inertia::render('ArticlesConseils', [
             'articles' => $articles,

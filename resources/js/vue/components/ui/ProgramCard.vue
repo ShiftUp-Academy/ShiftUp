@@ -1,6 +1,6 @@
 <template>
-  <div class="program-card" :style="{ '--mouse-x': flash.x, '--mouse-y': flash.y, '--flash-opacity': flash.opacity }"
-    @mousemove="handleFlashMove" @mouseleave="handleFlashLeave" @click="goToDetail">
+  <Link :href="detailUrl" class="program-card" :style="{ '--mouse-x': flash.x, '--mouse-y': flash.y, '--flash-opacity': flash.opacity }"
+    @mousemove="handleFlashMove" @mouseleave="handleFlashLeave">
     <div class="image-container">
       <div class="parallax-target">
         <img :src="image" class="program-image" />
@@ -19,24 +19,24 @@
           </div>
           <span class="prog-text">{{ progression }}%</span>
         </div>
-        <button v-if="showAddToCart" class="add-to-cart">
+        <div v-if="showAddToCart" class="add-to-cart">
           <span class="btn-text">{{ $t('ProgramCard.ajouter_au_panier') }}</span>
           <svg viewBox="0 0 24 24" fill="none" class="arrow-icon">
             <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"
               stroke-linejoin="round" />
           </svg>
-        </button>
+        </div>
         <div v-else-if="reduction" class="reduction-badge">
           -{{ Number(reduction) }}%
         </div>
       </div>
     </div>
-  </div>
+  </Link>
 </template>
 
 <script setup>
 import { reactive, computed } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 
 const props = defineProps({
   id: {
@@ -91,17 +91,14 @@ function handleFlashLeave() {
   flash.opacity = 0;
 }
 
-function goToDetail() {
-  if (props.id !== undefined && props.id !== null) {
-    // Normaliser le type pour gérer les variantes de casse et d'accentuation
-    const normalizedType = (props.type || '').toLowerCase().trim();
-    if (normalizedType === 'séminaire' || normalizedType === 'seminaire') {
-      router.visit(`/seminaires/${props.id}`);
-    } else {
-      router.visit(`/programmes/${props.id}`);
-    }
+const detailUrl = computed(() => {
+  if (props.id === undefined || props.id === null) return '#';
+  const normalizedType = (props.type || '').toLowerCase().trim();
+  if (normalizedType === 'séminaire' || normalizedType === 'seminaire') {
+    return `/seminaires/${props.id}`;
   }
-}
+  return `/programmes/${props.id}`;
+});
 </script>
 
 <style scoped>

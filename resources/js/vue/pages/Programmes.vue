@@ -20,10 +20,12 @@
             </div>
 
             <div class="scroll-col">
-                <div v-for="(program, index) in displayPrograms" :key="index" class="program-image-wrapper"
-                    :ref="el => imageRefs[index] = el" @click="goToDetail(program.id)">
+                <Link v-for="(program, index) in displayPrograms" :key="index"
+                    :href="`/programmes/${program.id}`"
+                    class="program-image-wrapper"
+                    :ref="el => imageRefs[index] = el">
                     <img :src="program.image" :alt="program.title" class="program-img" />
-                </div>
+                </Link>
             </div>
 
             <div class="info-col right">
@@ -54,7 +56,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, reactive, watch, nextTick } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -149,11 +151,7 @@ const resetFilters = () => {
     selectedCategory.value = null;
 };
 
-const goToDetail = (id) => {
-    if (id) {
-        router.visit(`/programmes/${id}`);
-    }
-};
+// Removed goToDetail to use Link
 
 const getFormattedString = (index) => {
     const num = index + 1;

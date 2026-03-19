@@ -15,10 +15,16 @@
           </Link>
         </div>
 
-        <Link v-for="(item, index) in renderedMenuItems" :key="index" :href="item.route" :data-index="index"
-          @click="setActive(index)" :class="{ 'is-active': activeIndex === index, 'hide-on-mobile': index === 0 }">
-          {{ item.label }}
-        </Link>
+        <template v-for="(item, index) in renderedMenuItems" :key="index">
+          <Link v-if="!item.action" :href="item.route" :data-index="index"
+            @click="handleMenuClick(item, index)" :class="{ 'is-active': activeIndex === index && !isMenuOpen, 'hide-on-mobile': index === 0 }">
+            {{ item.label }}
+          </Link>
+          <a v-else href="#" :data-index="index"
+            @click.prevent="handleMenuClick(item, index)" :class="{ 'is-active': isMenuOpen, 'hide-on-mobile': index === 0 }" style="text-decoration: none;">
+            {{ item.label }}
+          </a>
+        </template>
       </div>
     </div>
 
@@ -148,7 +154,6 @@
     <div v-if="isMobile && showFooter" class="mobile-icon-container" @touchstart="handleTouchStart"
       @touchend="handleTouchEnd">
 
-      <!-- Swipe Hint Bubble -->
       <Transition name="fade-scale">
         <div v-if="showSwipeHint" class="swipe-hint-bubble">
           {{ $t('Header.SwipeHint') }}
@@ -165,6 +170,10 @@
 
     <Profil :is-open="isProfilOpen" :user="user" @close="isProfilOpen = false" />
     <LoginModal :is-open="isLoginOpen" :origin="loginButtonCoords" @close="isLoginOpen = false" />
+
+    <Transition name="fade-menu">
+      <LayoutMenu v-if="isMenuOpen" @close="isMenuOpen = false" />
+    </Transition>
   </header>
 </template>
 
@@ -174,6 +183,7 @@ import { Link, usePage, router } from '@inertiajs/vue3';
 import Profil from './Profil.vue';
 import LoginModal from '../auth/LoginModal.vue';
 import ModalAssistant from '../ui/ModalAssistant.vue';
+import LayoutMenu from '../../layout/LayoutMenus.vue';
 import gsap from 'gsap';
 
 const page = usePage();
@@ -230,7 +240,7 @@ if (typeof window !== 'undefined' && !window.customElements.get('spline-viewer')
 
 const menuItemsData = computed(() => [
   { label: 'Home', route: '/' },
-  { label: 'Menus', route: '/menu' },
+  { label: 'Menus', route: '#', action: 'toggleMenu' },
 ]);
 
 const dynamicHomeLabel = computed(() => {
@@ -299,6 +309,7 @@ const cartFlash = reactive({ x: '50%', y: '50%', opacity: 0 });
 
 const isLightBackground = ref(false);
 const showFooter = ref(false);
+const isMenuOpen = ref(false);
 const isLangMenuOpen = ref(false);
 const mobileIconState = ref('cart'); // 'cart' or 'lang'
 const isMobile = ref(false);
@@ -456,6 +467,15 @@ function handleFlashLeave(target) {
 function setActive(index) {
   activeIndex.value = index;
   updateBackground();
+}
+
+function handleMenuClick(item, index) {
+  if (item.action === 'toggleMenu') {
+    isMenuOpen.value = !isMenuOpen.value;
+  } else {
+    isMenuOpen.value = false;
+  }
+  setActive(index);
 }
 
 function updateBackground() {
@@ -635,6 +655,14 @@ watch(() => page.url, () => {
 </script>
 
 <style scoped>
+.fade-menu-enter-active, .fade-menu-leave-active {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.fade-menu-enter-from, .fade-menu-leave-to {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
 .liquidGlass-wrapper {
   position: relative;
   display: flex;

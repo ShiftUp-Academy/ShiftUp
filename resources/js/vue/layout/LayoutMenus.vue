@@ -6,7 +6,6 @@
 
         <div class="bento-grid" ref="bentoGrid">
 
-            <!-- 1. Catégories de programme -->
             <div class="card card-categories">
                 <div class="card-bg-container">
                     <img :src="imgCategoriesBg" class="card-img blur-effect" />
@@ -20,7 +19,7 @@
                     </div>
                     <div class="cat-list">
                         <Link v-for="link in categoryLinks" :key="link.href" :href="link.href"
-                            class="cat-link item-cat">
+                            @click="$emit('close')" class="cat-link item-cat">
                             <span>{{ $t(link.labelKey) }}</span>
                             <img :src="ArrowIcon" class="btn-icon">
                         </Link>
@@ -29,7 +28,7 @@
             </div>
 
             <!-- 2. Coaching -->
-            <Link href="/coaching" class="card card-coaching" @mousemove="moveCursor"
+            <Link href="/coaching" @click="$emit('close')" class="card card-coaching" @mousemove="moveCursor"
                 @mouseenter="showCursor('#a71543')" @mouseleave="hideCursor">
                 <div class="card-bg-container">
                     <img :src="imgCoaching" class="card-img" />
@@ -42,7 +41,7 @@
             </Link>
 
             <!-- 3. Live -->
-            <Link href="/live" class="card card-live" @mousemove="moveCursor" @mouseenter="onLiveHoverCustom"
+            <Link href="/live" @click="$emit('close')" class="card card-live" @mousemove="moveCursor" @mouseenter="onLiveHoverCustom"
                 @mouseleave="onLiveLeaveCustom">
                 <div class="card-bg-container">
                     <img :src="imgLive" class="card-img" />
@@ -58,7 +57,7 @@
             </Link>
 
             <!-- 4. Articles et conseils -->
-            <Link href="/articles-conseils" class="card card-articles" @mousemove="moveCursor"
+            <Link href="/articles-conseils" @click="$emit('close')" class="card card-articles" @mousemove="moveCursor"
                 @mouseenter="showCursor('#f7b455')" @mouseleave="hideCursor">
                 <div class="card-bg-container">
                     <img :src="imgArticles" class="card-img" />
@@ -80,13 +79,15 @@
                 <div class="card-body body-testimonials">
                     <h2 class="card-title-temoignage">{{ $t('Testimonials') }}</h2>
                     <p class="card-desc-temoignage">{{ $t('LayoutMenus.etes_vous_satisfait') }}</p>
-                    <PremiumButton style="width: 10vw; margin-top: -2vh;" class="mobile-temoignage-btn"
-                        href="/temoignages" :text="$t('LayoutMenus.temoigner')" />
+                    <div @click="$emit('close')">
+                        <PremiumButton style="width: 10vw; margin-top: -2vh;" class="mobile-temoignage-btn"
+                            href="/temoignages" :text="$t('LayoutMenus.temoigner')" />
+                    </div>
                 </div>
             </div>
 
             <!-- 6. L'organisme -->
-            <Link href="/organisme" class="card card-organisme" @mousemove="moveCursor"
+            <Link href="/organisme" @click="$emit('close')" class="card card-organisme" @mousemove="moveCursor"
                 @mouseenter="showCursor('#1A888D')" @mouseleave="hideCursor">
                 <div class="card-bg-container">
                     <img :src="imgOrganisme" class="card-img" />
@@ -112,6 +113,7 @@ import PremiumButton from '../components/ui/PremiumButton.vue';
 
 const page = usePage();
 const $t = (key) => page.props.translations?.[key] || key;
+const emit = defineEmits(['close']);
 
 
 const imgTestimonials = '/images/Role Models - Kinfolk.jpg';
@@ -219,8 +221,11 @@ const onLiveLeaveCustom = () => {
 <style scoped>
 /* REPRISE EXACTE DE TES STYLES ORIGINAUX */
 .bento-section {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
     background-color: #1a1a1a;
-    height: 100vh;
+    height: 100svh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -479,7 +484,7 @@ const onLiveLeaveCustom = () => {
 
 .cat-link {
     color: #ebebeb;
-    font-size: 1.6vw;
+    font-size: 1.8vw;
     line-height: 1.3;
     font-weight: 600;
     text-decoration: none;

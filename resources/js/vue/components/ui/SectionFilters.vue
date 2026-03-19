@@ -30,13 +30,13 @@
         {{ $t('Refresh') }}
       </button>
 
-      <button v-if="showViewAll" class="view-all-button" @click="$emit('view-all')">
+      <Link v-if="showViewAll" class="view-all-button" :href="viewAllHref">
         <span class="btn-text">{{ $t('ViewAll') }}</span>
         <svg viewBox="0 0 24 24" fill="none" class="arrow-icon">
           <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round" />
         </svg>
-      </button>
+      </Link>
     </div>
   </div>
 </template>
@@ -45,6 +45,7 @@
 import AutoComplete from 'primevue/autocomplete';
 import Select from 'primevue/select';
 import FloatLabel from 'primevue/floatlabel';
+import { Link } from '@inertiajs/vue3';
 
 defineProps({
   searchValue: String,
@@ -58,6 +59,10 @@ defineProps({
   showViewAll: {
     type: Boolean,
     default: true
+  },
+  viewAllHref: {
+    type: String,
+    default: '/programmes'
   }
 });
 

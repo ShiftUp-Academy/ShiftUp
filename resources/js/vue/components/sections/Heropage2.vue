@@ -328,12 +328,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-@font-face {
-    font-family: 'Xtradex';
-    src: url('/font/Xtradex.otf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-}
+
 
 .heropage2-root {
     width: 100%;
@@ -401,7 +396,7 @@ onBeforeUnmount(() => {
 }
 
 .gt-alpina-font {
-    font-family: 'GT Alpina Fine Trial', serif;
+    font-family: 'GT Alpina', serif;
     font-weight: 300;
     font-style: italic;
 }

@@ -76,6 +76,11 @@ onMounted(() => {
   }
 
   setupScrollAnimations();
+
+  ['/images/catégorie.jpg', '/images/Role Models - Kinfolk.jpg',
+   '/images/téléchargement.jpg', '/images/Zoom созво.jpg',
+   '/images/téléchargement (5).jpg', '/images/Organisme.jpg'
+  ].forEach(src => { const img = new Image(); img.src = src; });
 });
 
 onUnmounted(() => {
@@ -135,15 +140,15 @@ const setupScrollAnimations = () => {
       gsap.fromTo(node,
         { opacity: 0, y: 20 },
         {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: "power2.out",
           scrollTrigger: {
             trigger: node,
             start: "top 90%",
             toggleActions: "play none none none"
-          }
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: "power2.out",
         }
       );
     } else {
@@ -271,11 +276,9 @@ const setupScrollAnimations = () => {
     });
   }
 
-  // --- Intro Loader Logic ---
   const hasSeenIntro = sessionStorage.getItem('hasSeenIntro');
   if (!hasSeenIntro) {
     showIntro.value = true;
-    // Disable scrolling while loading
     document.body.style.overflow = 'hidden';
   }
 };
@@ -286,33 +289,21 @@ const onIntroComplete = () => {
   document.body.style.overflow = '';
 }
 
-// --- Page Transition Logic ---
-let transitionPromise = null;
-let activeRequests = 0;
-
-unbindTransitionStart = router.on('start', (event) => {
-  activeRequests++;
-  if (transitionRef.value) {
-    // Always start/restart transition on new request
-    transitionPromise = transitionRef.value.startTransition();
+unbindTransitionStart = router.on('before', (event) => {
+  // Trigger transition for all GET visits (default for links)
+  const method = event.detail?.visit?.method?.toLowerCase() || 'get';
+  if (method === 'get') {
+    if (transitionRef.value) {
+      transitionRef.value.startTransition();
+    }
   }
 });
 
 unbindTransitionFinish = router.on('finish', (event) => {
-  activeRequests--;
-  // Only end transition if no more pending requests
-  if (activeRequests <= 0) {
-    activeRequests = 0;
-    if (transitionRef.value && transitionPromise) {
-      transitionPromise.then(() => {
-        // Ensure we don't uncover if a new request started while we were waiting
-        if (activeRequests === 0) {
-          setTimeout(() => {
-            transitionRef.value.endTransition();
-          }, 50);
-        }
-      });
-    }
+  if (transitionRef.value) {
+    setTimeout(() => {
+      transitionRef.value.endTransition();
+    }, 100); 
   }
 });
 

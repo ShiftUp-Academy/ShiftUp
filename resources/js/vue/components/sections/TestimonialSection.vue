@@ -214,9 +214,10 @@ onMounted(() => {
 
 <style scoped>
 .testimonial-section {
-  background-color: #050505;
+  background-color: #000;
   padding: 20vh 0;
   padding-top: 0;
+  margin-bottom: -1px; /* Overlap to prevent white line gap */
   color: white;
   position: relative;
   overflow: hidden;

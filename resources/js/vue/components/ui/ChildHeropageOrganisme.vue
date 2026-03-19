@@ -291,7 +291,7 @@ onMounted(() => {
 }
 
 .gt-alpina-font {
-  font-family: 'GT Alpina Fine Trial', serif;
+  font-family: 'GT Alpina', serif;
   font-weight: 300;
   font-style: italic;
   letter-spacing: 0.02em;

@@ -1,7 +1,7 @@
 <template>
-  <div class="training-card" ref="cardRef"
+  <Link :href="`/programmes/${props.id}`" class="training-card" ref="cardRef"
     :style="{ '--mouse-x': flash.x, '--mouse-y': flash.y, '--flash-opacity': flash.opacity }"
-    @mousemove="handleFlashMove" @mouseleave="handleFlashLeave" @click="goToDetail">
+    @mousemove="handleFlashMove" @mouseleave="handleFlashLeave">
     <div class="content">
 
       <div class="tags">
@@ -45,12 +45,12 @@
       <div class="overlay"></div>
       <div class="image-border-glow"></div>
     </div>
-  </div>
+  </Link>
 </template>
 
 <script setup>
 import { reactive, ref } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import ArrowIcon from '../../../assets/images/fleche-lien.svg';
 
 const props = defineProps({
@@ -89,11 +89,7 @@ function handleFlashLeave() {
   flash.opacity = 0;
 }
 
-const goToDetail = () => {
-  if (props.id) {
-    router.visit(`/programmes/${props.id}`);
-  }
-};
+// Removed goToDetail to use Link prefetch
 </script>
 
 <style scoped>

@@ -332,7 +332,7 @@ onBeforeUnmount(() => {
 }
 
 .gt-alpina-font {
-    font-family: 'GT Alpina Fine Trial', serif;
+    font-family: 'GT Alpina', serif;
     font-weight: 400;
     font-style: italic;
 }

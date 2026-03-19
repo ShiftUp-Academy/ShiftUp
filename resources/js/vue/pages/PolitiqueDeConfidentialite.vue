@@ -1,5 +1,4 @@
 <template>
-    <AppLayout>
         <div class="privacy-page" ref="pageRef">
             <div class="back-link-glass" @click="goBack">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -33,12 +32,10 @@
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import AppLayout from '../layout/AppLayout.vue';
 import PremiumButton from '../components/ui/PremiumButton.vue';
 import { gsap } from 'gsap';
 

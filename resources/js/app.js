@@ -33,25 +33,27 @@ import { router } from '@inertiajs/vue3';
 
 createInertiaApp({
     resolve: (name) => {
-        return resolvePageComponent(`./vue/pages/${name}.vue`, import.meta.glob('./vue/pages/**/*.vue'))
-            .then((module) => {
-                if (name.startsWith('PagesAdmin/')) {
-                    module.default.layout = module.default.layout || AdminLayout;
-                } else {
-                    module.default.layout = module.default.layout || AppLayout;
-                }
-                return module;
-            });
+        const pages = import.meta.glob('./vue/pages/**/*.vue', { eager: true });
+        let module = pages[`./vue/pages/${name}.vue`];
+        
+        if (!module) throw new Error(`Page component not found: ${name}`);
+        
+        if (name.startsWith('PagesAdmin/')) {
+            module.default.layout = module.default.layout || AdminLayout;
+        } else {
+            module.default.layout = module.default.layout || AppLayout;
+        }
+        return module;
     },
     setup({ el, App, props }) {
         const app = createApp({ render: () => h(App, props) });
 
-        // Reactive $t helper: always reads from latest page props
+        // Reactive $t helper: always reads from latest page props securely
         app.config.globalProperties.$t = function (key) {
-            // 'this' is the Vue component instance; access page via $page if available
-            const translations = (this?.$page?.props?.translations)
-                ?? props.initialPage.props.translations
-                ?? {};
+            let translations = props.initialPage.props.translations ?? {};
+            if (router && router.page && router.page.props && router.page.props.translations) {
+                translations = router.page.props.translations;
+            }
             return translations[key] ?? key;
         };
 

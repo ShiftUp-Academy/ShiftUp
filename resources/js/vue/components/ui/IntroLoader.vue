@@ -8,9 +8,6 @@
             </div>
 
             <div class="text-content" ref="textRef">
-                <h1 class="loader-title" ref="titleRef">
-                    ShiftUp
-                </h1>
                 <p class="loader-subtitle" ref="subTitleRef">
                     CHARGEMENT DE VOTRE EXPÉRIENCE
                 </p>
@@ -60,7 +57,6 @@ const emit = defineEmits(['complete']);
 const container = ref(null);
 const logoRef = ref(null);
 const textRef = ref(null);
-const titleRef = ref(null);
 const subTitleRef = ref(null);
 const progressWrapperRef = ref(null);
 const progressBarRef = ref(null);
@@ -82,7 +78,7 @@ onMounted(() => {
     document.body.style.overflow = 'hidden';
 
     // Initial states for elements that will be animated
-    gsap.set([logoRef.value, titleRef.value, subTitleRef.value, progressWrapperRef.value, onceNoticeRef.value, footerLeftRef.value, footerRightRef.value], {
+    gsap.set([logoRef.value, subTitleRef.value, progressWrapperRef.value, onceNoticeRef.value, footerLeftRef.value, footerRightRef.value], {
         opacity: 0,
         y: 20
     });
@@ -119,11 +115,10 @@ onMounted(() => {
         duration: 1.5,
         ease: 'power4.out'
     })
-        .to([titleRef.value, subTitleRef.value], {
+        .to(subTitleRef.value, {
             opacity: 1,
             y: 0,
             duration: 1,
-            stagger: 0.2,
             ease: 'power3.out'
         }, '-=1.2')
         .to(progressWrapperRef.value, {
@@ -133,7 +128,7 @@ onMounted(() => {
         }, '-=0.8')
         .to(progressBarRef.value, {
             attr: { width: 400 },
-            duration: 3,
+            duration: 15,
             ease: 'power1.inOut'
         }, '-=0.4')
         .to([onceNoticeRef.value, footerLeftRef.value, footerRightRef.value], {

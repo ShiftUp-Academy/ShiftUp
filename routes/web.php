@@ -42,9 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/mes-reussites', [\App\Http\Controllers\ReussiteController::class, 'userReussites'])->name('user.reussites');
 });
 
-Route::get('/menu', function () {
-    return Inertia::render('Menus');
-});
+
 
 Route::get('/organisme', function () {
     return Inertia::render('Organisme');

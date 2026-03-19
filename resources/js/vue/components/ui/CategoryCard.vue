@@ -1,5 +1,5 @@
 <template>
-  <div class="category-card" ref="cardRef" @click="goToDetail">
+  <Link :href="detailUrl" class="category-card" ref="cardRef">
 
     <div class="image-section">
       <div class="bg-image" :style="{ backgroundImage: `url('${image}')` }"></div>
@@ -40,12 +40,12 @@
         </button>
       </div>
     </div>
-  </div>
+  </Link>
 </template>
 
 <script setup>
 import { computed } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 
 const props = defineProps({
   id: [Number, String],
@@ -79,15 +79,12 @@ const displayPrice = computed(() => {
   return props.price.replace(/\s*Ar$/i, '');
 });
 
-const goToDetail = () => {
+const detailUrl = computed(() => {
   if (props.isOffer) {
-    router.visit(`/offres`);
-    return;
+    return '/offres';
   }
-  if (props.id) {
-    router.visit(`/programmes/${props.id}`);
-  }
-};
+  return props.id ? `/programmes/${props.id}` : '#';
+});
 </script>
 
 <style scoped>
