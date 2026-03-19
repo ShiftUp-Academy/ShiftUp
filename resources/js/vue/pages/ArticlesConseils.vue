@@ -11,6 +11,12 @@
             </div>
         </div>
 
+        <div class="filter-section container" v-if="articles.length > 0">
+            <SectionFilters v-model:searchValue="searchValue" v-model:selectedCategory="selectedCategory"
+                :categories="formattedCategories" :suggestions="filteredSuggestions" :showViewAll="false"
+                @complete="searchSuggestions" @reset="resetFilters" />
+        </div>
+
         <div class="articles-container container">
             <div class="articles-grid" v-if="filteredArticles.length > 0" ref="gridRef">
                 <div v-for="(article, index) in filteredArticles" :key="article.IdProgrammeFormation"
@@ -72,6 +78,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import PremiumModal from '../components/ui/PremiumModal.vue';
 import LessonContentPlayer from '../components/sections/LessonContentPlayer.vue';
+import SectionFilters from '../components/ui/SectionFilters.vue';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -114,7 +121,7 @@ const getCardColor = (index) => colors[index % colors.length];
 
 const formattedCategories = computed(() => {
     return props.categories.map(c => ({
-        name: c.NomCategorie,
+        name: c.Nom,
         code: c.IdCategorie
     }));
 });
@@ -520,6 +527,27 @@ onMounted(() => {
 
     .reader-container {
         height: 80vh;
+    }
+}
+
+/* Filters Layout */
+.filter-section {
+    margin-bottom: 3rem;
+    display: flex;
+    justify-content: center;
+}
+
+.filter-section :deep(.filters-container) {
+    max-width: 1000px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 20px 30px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 768px) {
+    .filter-section :deep(.filters-container) {
+        padding: 15px;
     }
 }
 </style>

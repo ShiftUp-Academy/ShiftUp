@@ -112,7 +112,7 @@ const selectedCategory = ref(null);
 
 const categories = computed(() => {
     return props.categories.map(c => ({
-        name: c.NomCategorie,
+        name: c.Nom,
         code: c.IdCategorie
     }));
 });

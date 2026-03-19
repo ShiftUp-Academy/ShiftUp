@@ -55,7 +55,7 @@ class LiveController extends Controller
     {
         $validated = $request->validate([
             'Titre' => 'required|string|max:155',
-            'IdCategorie' => 'nullable|exists:Categories,IdCategorie',
+            'CategorieNom' => 'nullable|string|max:100',
             'Descriptions' => 'nullable|string',
             'DateDebut' => 'required|date',
             'DateFin' => 'required|date|after:DateDebut',
@@ -63,6 +63,14 @@ class LiveController extends Controller
             'LienPhoto' => 'nullable|string',
             'LienReplay' => 'nullable|string',
         ]);
+
+        if ($request->filled('CategorieNom')) {
+            $categorie = Categorie::firstOrCreate(
+                ['Nom' => $request->CategorieNom],
+                ['Statut' => 'Publié']
+            );
+            $validated['IdCategorie'] = $categorie->IdCategorie;
+        }
 
         $validated['IdAuteur'] = Auth::id();
         $validated['Statut'] = 'Publié';

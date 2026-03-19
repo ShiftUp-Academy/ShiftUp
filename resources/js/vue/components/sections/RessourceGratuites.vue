@@ -11,11 +11,11 @@
 
         <SectionFilters v-model:searchValue="searchValue" v-model:selectedCategory="selectedCategory"
           :categories="categories" :suggestions="filteredSuggestions" @complete="searchSuggestions"
-          @reset="resetFilters" />
+          @reset="resetFilters" @view-all="router.visit('/programmes')" />
       </div>
 
       <div :class="['resources-grid', { 'is-hovered': isGridHovered }]" ref="gridRef">
-        <ResourceCard v-for="(resource, index) in resources" :key="index" v-bind="resource"
+        <ResourceCard v-for="(resource, index) in displayResources" :key="index" v-bind="resource"
           @mouseenter="isGridHovered = true" @mouseleave="isGridHovered = false" />
       </div>
     </div>
@@ -28,7 +28,7 @@ import ResourceCard from '../ui/ResourceCard.vue';
 import SectionFilters from '../ui/SectionFilters.vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { usePage } from '@inertiajs/vue3';
+import { usePage, router } from '@inertiajs/vue3';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -78,11 +78,22 @@ const suggestions = computed(() => [
   $t('Suggestions.pack_icons')
 ]);
 
-const categories = computed(() => [
-  { name: $t('Categories.guides'), code: 'GUI' },
-  { name: $t('Categories.templates'), code: 'TPL' },
-  { name: $t('Categories.outils'), code: 'TL' }
-]);
+const categories = computed(() => {
+  return props.categories.map(c => ({
+    name: c.Nom,
+    code: c.IdCategorie
+  }));
+});
+
+const displayResources = computed(() => {
+    return props.resources.filter(resource => {
+        const title = resource.title || '';
+        const search = searchValue.value.toLowerCase();
+        const matchesSearch = title.toLowerCase().includes(search);
+        const matchesCategory = !selectedCategory.value || resource.categoryId === selectedCategory.value.code;
+        return matchesSearch && matchesCategory;
+    });
+});
 
 const searchSuggestions = (event) => {
   const query = event.query.toLowerCase();
@@ -98,6 +109,10 @@ const resetFilters = () => {
 
 const props = defineProps({
   resources: {
+    type: Array,
+    default: () => []
+  },
+  categories: {
     type: Array,
     default: () => []
   }

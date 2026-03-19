@@ -17,7 +17,15 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  heroVideo: String
+  heroVideo: String,
+  homeLives: {
+    type: Array,
+    default: () => []
+  },
+  categories: {
+    type: Array,
+    default: () => []
+  }
 });
 
 const seminaires = computed(() => {
@@ -32,7 +40,8 @@ const freeResources = computed(() => {
       id: p.IdProgrammeFormation,
       title: p.Titre,
       image: p.LienPhoto || '/images/Programmes/Plan de travail1.png',
-      progression: p.progression
+      progression: p.progression,
+      categoryId: p.IdCategorie
     }));
 });
 </script>
@@ -40,8 +49,8 @@ const freeResources = computed(() => {
 <template>
   <Heropage2 :hero-video="props.heroVideo" />
   <SeminaireSection v-if="seminaires.length > 0" :seminaires="seminaires" />
-  <RessourceGratuites :resources="freeResources" />
-  <NosEvenements />
+  <RessourceGratuites :resources="freeResources" :categories="props.categories" />
+  <NosEvenements :home-lives="props.homeLives" :categories="props.categories" />
   <TestimonialSection :temoignages="props.temoignages" />
   <VideoGrid />
   <FounderSection />

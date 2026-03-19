@@ -1,5 +1,5 @@
 <template>
-    <div class="liquidGlass-wrapper" :style="wrapperStyle" @mousemove="handleFlashMove" @mouseleave="handleFlashLeave">
+    <div class="liquidGlass-wrapper" :class="{ 'no-border-glass': noBorder }" :style="wrapperStyle" @mousemove="handleFlashMove" @mouseleave="handleFlashLeave">
 
         <div class="liquidGlass-effect" :style="{ filter: `url(#${filterId})` }"></div>
         <div class="liquidGlass-tint"></div>
@@ -44,6 +44,10 @@ const props = defineProps({
     center: {
         type: Boolean,
         default: false
+    },
+    noBorder: {
+        type: Boolean,
+        default: false
     }
 });
 
@@ -53,7 +57,7 @@ const flash = reactive({ x: '50%', y: '50%', opacity: 0 });
 const wrapperStyle = computed(() => ({
     '--mouse-x': flash.x,
     '--mouse-y': flash.y,
-    '--flash-opacity': flash.opacity,
+    '--flash-opacity': props.noBorder ? 0 : flash.opacity,
     '--border-radius-val': props.borderRadius.replace(' !important', '')
 }));
 
@@ -137,8 +141,12 @@ function handleFlashLeave() {
     mask-composite: exclude;
     pointer-events: none;
     z-index: 10;
-    opacity: var(--flash-opacity, 0);
+    opacity: 0;
     transition: opacity 0.3s ease;
+}
+
+.liquidGlass-wrapper:not(.no-border-glass):hover::after {
+    opacity: var(--flash-opacity, 0.8);
 }
 
 .liquidGlass-content {

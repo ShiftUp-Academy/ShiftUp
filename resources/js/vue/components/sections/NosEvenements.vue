@@ -20,17 +20,17 @@
         </div>
 
         <div class="main-content scrollable" data-lenis-prevent @click.stop>
-          <div v-for="(item, index) in videoSessions" :key="index" class="session-item">
+          <div v-for="(item, index) in allVideoSessions" :key="index" class="session-item">
             <div class="item-header">
               <span>{{ $t('Sequence') }} {{ index + 1 }}</span>
               <span class="category-tag">{{ $t('NosEvenements.catgorie') }} <span class="category-name">{{
-                $t(item.category) }}</span></span>
+                item.isDynamic ? item.category : $t(item.category) }}</span></span>
             </div>
 
             <div class="video-wrapper" @mouseenter="onVideoEnter" @mouseleave="onVideoLeave">
               <div v-if="!activatedVideos[index]" class="video-manual-trigger"
                 :style="{ backgroundImage: `url(${item.thumbnail})` }" @click.stop="activateVideo(index)">
-                <LiquidGlass class="play-btn-glass" border-radius="50%" center> <i class="fas fa-play"></i>
+                <LiquidGlass class="play-btn-glass" border-radius="50%" center noBorder> <i class="fas fa-play"></i>
                 </LiquidGlass>
               </div>
 
@@ -50,8 +50,43 @@
             </div>
           </div>
         </div>
+
+        <!-- Premium Modal for Event Management -->
+        <PremiumModal :isOpen="isModalOpen" @close="isModalOpen = false" header="Ajouter un Événement" dark width="600px">
+          <form @submit.prevent="submitEventUpdate" class="event-update-form">
+            <div class="form-group">
+                <label>Titre de l'événement</label>
+                <input type="text" v-model="form.Titre" placeholder="Ex: Session Live #1" required class="premium-input" />
+            </div>
+            <div class="form-group">
+                <label>Lien Facebook de la vidéo</label>
+                <input type="url" v-model="form.LienReplay" placeholder="https://www.facebook.com/..." required class="premium-input" />
+            </div>
+            <div class="form-group">
+                <label>Lien Cloudinary de la Miniature (Photo)</label>
+                <input type="url" v-model="form.LienPhoto" placeholder="https://res.cloudinary.com/..." required class="premium-input" />
+            </div>
+            <div class="form-group">
+                <label>Catégorie</label>
+                <input type="text" v-model="form.CategorieNom" placeholder="Ex: Entrepreneuriat" required class="premium-input" />
+            </div>
+            <div class="form-group">
+                <label>Date de l'événement</label>
+                <input type="date" v-model="form.DateDebut" required class="premium-input" />
+            </div>
+            <div class="form-actions">
+                <PremiumButton type="submit" text="Ajouter l'événement" :disabled="form.processing" />
+            </div>
+          </form>
+        </PremiumModal>
       </div>
       </ShaderBackground>
+      <!-- Admin Edit/Add Button -->
+      <div v-if="isAdmin" class="admin-edit-events" @click.stop="openEditModal">
+          <LiquidGlass borderRadius="50%" center noBorder class="edit-btn-glass">
+              <i class="fas fa-plus"></i>
+          </LiquidGlass>
+      </div>
     </div>
   </div>
 </template>
@@ -59,9 +94,48 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { gsap } from 'gsap';
+import { usePage, useForm } from '@inertiajs/vue3';
 import ArrowIcon from '../../../assets/images/fleche-lien.svg';
 import ShaderBackground from '../ui/ShaderBackground.vue';
 import LiquidGlass from '../ui/LiquidGlass.vue';
+import PremiumModal from '../ui/PremiumModal.vue';
+import PremiumButton from '../ui/PremiumButton.vue';
+
+const props = defineProps({
+  homeLives: {
+    type: Array,
+    default: () => []
+  },
+  categories: {
+    type: Array,
+    default: () => []
+  }
+});
+
+const isAdmin = computed(() => usePage().props.auth.user?.Role === 'admin');
+const isModalOpen = ref(false);
+
+const form = useForm({
+    Titre: '',
+    LienReplay: '',
+    LienPhoto: '',
+    CategorieNom: '',
+    DateDebut: new Date().toISOString().split('T')[0],
+    DateFin: new Date(Date.now() + 86400000).toISOString().split('T')[0], // +1 day
+});
+
+const openEditModal = () => {
+    isModalOpen.value = true;
+};
+
+const submitEventUpdate = () => {
+    form.post('/admin/lives', {
+        onSuccess: () => {
+            isModalOpen.value = false;
+            form.reset();
+        }
+    });
+};
 
 const cursorRef = ref(null);
 const isInsideSection = ref(false);
@@ -85,7 +159,18 @@ const videoSessions = [
   }
 ];
 
-const activatedVideos = ref(videoSessions.map(() => false));
+const allVideoSessions = computed(() => {
+  const dynamicSessions = props.homeLives.map(live => ({
+    videoUrl: live.LienReplay,
+    category: live.categorie ? live.categorie.Nom : 'Général',
+    thumbnail: live.LienPhoto || 'https://res.cloudinary.com/dzgdjei0h/image/upload/v1767346336/s%C3%A9minaire_3_vchxqz.jpg',
+    isDynamic: true,
+    id: live.IdLive
+  }));
+  return [...videoSessions, ...dynamicSessions];
+});
+
+const activatedVideos = ref(allVideoSessions.value.map(() => false));
 
 const activateVideo = (index) => {
   activatedVideos.value[index] = true;
@@ -137,7 +222,7 @@ const updateMouse = (e) => {
 
   // Détection de collision pour les liens et triggers vidéo
   let isTouchingInteractive = false;
-  const interactiveElements = document.querySelectorAll('#nos-evenements-section .session-link, #nos-evenements-section .video-manual-trigger, #nos-evenements-section iframe');
+  const interactiveElements = document.querySelectorAll('#nos-evenements-section .session-link, #nos-evenements-section .video-manual-trigger, #nos-evenements-section iframe, #nos-evenements-section .admin-edit-events');
   
   interactiveElements.forEach(el => {
     if (isTouchingInteractive) return;
@@ -588,9 +673,90 @@ const themeColors = {
     font-size: 0.7rem;
     padding: 8px 10px;
   }
+  .edit-btn-glass {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+}
 
-  .category-tag {
-    font-size: 0.75rem;
+/* Admin Edit Events Button */
+.admin-edit-events {
+  position: absolute;
+  bottom: 5vh;
+  right: 2vw;
+  z-index: 1000;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.admin-edit-events:hover {
+  transform: scale(1.1);
+}
+
+.edit-btn-glass {
+  width: 55px;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Event Update Form */
+.event-update-form {
+    padding-top: 1rem;
+}
+
+.event-update-form .form-group {
+    margin-bottom: 1.2rem;
+}
+
+.event-update-form label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.event-update-form .premium-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
+}
+
+.event-update-form select.premium-input option {
+    background: #1a1a1a;
+    color: #fff;
+}
+
+.event-update-form .premium-input:focus {
+    border-color: #F7B455;
+    box-shadow: 0 0 0 3px rgba(247, 180, 85, 0.2);
+}
+
+.event-update-form .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .admin-edit-events {
+      bottom: 15px;
+      right: 15px;
   }
 }
 </style>

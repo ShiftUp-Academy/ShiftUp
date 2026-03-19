@@ -29,7 +29,7 @@
             <div class="video-wrapper" ref="videoWrapperRef">
                 <!-- Admin Edit Button -->
                 <div v-if="isAdmin" class="admin-edit-video" @click.stop="openEditModal">
-                    <LiquidGlass borderRadius="50%" center class="edit-btn-glass">
+                    <LiquidGlass borderRadius="50%" center noBorder class="edit-btn-glass">
                         <i class="fas fa-edit"></i>
                     </LiquidGlass>
                 </div>
@@ -48,7 +48,7 @@
                 </video>
 
                 <div class="mute-control-container" @click="isMuted = !isMuted">
-                    <LiquidGlass borderRadius="50px" center class="mute-glass-btn">
+                    <LiquidGlass borderRadius="50px" center noBorder class="mute-glass-btn">
                         <div class="mute-btn-content">
                             <i v-if="isMuted" class="fas fa-volume-mute"></i>
                             <i v-else class="fas fa-volume-up"></i>

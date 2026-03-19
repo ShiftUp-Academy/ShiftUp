@@ -367,11 +367,21 @@ class ProgrammeController extends Controller
             ->get();
 
         $heroVideo = \App\Models\HeropageVideo::first()?->video_url;
+        
+        $homeLives = \App\Models\Live::where('Statut', 'Publié')
+            ->whereNotNull('LienReplay')
+            ->with('categorie')
+            ->orderBy('DateDebut', 'desc')
+            ->get();
+            
+        $categories = \App\Models\Categorie::all();
 
         return Inertia::render('Home', [
             'programmes' => $programmes,
             'temoignages' => $temoignages,
-            'heroVideo' => $heroVideo
+            'heroVideo' => $heroVideo,
+            'homeLives' => $homeLives,
+            'categories' => $categories
         ]);
     }
 

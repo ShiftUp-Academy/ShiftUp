@@ -11,7 +11,7 @@
 
         <SectionFilters v-model:searchValue="searchValue" v-model:selectedCategory="selectedCategory"
           :categories="categories" :suggestions="filteredSuggestions" @complete="searchSuggestions"
-          @reset="resetFilters" @view-all="() => console.log('View all clicked')" />
+          @reset="resetFilters" @view-all="router.visit('/programmes')" />
       </div>
 
       <div :class="['programs-grid', { 'is-hovered': isGridHovered }]" ref="gridRef">
@@ -26,6 +26,7 @@
 import { ref, onMounted, nextTick, computed } from 'vue';
 import ProgramCard from '../ui/ProgramCard.vue';
 import SectionFilters from '../ui/SectionFilters.vue';
+import { router } from '@inertiajs/vue3';
 
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -80,7 +81,7 @@ const displayPrograms = computed(() => {
 
 const categories = computed(() => {
   return props.categories.map(c => ({
-    name: c.NomCategorie,
+    name: c.Nom,
     code: c.IdCategorie
   }));
 });
