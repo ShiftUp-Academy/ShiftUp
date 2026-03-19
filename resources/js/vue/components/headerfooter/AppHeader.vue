@@ -521,19 +521,24 @@ const forceRemoveSplineLogo = () => {
   const viewers = document.querySelectorAll('spline-viewer');
   viewers.forEach(viewer => {
     if (viewer && viewer.shadowRoot) {
-      const logo = viewer.shadowRoot.querySelector('#logo') ||
-        viewer.shadowRoot.querySelector('a[href*="spline.design"]') ||
-        viewer.shadowRoot.querySelector('.spline-watermark') ||
-        viewer.shadowRoot.querySelector('#spline-logo') ||
-        viewer.shadowRoot.querySelector('div[style*="position: absolute"][style*="bottom: 0px"]') ||
-        viewer.shadowRoot.querySelector('div[style*="z-index: 10000"]') ||
-        viewer.shadowRoot.querySelector('div[style*="pointer-events: none"] > a');
-      if (logo) {
-        logo.style.display = 'none';
-        logo.style.visibility = 'hidden';
-        logo.style.opacity = '0';
-        logo.remove();
-      }
+      const targets = [
+        viewer.shadowRoot.querySelector('#logo'),
+        viewer.shadowRoot.querySelector('a[href*="spline.design"]'),
+        viewer.shadowRoot.querySelector('.spline-watermark'),
+        viewer.shadowRoot.querySelector('#spline-logo'),
+        viewer.shadowRoot.querySelector('div[style*="position: absolute"][style*="bottom: 0px"]'),
+        viewer.shadowRoot.querySelector('div[style*="z-index: 10000"]'),
+        viewer.shadowRoot.querySelector('div[style*="pointer-events: none"] > a')
+      ];
+
+      targets.forEach(el => {
+        if (el && el.style) {
+          el.style.display = 'none';
+          el.style.visibility = 'hidden';
+          el.style.opacity = '0';
+          el.style.pointerEvents = 'none';
+        }
+      });
     }
   });
 };
