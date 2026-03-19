@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import axios from 'axios';
 import ChatContent from './ChatContent.vue';
 
@@ -39,9 +39,28 @@ const props = defineProps({
 const isOpen = ref(false);
 const isLoading = ref(false);
 const chatContentRef = ref(null);
-const messages = ref([
+
+const defaultMessages = [
     { role: 'assistant', content: 'Bonjour ! Je suis l\'assistant ShiftUp. Comment puis-je vous aider ?' }
-]);
+];
+
+const loadMessages = () => {
+    try {
+        const saved = sessionStorage.getItem('shiftup_ai_chat_current');
+        if (saved) return JSON.parse(saved);
+    } catch (e) {
+        console.error("Erreur historique chat", e);
+    }
+    return [...defaultMessages];
+};
+
+const messages = ref(loadMessages());
+
+watch(messages, (newVal) => {
+    try {
+        sessionStorage.setItem('shiftup_ai_chat_current', JSON.stringify(newVal));
+    } catch (e) {}
+}, { deep: true });
 
 const toggleChat = () => {
     isOpen.value = !isOpen.value;
