@@ -1,25 +1,27 @@
 <template>
     <div class="heropage2-root no-global-reveal" ref="rootRef">
-        <ShaderBackground :colors="themeColors" class="hero-section">
-            <div class="hero-content">
-                <h1 class="hero-title" id="animated-text">
-                    <span v-for="(wordData, index) in titleWords" :key="index" class="word-wrapper">
-                        <span class="word" :class="{ 'gt-alpina-font': wordData.isBogart }">
-                            {{ wordData.text }}
-                        </span>&nbsp;
-                    </span>
-                </h1>
+        <div class="hero-section-bg">
+            <ShaderBackground :colors="themeColors" class="shader-inner-bg">
+                <div class="hero-content">
+                    <h1 class="hero-title" id="animated-text">
+                        <span v-for="(wordData, index) in titleWords" :key="index" class="word-wrapper">
+                            <span class="word" :class="{ 'gt-alpina-font': wordData.isBogart }">
+                                {{ wordData.text }}
+                            </span>&nbsp;
+                        </span>
+                    </h1>
 
-                <div class="highlight-text-wrapper">
-                    <svg class="highlight-svg" viewBox="0 0 1000 200">
-                        <text x="50%" y="70%" dominant-baseline="middle" text-anchor="middle" class="svg-text"
-                            fill="#FFFFFF">
-                            {{ $t('Heropage.libre') }}
-                        </text>
-                    </svg>
+                    <div class="highlight-text-wrapper">
+                        <svg class="highlight-svg" viewBox="0 0 1000 200">
+                            <text x="50%" y="70%" dominant-baseline="middle" text-anchor="middle" class="svg-text"
+                                fill="#FFFFFF">
+                                {{ $t('Heropage.libre') }}
+                            </text>
+                        </svg>
+                    </div>
                 </div>
-            </div>
-        </ShaderBackground>
+            </ShaderBackground>
+        </div>
 
         <div class="video-transition-container" ref="videoContainerRef">
             <div class="black-curve-bg" ref="curveBgRef"></div>
@@ -260,20 +262,26 @@ onBeforeUnmount(() => {
     cursor: none !important;
 }
 
-.hero-section,
+.hero-section-bg,
 .video-wrapper,
 .black-curve-bg {
     cursor: none !important;
 }
 
-.hero-section {
+.hero-section-bg {
     height: 100vh;
+    width: 100%;
+    position: relative;
+    z-index: 10;
+}
+
+.shader-inner-bg {
+    height: 100%;
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    z-index: 10;
 }
 
 .hero-content {
@@ -490,12 +498,19 @@ onBeforeUnmount(() => {
         padding-bottom: 30vh;
     }
 
-    .hero-section {
+    .hero-section-bg {
         height: 100vh !important;
         min-height: 100vh !important;
         z-index: 1 !important;
-        display: flex !important;
         visibility: visible !important;
+    }
+
+    .shader-inner-bg {
+        height: 100%;
+        width: 100%;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
     }
 
     .hero-title {

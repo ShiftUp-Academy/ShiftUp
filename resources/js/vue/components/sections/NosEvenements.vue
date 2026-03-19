@@ -9,8 +9,9 @@
       </div>
     </div>
 
-    <ShaderBackground :colors="themeColors" class="list-container-bg">
-      <div class="list-container-content">
+    <div class="list-container-bg">
+      <ShaderBackground :colors="themeColors" class="shader-inner-bg">
+        <div class="list-container-content">
         <div class="sidebar">
           <h2 class="sidebar-title">{{ $t('NosEvenements.nos_evenements') }}</h2>
           <p class="description-text">
@@ -50,7 +51,8 @@
           </div>
         </div>
       </div>
-    </ShaderBackground>
+      </ShaderBackground>
+    </div>
   </div>
 </template>
 
