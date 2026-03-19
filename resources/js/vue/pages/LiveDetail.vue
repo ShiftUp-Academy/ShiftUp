@@ -1,7 +1,7 @@
 <template>
     <div class="live-detail-page">
         <div class="background-full no-global-reveal">
-            <img :src="live?.LienPhoto" alt="Background" class="bg-image" v-if="live?.LienPhoto" />
+            <img :src="live?.LienPhoto || defaultBg" alt="Background" class="bg-image" />
             <div class="gradient-overlay-full"></div>
         </div>
 
@@ -110,6 +110,8 @@ const currentLocale = computed(() => page.props.locale || 'fr');
 const props = defineProps({
     live: Object
 });
+
+const defaultBg = "https://res.cloudinary.com/dzgdjei0h/image/upload/v1770043641/How_to_Host_a_Video_Meeting_When_Working_from_Home_upscayl_4x_realesrgan-x4plus_yvogof.jpg";
 
 const toast = useToast();
 const days = ref(0);
