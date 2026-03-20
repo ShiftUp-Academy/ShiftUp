@@ -1,5 +1,5 @@
 <template>
-    <PremiumModal :isOpen="isOpen" header="" width="73vw" :origin="origin" noPadding @close="close">
+    <PremiumModal :isOpen="isOpen" header="" :width="isMobile ? '92vw' : '73vw'" :origin="origin" noPadding @close="close">
         <div class="auth-page-modal">
             <button class="close-btn" @click="close">
                 <i class="fa-solid fa-times"></i>
@@ -191,7 +191,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import PremiumButton from '../ui/PremiumButton.vue';
@@ -213,6 +213,11 @@ const authCoverImg = '/images/Bibliothèque/Zoom.jpg';
 const indicator = ref(null);
 const mode = ref('login');
 const isLoading = ref(false);
+const isMobile = ref(false);
+
+const updateIsMobile = () => {
+    isMobile.value = window.innerWidth <= 768;
+};
 
 const loginForm = useForm({
     email: '',
@@ -389,7 +394,17 @@ watch(() => props.isOpen, (newVal) => {
     if (newVal) {
         mode.value = 'login';
         setTimeout(() => animateIndicator('login'), 100);
+        updateIsMobile();
     }
+});
+
+onMounted(() => {
+    updateIsMobile();
+    window.addEventListener('resize', updateIsMobile);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('resize', updateIsMobile);
 });
 </script>
 
@@ -424,8 +439,10 @@ watch(() => props.isOpen, (newVal) => {
 }
 
 .close-btn:hover {
-    transform: rotate(90deg) scale(1.1);
     background: #222;
+}
+.close-btn:active {
+    transform: none !important;
 }
 
 .auth-image-col {
@@ -659,7 +676,51 @@ watch(() => props.isOpen, (newVal) => {
     }
 
     .auth-form-col {
-        padding: 5vh 5vw;
+        padding: 5vh 5vw 80px 5vw;
+    }
+
+    .close-btn {
+        top: auto !important;
+        right: auto !important;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 55px;
+        height: 55px;
+        font-size: 1.4rem;
+    }
+
+    .close-btn:hover,
+    .close-btn:active {
+        transform: translateX(-50%) !important;
+    }
+
+    .toggle-btn {
+        font-size: 1rem;
+    }
+
+    .input-group label {
+        font-size: 0.8rem;
+    }
+
+    .input-group input {
+        font-size: 1.1rem;
+    }
+
+    .forgot-pass {
+        font-size: 0.9rem;
+    }
+
+    .google-btn {
+        font-size: 1rem;
+    }
+
+    .otp-title {
+        font-size: 1.5rem;
+    }
+
+    .otp-subtitle {
+        font-size: 1rem;
     }
 }
 

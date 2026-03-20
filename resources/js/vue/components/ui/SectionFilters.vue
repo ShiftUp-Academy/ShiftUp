@@ -254,6 +254,27 @@ defineEmits(['update:searchValue', 'update:selectedCategory', 'complete', 'reset
     flex-direction: column;
     align-items: stretch;
     max-width: 100%;
+    gap: 10px;
+  }
+
+  :deep(.p-autocomplete-input),
+  :deep(.p-select-input),
+  :deep(.p-select-label) {
+    font-size: 1rem !important;
+  }
+
+  .text-reset-button {
+    font-size: 0.9rem;
+    padding-top: 15px;
+  }
+
+  .view-all-button {
+    font-size: 1rem;
+    padding-top: 5px;
+  }
+
+  .view-all-button .btn-text {
+    font-size: 0.9rem;
   }
 }
 </style>

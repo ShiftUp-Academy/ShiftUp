@@ -29,7 +29,7 @@
 
               <div class="video-wrapper" @mouseenter="onVideoEnter" @mouseleave="onVideoLeave">
                 <div v-if="!activatedVideos[index]" class="video-manual-trigger"
-                  :style="{ backgroundImage: `url(${item.thumbnail})` }" @click.stop="activateVideo(index)">
+                  :style="{ backgroundImage: `url('${item.thumbnail}')` }" @click.stop="activateVideo(index)">
                   <LiquidGlass class="play-btn-glass" border-radius="50%" center noBorder> <i class="fas fa-play"></i>
                   </LiquidGlass>
                 </div>
@@ -617,27 +617,36 @@ const themeColors = {
 
   .list-container-bg {
     border-radius: 30px;
-    height: 75vh;
-    max-height: 75vh;
+    height: auto !important;
+    max-height: none !important;
+    min-height: auto !important;
+    overflow: hidden !important;
   }
 
   .list-container-content {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: auto;
+    position: relative;
+    z-index: 20;
   }
 
   .sidebar {
     padding: 20px 15px;
     flex: none;
+    z-index: 10;
   }
 
   .main-content {
-    flex: 1;
-    min-height: 0;
-    max-height: none;
+    flex: none;
+    height: 55vh;
+    max-height: 55vh;
+    min-height: 55vh;
     padding: 10px 15px 40px 15px;
     overflow-y: auto;
+    position: relative;
+    z-index: 15;
+    -webkit-overflow-scrolling: touch;
   }
 
   .session-item {
@@ -646,6 +655,8 @@ const themeColors = {
 
   .video-wrapper {
     margin-bottom: 5px;
+    height: 200px; /* Force direct explicit height as mobile fallback */
+    aspect-ratio: auto;
   }
 
   .video-manual-trigger .play-btn-glass {

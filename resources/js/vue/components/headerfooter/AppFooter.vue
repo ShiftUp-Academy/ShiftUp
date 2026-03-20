@@ -370,15 +370,39 @@ const linksClients = [
     gap: 2rem;
   }
 
+  .newsletter-text {
+    font-size: 1.3rem;
+    max-width: 100%;
+  }
+
+  .email-input {
+    font-size: 1.4rem;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+
+  .link {
+    font-size: 1rem;
+  }
+
   .footer-bottom {
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
     text-align: center;
-    padding-bottom: 20vh;
+    padding-bottom: 10vh;
+    font-size: 0.9rem;
   }
 
   .social-links {
     justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .social-icon {
+    font-size: 1.2rem;
   }
 
   .back-to-top {

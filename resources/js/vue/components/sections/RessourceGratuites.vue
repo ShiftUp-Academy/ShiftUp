@@ -1,5 +1,5 @@
 <template>
-  <section class="resources-section" ref="sectionRef" @mousemove="handleFlashMove" @mouseleave="handleFlashLeave">
+  <section class="resources-section no-global-reveal" ref="sectionRef" @mousemove="handleFlashMove" @mouseleave="handleFlashLeave">
     <div class="spreading-fog" ref="fogRef"></div>
 
     <div class="section-flashlight"></div>
@@ -137,22 +137,7 @@ onMounted(async () => {
       }
     );
 
-    // 2. Text Reveal Animation 
-    gsap.from([
-      sectionRef.value.querySelectorAll('.section-title'),
-      sectionRef.value.querySelectorAll('.filters-container')
-    ], {
-      y: 40,
-      opacity: 0,
-      duration: 1,
-      stagger: 0.1,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: sectionRef.value,
-        start: "top 70%",
-        toggleActions: "play none none reverse"
-      }
-    });
+    // 2. Text Reveal Animation - REMOVED scroll effect as requested
   }
 });
 </script>
@@ -251,6 +236,11 @@ onMounted(async () => {
   .section-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+    margin-bottom: 2vh;
   }
 
   .resources-grid {
