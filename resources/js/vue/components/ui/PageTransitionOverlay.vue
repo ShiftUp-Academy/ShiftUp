@@ -260,7 +260,6 @@ defineExpose({
     line-height: 1.3;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
     .logo-mask-wrapper {
         width: 180px;
@@ -269,7 +268,7 @@ defineExpose({
 
     .discovery-card {
         width: 92vw;
-        height: 45vh; /* Taller relatively on mobile */
+        height: 45vh; 
         border-radius: 25px;
     }
 

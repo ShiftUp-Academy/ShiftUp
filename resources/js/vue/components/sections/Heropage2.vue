@@ -12,8 +12,8 @@
                     </h1>
 
                     <div class="highlight-text-wrapper">
-                        <svg class="highlight-svg" viewBox="0 0 1000 200">
-                            <text x="50%" y="70%" dominant-baseline="middle" text-anchor="middle" class="svg-text"
+                        <svg class="highlight-svg" viewBox="0 0 1000 500">
+                            <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" class="svg-text"
                                 fill="#FFFFFF">
                                 {{ $t('Heropage.libre') }}
                             </text>
@@ -43,8 +43,8 @@
                         </div>
                     </div>
                 </div>
-                <video class="transition-video" ref="videoRef" :muted="isMuted" loop playsinline autoplay preload="metadata"
-                    :src="currentVideoSrc">
+                <video class="transition-video" ref="videoRef" :muted="isMuted" loop playsinline autoplay
+                    preload="metadata" :src="currentVideoSrc">
                 </video>
 
                 <div class="mute-control-container" @click="isMuted = !isMuted">
@@ -63,11 +63,13 @@
         </div>
 
         <!-- Premium Modal for Video Update -->
-        <PremiumModal :isOpen="isModalOpen" @close="isModalOpen = false" header="Modifier la Vidéo Hero" dark width="600px">
+        <PremiumModal :isOpen="isModalOpen" @close="isModalOpen = false" header="Modifier la Vidéo Hero" dark
+            width="600px">
             <form @submit.prevent="submitVideoUpdate" class="video-update-form">
                 <div class="form-group">
                     <label>Lien Cloudinary de la vidéo</label>
-                    <input type="url" v-model="form.video_url" placeholder="https://res.cloudinary.com/..." required class="premium-input" />
+                    <input type="url" v-model="form.video_url" placeholder="https://res.cloudinary.com/..." required
+                        class="premium-input" />
                 </div>
                 <div class="form-actions">
                     <PremiumButton type="submit" text="Mettre à jour" :disabled="form.processing" />
@@ -165,7 +167,23 @@ function initAnimations() {
     const isMobile = window.innerWidth <= 768;
 
     gsap.fromTo(".word", { y: '110%' }, { y: '0%', duration: 1.2, ease: "power4.out", stagger: 0.05, delay: 0.2 });
-    gsap.fromTo(".highlight-text-wrapper", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 1, ease: "power3.out", transformOrigin: "center center", delay: 1.2 });
+
+    if (!isMobile) {
+        gsap.fromTo(".highlight-text-wrapper",
+            { opacity: 0, scale: 0.9, xPercent: -50, yPercent: -5, rotation: -6.55 },
+            {
+                opacity: 1,
+                scale: 1,
+                xPercent: -50,
+                yPercent: -5,
+                rotation: -6.55,
+                duration: 1,
+                ease: "power3.out",
+                transformOrigin: "center center",
+                delay: 1.2
+            }
+        );
+    }
 
     if (isMobile) {
         const videoTl = gsap.timeline({
@@ -178,8 +196,8 @@ function initAnimations() {
         });
 
         videoTl.fromTo(curveBgRef.value,
-            { clipPath: 'ellipse(100% 20% at 50% 100%)', y: 0 },
-            { clipPath: 'ellipse(150% 120% at 50% 100%)', y: -40, ease: "power1.inOut" }
+            { clipPath: 'ellipse(100% 20% at 50% 100%)', y: 20 },
+            { clipPath: 'ellipse(150% 120% at 50% 100%)', y: -10, ease: "power1.inOut" }
         ).fromTo(videoWrapperRef.value,
             { borderRadius: "0px", y: 150 },
             { borderRadius: "30px", y: -10, ease: "power2.out" },
@@ -251,14 +269,14 @@ const handleGlobalMouseMove = (e) => {
     if (muteBtn && isInside) {
         const muteRect = muteBtn.getBoundingClientRect();
         const radius = (window.innerWidth * 0.045);
-        
+
         const closestX = Math.max(muteRect.left, Math.min(e.clientX, muteRect.right));
         const closestY = Math.max(muteRect.top, Math.min(e.clientY, muteRect.bottom));
-        
+
         const distanceX = e.clientX - closestX;
         const distanceY = e.clientY - closestY;
         const distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
-        
+
         if (distanceSquared < (radius * radius)) {
             isTouchingMute = true;
         }
@@ -328,8 +346,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-
-
 .heropage2-root {
     width: 100%;
     overflow-x: hidden;
@@ -406,7 +422,7 @@ onBeforeUnmount(() => {
     width: 380px;
     height: 210px;
     left: 50%;
-    top: 39%;
+    top: 35%;
     transform: translateX(-50%) rotate(-6.55deg);
     z-index: 10;
     opacity: 0;
@@ -417,6 +433,7 @@ onBeforeUnmount(() => {
     font-family: 'Xtradex', sans-serif;
     font-size: 18em;
     fill: #20a1a7;
+    pointer-events: none;
 }
 
 .video-transition-container {
@@ -621,23 +638,34 @@ onBeforeUnmount(() => {
 
     .hero-title {
         width: 90vw;
-        font-size: 2.2em;
-        top: 20%;
+        font-size: 2.8rem;
+        /* Increased from 2.2em */
+        top: 18%;
         line-height: 1;
         z-index: 10;
     }
 
     .highlight-text-wrapper {
-        width: 250px;
-        height: 150px;
-        top: 35%;
-        z-index: 11;
+        width: 100vw;
+        height: 500px !important;
+        top: 35% !important;
+        left: 50% !important;
+        transform: translateX(-50%) translateY(-20px) rotate(-6.55deg);
+        z-index: 30 !important;
         opacity: 1 !important;
         visibility: visible !important;
+        pointer-events: none;
+    }
+
+    .highlight-svg {
+        height: 100% !important;
+        width: 100%;
+        max-height: 500px;
     }
 
     .svg-text {
-        font-size: 14em;
+        font-size: 28rem !important;
+        fill: #20a1a7;
     }
 
     .video-transition-container {
@@ -650,10 +678,11 @@ onBeforeUnmount(() => {
 
     .black-curve-bg {
         height: 150vh;
-        top: -95vh;
+        top: -85vh;
         clip-path: ellipse(15% 0% at 50% 100%);
         visibility: visible !important;
         display: block !important;
+        background-color: #000;
         pointer-events: none;
     }
 
@@ -661,7 +690,6 @@ onBeforeUnmount(() => {
         width: 95% !important;
         height: 300px;
         margin-top: 0vh;
-        /* On remet votre valeur exacte */
         z-index: 25;
         pointer-events: auto !important;
     }
@@ -676,6 +704,11 @@ onBeforeUnmount(() => {
         transform: scale(0.8);
     }
 
+    .scroll-text {
+        font-size: 0.8rem !important;
+        letter-spacing: 0.2em;
+    }
+
     .video-overlay {
         padding-top: 2vh !important;
     }
@@ -683,18 +716,18 @@ onBeforeUnmount(() => {
 
 @media (max-width: 480px) {
     .hero-title {
-        font-size: 1.8rem !important;
-        top: 15%;
+        font-size: 2.2rem !important;
+        top: 12%;
     }
 
     .highlight-text-wrapper {
-        width: 180px;
-        height: 100px;
-        top: 35%;
+        width: 85vw !important;
+        height: 200px !important;
+        top: 27% !important;
     }
 
     .svg-text {
-        font-size: 10em;
+        font-size: 16rem !important;
     }
 
     .video-wrapper {
@@ -707,7 +740,6 @@ onBeforeUnmount(() => {
     }
 }
 
-/* Admin Edit Video Button */
 .admin-edit-video {
     position: absolute;
     top: 20px;

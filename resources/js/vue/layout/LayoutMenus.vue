@@ -529,9 +529,17 @@ const onLiveLeaveCustom = () => {
 
 @media (max-width: 1024px) {
     .bento-section {
-        height: auto;
+        height: 100%;
+        overflow-y: auto;
         padding: 120px 20px 40px 20px;
         align-items: flex-start;
+        display: block; /* To allow scrolling of grid */
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE fallback */
+    }
+
+    .bento-section::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, etc. */
     }
 
     .bento-grid {

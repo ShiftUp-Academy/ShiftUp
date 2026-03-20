@@ -1427,8 +1427,8 @@ spline-viewer.is-ready {
   }
 
   .menu-items>a {
-    font-size: 1.5rem;
-    padding: 0.8rem 1rem;
+    font-size: 1.6rem; /* Slightly larger */
+    padding: 0.8rem 1.2rem;
     flex: none;
     text-align: center;
     white-space: nowrap;
@@ -1518,6 +1518,25 @@ spline-viewer.is-ready {
     box-shadow: none !important;
   }
 
+  .lang-name {
+    font-size: 0.8rem !important;
+    font-weight: 800;
+  }
+  
+  .lang-dropdown {
+    width: 150px !important;
+    /* right: -10vw !important; */
+    top: 70px !important;
+    padding: 3px !important;
+    border-radius: 20px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
+  }
+  
+  .lang-option {
+    padding: 15px !important;
+    margin-bottom: 5px !important;
+  }
+
   .cart-icon-wrapper-fixed {
     top: 22px;
     bottom: auto;
@@ -1602,7 +1621,7 @@ spline-viewer.is-ready {
     color: white;
     padding: 10px 18px;
     border-radius: 20px;
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     font-weight: 600;
     white-space: nowrap;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
@@ -1677,7 +1696,7 @@ spline-viewer.is-ready {
   }
 
   .menu-items>a {
-    font-size: 0.95rem;
+    font-size: 1.4rem; /* Increased from 0.95rem */
     padding: 0.8rem 1rem;
   }
 

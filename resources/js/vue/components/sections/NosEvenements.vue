@@ -1,6 +1,6 @@
 <template>
-  <div class="video-sessions-list no-global-reveal" id="nos-evenements-section" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave"
-    @mousedown="onMouseDown" @mouseup="onMouseUp" @click="goToFacebook">
+  <div class="video-sessions-list no-global-reveal" id="nos-evenements-section" @mouseenter="onMouseEnter"
+    @mouseleave="onMouseLeave" @mousedown="onMouseDown" @mouseup="onMouseUp" @click="goToFacebook">
     <div ref="cursorRef" class="fb-isolated-marquee-cursor">
       <div class="marquee-wrapper">
         <div class="marquee-content">
@@ -12,87 +12,92 @@
     <div class="list-container-bg">
       <ShaderBackground :colors="themeColors" class="shader-inner-bg">
         <div class="list-container-content">
-        <div class="sidebar">
-          <h2 class="sidebar-title">{{ $t('NosEvenements.nos_evenements') }}</h2>
-          <p class="description-text">
-            {{ $t('NosEvenements.multipliez_votre_chiffre') }}
-          </p>
-        </div>
+          <div class="sidebar">
+            <h2 class="sidebar-title">{{ $t('NosEvenements.nos_evenements') }}</h2>
+            <p class="description-text">
+              {{ $t('NosEvenements.multipliez_votre_chiffre') }}
+            </p>
+          </div>
 
-        <div class="main-content scrollable" data-lenis-prevent @click.stop>
-          <div v-for="(item, index) in allVideoSessions" :key="index" class="session-item">
-            <div class="item-header">
-              <span>{{ $t('Sequence') }} {{ index + 1 }}</span>
-              <span class="category-tag">{{ $t('NosEvenements.catgorie') }} <span class="category-name">{{
-                item.isDynamic ? item.category : $t(item.category) }}</span></span>
-            </div>
-
-            <div class="video-wrapper" @mouseenter="onVideoEnter" @mouseleave="onVideoLeave">
-              <div v-if="!activatedVideos[index]" class="video-manual-trigger"
-                :style="{ backgroundImage: `url(${item.thumbnail})` }" @click.stop="activateVideo(index)">
-                <LiquidGlass class="play-btn-glass" border-radius="50%" center noBorder> <i class="fas fa-play"></i>
-                </LiquidGlass>
+          <div class="main-content scrollable" data-lenis-prevent @click.stop>
+            <div v-for="(item, index) in allVideoSessions" :key="index" class="session-item">
+              <div class="item-header">
+                <span>{{ $t('Sequence') }} {{ index + 1 }}</span>
+                <span class="category-tag">{{ $t('NosEvenements.catgorie') }} <span class="category-name">{{
+                  item.isDynamic ? item.category : $t(item.category) }}</span></span>
               </div>
 
-              <iframe v-if="activatedVideos[index]"
-                :src="`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(item.videoUrl)}&show_text=0&autoplay=1&loop=1&muted=0`"
-                width="100%" height="100%" style="border:none;overflow:hidden; pointer-events: auto;" scrolling="no"
-                frameborder="0" allowfullscreen="true"
-                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
-            </div>
+              <div class="video-wrapper" @mouseenter="onVideoEnter" @mouseleave="onVideoLeave">
+                <div v-if="!activatedVideos[index]" class="video-manual-trigger"
+                  :style="{ backgroundImage: `url(${item.thumbnail})` }" @click.stop="activateVideo(index)">
+                  <LiquidGlass class="play-btn-glass" border-radius="50%" center noBorder> <i class="fas fa-play"></i>
+                  </LiquidGlass>
+                </div>
 
-            <div class="item-footer">
-              <a :href="item.videoUrl" target="_blank" class="session-link" @click.stop @mouseenter="onLinkEnter"
-                @mouseleave="onLinkLeave">
-                {{ $t('Coachings.voir_la_session') }}
-                <img :src="ArrowIcon" alt="Flèche" class="arrow-icon" />
-              </a>
+                <iframe v-if="activatedVideos[index]"
+                  :src="`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(item.videoUrl)}&show_text=0&autoplay=1&loop=1&muted=0`"
+                  width="100%" height="100%" style="border:none;overflow:hidden; pointer-events: auto;" scrolling="no"
+                  frameborder="0" allowfullscreen="true"
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+              </div>
+
+              <div class="item-footer">
+                <a :href="item.videoUrl" target="_blank" class="session-link" @click.stop @mouseenter="onLinkEnter"
+                  @mouseleave="onLinkLeave">
+                  {{ $t('Coachings.voir_la_session') }}
+                  <img :src="ArrowIcon" alt="Flèche" class="arrow-icon" />
+                </a>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Premium Modal for Event Management -->
-        <PremiumModal :isOpen="isModalOpen" @close="isModalOpen = false" header="Ajouter un Événement" dark width="600px">
-          <form @submit.prevent="submitEventUpdate" class="event-update-form">
-            <div class="form-group">
+          <!-- Premium Modal for Event Management -->
+          <PremiumModal :isOpen="isModalOpen" @close="isModalOpen = false" header="Ajouter un Événement" dark
+            width="600px">
+            <form @submit.prevent="submitEventUpdate" class="event-update-form">
+              <div class="form-group">
                 <label>Titre de l'événement</label>
-                <input type="text" v-model="form.Titre" placeholder="Ex: Session Live #1" required class="premium-input" />
-            </div>
-            <div class="form-group">
+                <input type="text" v-model="form.Titre" placeholder="Ex: Session Live #1" required
+                  class="premium-input" />
+              </div>
+              <div class="form-group">
                 <label>Lien Facebook de la vidéo</label>
-                <input type="url" v-model="form.LienReplay" placeholder="https://www.facebook.com/..." required class="premium-input" />
-            </div>
-            <div class="form-group">
+                <input type="url" v-model="form.LienReplay" placeholder="https://www.facebook.com/..." required
+                  class="premium-input" />
+              </div>
+              <div class="form-group">
                 <label>Lien Cloudinary de la Miniature (Photo)</label>
-                <input type="url" v-model="form.LienPhoto" placeholder="https://res.cloudinary.com/..." required class="premium-input" />
-            </div>
-            <div class="form-group">
+                <input type="url" v-model="form.LienPhoto" placeholder="https://res.cloudinary.com/..." required
+                  class="premium-input" />
+              </div>
+              <div class="form-group">
                 <label>Catégorie</label>
-                <input type="text" v-model="form.CategorieNom" placeholder="Ex: Entrepreneuriat" required class="premium-input" />
-            </div>
-            <div class="form-group">
+                <input type="text" v-model="form.CategorieNom" placeholder="Ex: Entrepreneuriat" required
+                  class="premium-input" />
+              </div>
+              <div class="form-group">
                 <label>Date de l'événement</label>
                 <input type="date" v-model="form.DateDebut" required class="premium-input" />
-            </div>
-            <div class="form-actions">
+              </div>
+              <div class="form-actions">
                 <PremiumButton type="submit" text="Ajouter l'événement" :disabled="form.processing" />
-            </div>
-          </form>
-        </PremiumModal>
-      </div>
+              </div>
+            </form>
+          </PremiumModal>
+        </div>
       </ShaderBackground>
       <!-- Admin Edit/Add Button -->
       <div v-if="isAdmin" class="admin-edit-events" @click.stop="openEditModal">
-          <LiquidGlass borderRadius="50%" center noBorder class="edit-btn-glass">
-              <i class="fas fa-plus"></i>
-          </LiquidGlass>
+        <LiquidGlass borderRadius="50%" center noBorder class="edit-btn-glass">
+          <i class="fas fa-plus"></i>
+        </LiquidGlass>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { gsap } from 'gsap';
 import { usePage, useForm } from '@inertiajs/vue3';
 import ArrowIcon from '../../../assets/images/fleche-lien.svg';
@@ -116,25 +121,25 @@ const isAdmin = computed(() => usePage().props.auth.user?.Role === 'admin');
 const isModalOpen = ref(false);
 
 const form = useForm({
-    Titre: '',
-    LienReplay: '',
-    LienPhoto: '',
-    CategorieNom: '',
-    DateDebut: new Date().toISOString().split('T')[0],
-    DateFin: new Date(Date.now() + 86400000).toISOString().split('T')[0], // +1 day
+  Titre: '',
+  LienReplay: '',
+  LienPhoto: '',
+  CategorieNom: '',
+  DateDebut: new Date().toISOString().split('T')[0],
+  DateFin: new Date(Date.now() + 86400000).toISOString().split('T')[0], // +1 day
 });
 
 const openEditModal = () => {
-    isModalOpen.value = true;
+  isModalOpen.value = true;
 };
 
 const submitEventUpdate = () => {
-    form.post('/admin/lives', {
-        onSuccess: () => {
-            isModalOpen.value = false;
-            form.reset();
-        }
-    });
+  form.post('/admin/lives', {
+    onSuccess: () => {
+      isModalOpen.value = false;
+      form.reset();
+    }
+  });
 };
 
 const cursorRef = ref(null);
@@ -170,7 +175,12 @@ const allVideoSessions = computed(() => {
   return [...videoSessions, ...dynamicSessions];
 });
 
-const activatedVideos = ref(allVideoSessions.value.map(() => false));
+const activatedVideos = ref([]);
+watch(() => allVideoSessions.value, (newSessions) => {
+  if (newSessions.length !== activatedVideos.value.length) {
+    activatedVideos.value = newSessions.map(() => false);
+  }
+}, { immediate: true });
 
 const activateVideo = (index) => {
   activatedVideos.value[index] = true;
@@ -223,19 +233,19 @@ const updateMouse = (e) => {
   // Détection de collision pour les liens et triggers vidéo
   let isTouchingInteractive = false;
   const interactiveElements = document.querySelectorAll('#nos-evenements-section .session-link, #nos-evenements-section .video-manual-trigger, #nos-evenements-section iframe, #nos-evenements-section .admin-edit-events');
-  
+
   interactiveElements.forEach(el => {
     if (isTouchingInteractive) return;
     const rect = el.getBoundingClientRect();
     const radius = 75; // Largeur du marquee est 150px
-    
+
     const closestX = Math.max(rect.left, Math.min(e.clientX, rect.right));
     const closestY = Math.max(rect.top, Math.min(e.clientY, rect.bottom));
-    
+
     const distanceX = e.clientX - closestX;
     const distanceY = e.clientY - closestY;
     const distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
-    
+
     if (distanceSquared < (radius * radius)) {
       isTouchingInteractive = true;
     }
@@ -569,12 +579,14 @@ const themeColors = {
   }
 
   .sidebar-title {
-    font-size: 2.2rem;
+    font-size: 3.2rem;
+    /* Increased from 2.2rem */
     margin-left: 0;
   }
 
   .description-text {
-    font-size: 1.1rem;
+    font-size: 1.3rem;
+    /* Increased from 1.1rem */
     margin-left: 0;
     max-width: 90%;
   }
@@ -597,14 +609,35 @@ const themeColors = {
     display: none !important;
   }
 
+  .sidebar-title {
+    font-size: 2.2rem;
+    margin-top: 1vh;
+    margin-left: 0;
+  }
+
   .list-container-bg {
     border-radius: 30px;
+    height: 75vh;
     max-height: 75vh;
   }
 
+  .list-container-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .sidebar {
+    padding: 20px 15px;
+    flex: none;
+  }
+
   .main-content {
-    max-height: 55vh;
-    padding: 15px 15px 170px 15px;
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    padding: 10px 15px 40px 15px;
+    overflow-y: auto;
   }
 
   .session-item {
@@ -636,6 +669,15 @@ const themeColors = {
     border-radius: 8px;
     margin-top: 0 !important;
   }
+
+  .item-header {
+    font-size: 1rem !important;
+    margin-bottom: 8px;
+  }
+
+  .category-tag {
+    font-size: 1rem !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -644,11 +686,12 @@ const themeColors = {
   }
 
   .sidebar-title {
-    font-size: 1.8rem;
+    font-size: 2.1rem;
   }
 
   .description-text {
-    font-size: 0.95rem;
+    font-size: 1.1rem;
+    /* Increased from 0.95rem */
     max-width: 95%;
   }
 
@@ -670,9 +713,11 @@ const themeColors = {
   }
 
   .session-link {
-    font-size: 0.7rem;
-    padding: 8px 10px;
+    font-size: 0.9rem;
+    /* Increased from 0.7rem */
+    padding: 10px 12px;
   }
+
   .edit-btn-glass {
     width: 35px;
     height: 35px;
@@ -680,7 +725,6 @@ const themeColors = {
   }
 }
 
-/* Admin Edit Events Button */
 .admin-edit-events {
   position: absolute;
   bottom: 5vh;
@@ -709,54 +753,54 @@ const themeColors = {
 
 /* Event Update Form */
 .event-update-form {
-    padding-top: 1rem;
+  padding-top: 1rem;
 }
 
 .event-update-form .form-group {
-    margin-bottom: 1.2rem;
+  margin-bottom: 1.2rem;
 }
 
 .event-update-form label {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 500;
-    margin-bottom: 0.4rem;
-    color: rgba(255, 255, 255, 0.7);
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .event-update-form .premium-input {
-    width: 100%;
-    padding: 12px 16px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    color: #fff;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    box-sizing: border-box;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
 }
 
 .event-update-form select.premium-input option {
-    background: #1a1a1a;
-    color: #fff;
+  background: #1a1a1a;
+  color: #fff;
 }
 
 .event-update-form .premium-input:focus {
-    border-color: #F7B455;
-    box-shadow: 0 0 0 3px rgba(247, 180, 85, 0.2);
+  border-color: #F7B455;
+  box-shadow: 0 0 0 3px rgba(247, 180, 85, 0.2);
 }
 
 .event-update-form .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
 }
 
 @media (max-width: 768px) {
   .admin-edit-events {
-      bottom: 15px;
-      right: 15px;
+    bottom: 15px;
+    right: 15px;
   }
 }
 </style>
