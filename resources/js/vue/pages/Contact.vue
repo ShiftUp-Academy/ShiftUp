@@ -54,7 +54,6 @@
                   $t('Contact.contactez_moi') }}</p>
               </div>
 
-              <!-- 4 Folded corners -->
               <div class="paper-fold fold-tl"></div>
               <div class="paper-fold fold-tr"></div>
               <div class="paper-fold fold-bl"></div>
@@ -128,7 +127,7 @@ import axios from 'axios';
 import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 
-const contactImg = '/images/contact/Contact.png';
+const contactImg = '/images/Contact/Contact.png';
 const logoSrc = '/images/logo-site-blanc.png';
 
 const toast = useToast();
@@ -152,7 +151,6 @@ const form = reactive({
 });
 
 onMounted(() => {
-  // Bubbles Animations
   if (paperBubble.value) {
     gsap.to(paperBubble.value, {
       duration: 0.12,
