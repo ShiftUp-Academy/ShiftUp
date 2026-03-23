@@ -228,6 +228,17 @@
         <link rel="dns-prefetch" href="https://res.cloudinary.com">
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+        
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-B4345195FJ"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-B4345195FJ');
+        </script>
+
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @inertiaHead
     </head>
