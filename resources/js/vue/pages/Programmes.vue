@@ -23,6 +23,7 @@
                 <Link v-for="(program, index) in displayPrograms" :key="index"
                     :href="`/programmes/${program.id}`"
                     class="program-image-wrapper"
+                    @click="$trackEvent('clic_programme', { id: program.id, titre: program.title })"
                     :ref="el => imageRefs[index] = el">
                     <img :src="program.image" :alt="program.title" class="program-img" />
                 </Link>

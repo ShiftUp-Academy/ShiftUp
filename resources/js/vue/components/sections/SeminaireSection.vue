@@ -28,7 +28,8 @@
                                 <span class="lieu-text">{{ sem.LieuSeminaire || $t('Location') }}</span>
                             </div>
                             <div class="v-divider small"></div>
-                            <Link :href="`/seminaires/${sem.IdProgrammeFormation}`" class="savoir-plus">
+                            <Link :href="`/seminaires/${sem.IdProgrammeFormation}`" class="savoir-plus"
+                                @click="$trackEvent('clic_seminaire', { id: sem.IdProgrammeFormation, titre: sem.Titre })">
                                 {{ $t('SeminaireSection.en_savoir_plus') }}
                                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
                                     xmlns="http://www.w3.org/2000/svg" class="arrow-icon">

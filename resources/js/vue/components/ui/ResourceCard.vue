@@ -1,6 +1,7 @@
 <template>
   <Link :href="`/programmes/${props.id}`" class="program-card" :style="{ '--mouse-x': flash.x, '--mouse-y': flash.y, '--flash-opacity': flash.opacity }"
-    @mousemove="handleFlashMove" @mouseleave="handleFlashLeave">
+    @mousemove="handleFlashMove" @mouseleave="handleFlashLeave"
+    @click="$trackEvent('clic_ressource_gratuite', { id: props.id })">
     <div class="image-container">
       <div class="parallax-target">
         <img :src="image" class="program-image" />

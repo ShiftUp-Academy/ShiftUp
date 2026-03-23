@@ -70,7 +70,7 @@
           </span>
         </button>
 
-        <Link href="/programmes" class="action-button programs-btn">
+        <Link href="/programmes" class="action-button programs-btn" @click="$trackEvent('clic_header_programmes')">
           <span v-for="(char, index) in programsChars" :key="`programs-${index}`" class="char"
             :style="{ 'animation-delay': `${index * 0.03}s` }">
             {{ char === ' ' ? '&nbsp;' : char }}
@@ -80,7 +80,8 @@
 
       <Link href="/contact" class="profile-icon-wrapper"
         :style="{ '--mouse-x': profileFlash.x, '--mouse-y': profileFlash.y, '--flash-opacity': profileFlash.opacity }"
-        @mousemove="handleFlashMove($event, 'profile')" @mouseleave="handleFlashLeave('profile')">
+        @mousemove="handleFlashMove($event, 'profile')" @mouseleave="handleFlashLeave('profile')"
+        @click="$trackEvent('clic_header_contact')">
         <div class="profile-icon"><i class="far fa-envelope"></i></div>
       </Link>
 
@@ -139,7 +140,7 @@
       </div>
     </div>
 
-    <div @click="isMobile ? null : (!user ? openLogin($event) : router.visit('/panier'))"
+    <div @click="isMobile ? null : (!user ? (openLogin($event), $trackEvent('clic_header_panier_login')) : (router.visit('/panier'), $trackEvent('clic_header_panier')))"
       class="cart-icon-wrapper-fixed profile-icon-wrapper"
       :class="{ 'is-visible': showFooter, 'icon-hidden': mobileIconState === 'lang' && isMobile }"
       :style="{ '--mouse-x': cartFlash.x, '--mouse-y': cartFlash.y, '--flash-opacity': cartFlash.opacity }"
@@ -407,6 +408,9 @@ const changeLocale = (locale) => {
       window.location.reload();
     }
   });
+  if (typeof window.gtag === 'function') {
+    window.gtag('event', 'changement_langue', { locale });
+  }
 };
 
 const langFlash = reactive({ x: '50%', y: '50%', opacity: 0 });
@@ -427,6 +431,9 @@ const openLogin = (event) => {
   loginButtonCoords.x = rect.left + rect.width / 2;
   loginButtonCoords.y = rect.top + rect.height / 2;
   isLoginOpen.value = true;
+  if (typeof window.gtag === 'function') {
+    window.gtag('event', 'ouvrir_modal_login');
+  }
 };
 
 const toggleProfil = () => {
@@ -439,6 +446,9 @@ const scrollToTop = () => {
     window.lenis.scrollTo(0);
   } else {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  if (typeof window.gtag === 'function') {
+    window.gtag('event', 'scroll_to_top');
   }
 };
 
@@ -472,8 +482,14 @@ function setActive(index) {
 function handleMenuClick(item, index) {
   if (item.action === 'toggleMenu') {
     isMenuOpen.value = !isMenuOpen.value;
+    if (typeof window.gtag === 'function') {
+        window.gtag('event', 'clic_menu_toggle', { ouvert: isMenuOpen.value });
+    }
   } else {
     isMenuOpen.value = false;
+    if (typeof window.gtag === 'function') {
+        window.gtag('event', 'clic_menu_item', { label: item.label, route: item.route });
+    }
   }
   setActive(index);
 }
@@ -482,6 +498,9 @@ const handleLogoClick = (e) => {
   if (isMenuOpen.value) {
     e.preventDefault();
     isMenuOpen.value = false;
+  }
+  if (typeof window.gtag === 'function') {
+    window.gtag('event', 'clic_logo_home');
   }
 };
 

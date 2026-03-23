@@ -42,7 +42,7 @@
               </div>
 
               <div class="item-footer">
-                <a :href="item.videoUrl" target="_blank" class="session-link" @click.stop @mouseenter="onLinkEnter"
+                <a :href="item.videoUrl" target="_blank" class="session-link" @click.stop="$trackEvent('clic_lien_session_facebook', { url: item.videoUrl })" @mouseenter="onLinkEnter"
                   @mouseleave="onLinkLeave">
                   {{ $t('Coachings.voir_la_session') }}
                   <img :src="ArrowIcon" alt="Flèche" class="arrow-icon" />
@@ -97,7 +97,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch, getCurrentInstance } from 'vue';
 import { gsap } from 'gsap';
 import { usePage, useForm } from '@inertiajs/vue3';
 import ArrowIcon from '../../../assets/images/fleche-lien.svg';
@@ -116,6 +116,8 @@ const props = defineProps({
     default: () => []
   }
 });
+
+const { proxy } = getCurrentInstance();
 
 const isAdmin = computed(() => usePage().props.auth.user?.Role === 'admin');
 const isModalOpen = ref(false);
@@ -184,6 +186,10 @@ watch(() => allVideoSessions.value, (newSessions) => {
 
 const activateVideo = (index) => {
   activatedVideos.value[index] = true;
+  proxy.$trackEvent('activer_video_evenement', { 
+    index, 
+    video: allVideoSessions.value[index].category 
+  });
 };
 
 const hideCursor = () => {
@@ -304,6 +310,7 @@ const onMouseUp = () => {
 
 const goToFacebook = () => {
   window.open('https://www.facebook.com/nante.randria.gel', '_blank');
+  proxy.$trackEvent('clic_section_facebook_page');
 };
 
 const themeColors = {

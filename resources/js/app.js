@@ -7,6 +7,7 @@ import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
 import ToastService from 'primevue/toastservice';
+import VueGtag from 'vue-gtag';
 
 import AppLayout from './vue/layout/AppLayout.vue';
 import AdminLayout from './vue/layout/AdminLayout.vue';
@@ -48,7 +49,6 @@ createInertiaApp({
     setup({ el, App, props }) {
         const app = createApp({ render: () => h(App, props) });
 
-        // Reactive $t helper: always reads from latest page props securely
         app.config.globalProperties.$t = function (key) {
             let translations = props.initialPage.props.translations ?? {};
             if (router && router.page && router.page.props && router.page.props.translations) {
@@ -66,11 +66,33 @@ createInertiaApp({
             }
         });
         app.use(ToastService);
+
+        // Intégration Google Analytics (GA4)
+        app.use(VueGtag, {
+            config: { id: import.meta.env.VITE_GOOGLE_ANALYTICS_ID },
+        });
+
+        // Helper global pour suivre les événements (clics sur boutons, cartes, etc.)
+        app.config.globalProperties.$trackEvent = (eventName, params = {}) => {
+            if (typeof window.gtag === 'function') {
+                window.gtag('event', eventName, params);
+            }
+        };
+
         app.mount(el);
     },
 });
 
-// Gérer l'erreur 419 (CSRF Token Mismatch / Session Expired) globalement
+// Suivi automatique des pages pour Inertia.js
+router.on('navigate', (event) => {
+    if (typeof window.gtag === 'function') {
+        window.gtag('config', import.meta.env.VITE_GOOGLE_ANALYTICS_ID, {
+            page_path: event.detail.page.url,
+            page_title: document.title,
+        });
+    }
+});
+
 router.on('error', (event) => {
     console.error('[INERTIA ERROR]', event.detail.errors || event);
     if (event.detail.errors && Object.values(event.detail.errors).includes('419')) {
@@ -78,7 +100,6 @@ router.on('error', (event) => {
     }
 });
 
-// Intercepter les erreurs de statut HTTP via l'événement 'finish' ou 'invalid'
 router.on('invalid', (event) => {
     const status = event.detail.response.status;
     console.group(`[INERTIA INVALID-RESPONSE ${status}]`);

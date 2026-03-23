@@ -80,7 +80,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, getCurrentInstance } from 'vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { router, usePage, useForm } from '@inertiajs/vue3';
@@ -100,6 +100,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const page = usePage();
 const $t = (key) => page.props.translations?.[key] ?? key;
+const { proxy } = getCurrentInstance();
 
 const themeColors = {
     primary: '#202020',
@@ -317,8 +318,10 @@ function handleCursorClick() {
             const y = seminaireSection.getBoundingClientRect().top + window.pageYOffset;
             window.scrollTo({ top: y, behavior: 'smooth' });
         }
+        proxy.$trackEvent('clic_hero_voir_evenements');
     } else {
         router.visit('/programmes');
+        proxy.$trackEvent('clic_hero_voir_programmes');
     }
 }
 
