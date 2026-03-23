@@ -7,7 +7,7 @@ import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
 import ToastService from 'primevue/toastservice';
-import VueGtag from 'vue-gtag';
+import { createGtag } from 'vue-gtag';
 
 import AppLayout from './vue/layout/AppLayout.vue';
 import AdminLayout from './vue/layout/AdminLayout.vue';
@@ -68,9 +68,9 @@ createInertiaApp({
         app.use(ToastService);
 
         // Intégration Google Analytics (GA4)
-        app.use(VueGtag, {
-            config: { id: import.meta.env.VITE_GOOGLE_ANALYTICS_ID },
-        });
+        app.use(createGtag({
+            tagId: import.meta.env.VITE_GOOGLE_ANALYTICS_ID
+        }));
 
         // Helper global pour suivre les événements (clics sur boutons, cartes, etc.)
         app.config.globalProperties.$trackEvent = (eventName, params = {}) => {
