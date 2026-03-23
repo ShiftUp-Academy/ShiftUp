@@ -461,17 +461,19 @@ function handleFlashMove(event, target) {
   else if (target === 'cart') state = cartFlash;
   else if (target === 'lang') state = langFlash;
 
-  state.x = `${(event.clientX - rect.left) / rect.width * 100}%`;
-  state.y = `${(event.clientY - rect.top) / rect.height * 100}%`;
-  state.opacity = 1;
+  if (state) {
+    state.x = `${(event.clientX - rect.left) / rect.width * 100}%`;
+    state.y = `${(event.clientY - rect.top) / rect.height * 100}%`;
+    state.opacity = 1;
+  }
 }
 
 function handleFlashLeave(target) {
-  if (target === 'menu') menuFlash.opacity = 0;
-  else if (target === 'profile') profileFlash.opacity = 0;
-  else if (target === 'top') topFlash.opacity = 0;
-  else if (target === 'cart') cartFlash.opacity = 0;
-  else if (target === 'lang') langFlash.opacity = 0;
+  if (target === 'menu' && menuFlash) menuFlash.opacity = 0;
+  else if (target === 'profile' && profileFlash) profileFlash.opacity = 0;
+  else if (target === 'top' && topFlash) topFlash.opacity = 0;
+  else if (target === 'cart' && cartFlash) cartFlash.opacity = 0;
+  else if (target === 'lang' && langFlash) langFlash.opacity = 0;
 }
 
 function setActive(index) {
