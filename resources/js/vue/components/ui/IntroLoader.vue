@@ -74,10 +74,8 @@ const colors = {
 };
 
 onMounted(() => {
-    // Prevent scrolling immediately
     document.body.style.overflow = 'hidden';
 
-    // Initial states for elements that will be animated
     gsap.set([logoRef.value, subTitleRef.value, progressWrapperRef.value, onceNoticeRef.value, footerLeftRef.value, footerRightRef.value], {
         opacity: 0,
         y: 20
@@ -108,7 +106,6 @@ onMounted(() => {
         }
     });
 
-    // In Animation
     tl.to(logoRef.value, {
         opacity: 1,
         scale: 1,
@@ -128,7 +125,7 @@ onMounted(() => {
         }, '-=0.8')
         .to(progressBarRef.value, {
             attr: { width: 400 },
-            duration: 15,
+            duration: 5,
             ease: 'power1.inOut'
         }, '-=0.4')
         .to([onceNoticeRef.value, footerLeftRef.value, footerRightRef.value], {
@@ -138,7 +135,6 @@ onMounted(() => {
             stagger: 0.1
         }, '-=2.8');
 
-    // Continuous wave motion
     gsap.to('.wave-svg', {
         x: -20,
         duration: 2,
@@ -186,13 +182,14 @@ onMounted(() => {
 }
 
 .logo-wrapper {
-    margin-bottom: 3rem;
+    margin-bottom: 1rem;
     filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.1));
 }
 
 .loader-logo {
     width: 8rem;
     height: auto;
+    margin: 0;
 }
 
 @media (min-width: 768px) {

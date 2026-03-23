@@ -10,7 +10,7 @@
 
       <div class="liquidGlass-text menu-items">
         <div class="menu-logo">
-          <Link href="/">
+          <Link href="/" @click="handleLogoClick">
             <img :src="logoSrc" alt="Logo" class="logo-image" />
           </Link>
         </div>
@@ -477,6 +477,13 @@ function handleMenuClick(item, index) {
   }
   setActive(index);
 }
+
+const handleLogoClick = (e) => {
+  if (isMenuOpen.value) {
+    e.preventDefault();
+    isMenuOpen.value = false;
+  }
+};
 
 function updateBackground() {
   requestAnimationFrame(() => {

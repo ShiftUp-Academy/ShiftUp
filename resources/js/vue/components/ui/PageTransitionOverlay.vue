@@ -6,6 +6,10 @@
                     <div class="gradient-bg"></div>
                 </div>
 
+                <div class="progress-bar-container" ref="progressRef">
+                    <div class="progress-bar-fill"></div>
+                </div>
+
                 <div class="discovery-card" v-if="currentItem" ref="cardRef">
                     <div class="card-image" :style="{ backgroundImage: `url(${formatImgUrl(currentItem.image)})` }"></div>
                     <div class="card-overlay">
@@ -28,6 +32,7 @@ const bg = ref(null);
 const logoWrapper = ref(null);
 const cardRef = ref(null);
 const contentWrapper = ref(null);
+const progressRef = ref(null);
 
 let isTransitioning = false;
 let startAnimationPromise = null;
@@ -79,6 +84,7 @@ const startTransition = () => {
         });
         
         gsap.set(logoWrapper.value, { opacity: 0, y: 10, scale: 0.95 });
+        gsap.set(progressRef.value, { opacity: 0, scaleX: 0 });
         gsap.set(cardRef.value, { opacity: 0, y: 40, scale: 0.95 });
 
         const tl = gsap.timeline({ onComplete: resolve });
@@ -103,7 +109,19 @@ const startTransition = () => {
             duration: 0.7,
             ease: "power3.out"
         }, "-=0.2")
-        // 4. Discovery Card Reveal
+        // 4. Progress Bar Animation
+        .to(progressRef.value, {
+            opacity: 1,
+            scaleX: 1,
+            duration: 0.8,
+            ease: "power2.out"
+        }, "-=0.3")
+        .fromTo('.progress-bar-fill', 
+            { scaleX: 0 }, 
+            { scaleX: 1, duration: 1.5, ease: "power1.inOut" }, 
+            "-=0.8"
+        )
+        // 5. Discovery Card Reveal
         .to(cardRef.value, {
             opacity: 1,
             y: 0,
@@ -131,7 +149,7 @@ const endTransition = async () => {
     });
 
     // 1. Elements fade and shrink upward (Compact)
-    tl.to([logoWrapper.value, cardRef.value], {
+    tl.to([logoWrapper.value, progressRef.value, cardRef.value], {
         opacity: 0,
         y: (i) => i === 0 ? -60 : -15, // Compact exit
         scale: 0.95,
@@ -206,6 +224,28 @@ defineExpose({
     mask-position: center;
     mask-repeat: no-repeat;
     overflow: hidden;
+}
+
+.progress-bar-container {
+    width: 180px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    margin: 10px 0 20px 0;
+    transform-origin: center;
+}
+
+.progress-bar-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #1A888D, #F7B455);
+    box-shadow: 0 0 10px rgba(26, 136, 141, 0.5);
+    transform-origin: left;
 }
 
 .discovery-card {

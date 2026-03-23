@@ -18,7 +18,6 @@ const loaderRef = ref(null);
 let animationTimeline = null;
 
 onMounted(() => {
-  // Setup continuous animation
   animationTimeline = gsap.timeline({ repeat: -1, paused: true });
 
   animationTimeline.to('.loader-circle', {
@@ -32,9 +31,9 @@ onMounted(() => {
     },
     ease: "power2.inOut"
   });
-  
-  gsap.fromTo('.loader-text', 
-    { opacity: 0.4 }, 
+
+  gsap.fromTo('.loader-text',
+    { opacity: 0.4 },
     { opacity: 1, duration: 1, repeat: -1, yoyo: true, ease: "sine.inOut" }
   );
 });
@@ -43,10 +42,10 @@ const startTransition = () => {
   return new Promise(resolve => {
     isVisible.value = true;
     if (animationTimeline) animationTimeline.play();
-    
+
     // Add a slight delay before showing overlay immediately to avoid flashes on fast networks
-    gsap.fromTo(loaderRef.value, 
-      { opacity: 0 }, 
+    gsap.fromTo(loaderRef.value,
+      { opacity: 0 },
       { opacity: 1, duration: 0.3, ease: "power2.out", delay: 0.1, onComplete: resolve }
     );
   });
@@ -55,11 +54,11 @@ const startTransition = () => {
 const endTransition = () => {
   return new Promise(resolve => {
     if (!loaderRef.value) { resolve(); return; }
-    
+
     gsap.to(loaderRef.value, {
-      opacity: 0, 
-      duration: 0.3, 
-      ease: "power2.in", 
+      opacity: 0,
+      duration: 0.3,
+      ease: "power2.in",
       onComplete: () => {
         isVisible.value = false;
         if (animationTimeline) animationTimeline.pause();
@@ -70,8 +69,8 @@ const endTransition = () => {
 };
 
 defineExpose({
-    startTransition,
-    endTransition
+  startTransition,
+  endTransition
 });
 </script>
 
@@ -83,13 +82,13 @@ defineExpose({
   left: 0;
   width: 100vw;
   height: 100vh;
-  
+
   /* Flexbox Centering */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  
+
   /* Styling */
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(12px);
@@ -116,9 +115,17 @@ defineExpose({
   box-shadow: 0 0 15px rgba(138, 56, 245, 0.4);
 }
 
-.circle-1 { background-color: #8A38F5; }
-.circle-2 { background-color: #A855F7; }
-.circle-3 { background-color: #ffffff; }
+.circle-1 {
+  background-color: #8A38F5;
+}
+
+.circle-2 {
+  background-color: #A855F7;
+}
+
+.circle-3 {
+  background-color: #ffffff;
+}
 
 .loader-text {
   font-family: 'Jost', sans-serif;
