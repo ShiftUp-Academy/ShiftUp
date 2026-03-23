@@ -85,6 +85,9 @@ class ProgrammeController extends Controller
             ->with(['auteur', 'lecons' => function ($query) {
                 $query->where('Statut', 'Publié')->select('IdLecon', 'IdProgramme');
             }])
+            ->when(app()->getLocale() !== 'mg', function ($query) {
+                return $query->where('Langue', app()->getLocale());
+            })
             ->orderBy('DateCreation', 'desc')
             ->get();
 
@@ -341,6 +344,9 @@ class ProgrammeController extends Controller
                 ->with(['lecons' => function ($query) {
                     $query->where('Statut', 'Publié')->select('IdLecon', 'IdProgramme');
                 }])
+                ->when(app()->getLocale() !== 'mg', function ($query) {
+                    return $query->where('Langue', app()->getLocale());
+                })
                 ->orderBy('DateCreation', 'desc')
                 ->get();
         });
@@ -420,6 +426,9 @@ class ProgrammeController extends Controller
                 ->with(['lecons' => function ($query) {
                     $query->where('Statut', 'Publié')->select('IdLecon', 'IdProgramme');
                 }])
+                ->when(app()->getLocale() !== 'mg', function ($query) {
+                    return $query->where('Langue', app()->getLocale());
+                })
                 ->orderBy('DateCreation', 'desc')
                 ->get();
         });
@@ -474,6 +483,9 @@ class ProgrammeController extends Controller
                 }, 'themes.lecons' => function ($query) {
                     $query->where('Statut', 'Publié')->where('TypeLecon', 'Texte')->orderBy('Ordre');
                 }])
+                ->when(app()->getLocale() !== 'mg', function ($query) {
+                    return $query->where('Langue', app()->getLocale());
+                })
                 ->orderBy('DateCreation', 'desc')
                 ->get();
         });
@@ -508,6 +520,7 @@ class ProgrammeController extends Controller
             'NombreDeJours' => ['nullable', 'integer', 'min:1'],
             'ModaliteSeminaire' => ['nullable', 'string', 'in:En ligne,Présentiel'],
             'LienGoogleMeet' => ['nullable', 'string'],
+            'Langue' => ['required', 'string', 'in:fr,en,mg'],
         ]);
 
         $lienPhoto = $valide['LienPhoto'];
@@ -536,6 +549,7 @@ class ProgrammeController extends Controller
             'NombreDeJours' => $valide['NombreDeJours'] ?? null,
             'ModaliteSeminaire' => $valide['ModaliteSeminaire'] ?? 'Présentiel',
             'LienGoogleMeet' => $valide['LienGoogleMeet'] ?? null,
+            'Langue' => $valide['Langue'] ?? 'fr',
             'idAuteur' => Auth::id() ?? Utilisateur::where('Role', 'admin')->first()?->IdUtilisateur,
         ]);
         
@@ -579,6 +593,7 @@ class ProgrammeController extends Controller
             'NombreDeJours' => ['nullable', 'integer', 'min:1'],
             'ModaliteSeminaire' => ['nullable', 'string', 'in:En ligne,Présentiel'],
             'LienGoogleMeet' => ['nullable', 'string'],
+            'Langue' => ['required', 'string', 'in:fr,en,mg'],
         ]);
 
         $lienPhoto = $programme->LienPhoto;
@@ -612,6 +627,7 @@ class ProgrammeController extends Controller
             'NombreDeJours' => $valide['NombreDeJours'] ?? null,
             'ModaliteSeminaire' => $valide['ModaliteSeminaire'] ?? $programme->ModaliteSeminaire,
             'LienGoogleMeet' => $valide['LienGoogleMeet'] ?? null,
+            'Langue' => $valide['Langue'],
             'idAuteur' => Auth::id() ?? $programme->idAuteur ?? Utilisateur::where('Role', 'admin')->first()?->IdUtilisateur,
         ]);
 

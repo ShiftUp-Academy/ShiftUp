@@ -13,6 +13,11 @@
                             uncheckedValue="Libre" checkedLabel="Progression Verrouillée"
                             uncheckedLabel="Progression Libre" activeColor="#3b82f6" />
                     </div>
+                    <div class="field-group">
+                        <label>Langue du Programme</label>
+                        <Select v-model="form.Langue" :options="languages" optionLabel="label" optionValue="value"
+                            placeholder="Sélectionnez une langue" class="w-full" appendTo="body" />
+                    </div>
                 </div>
 
                 <div class="field-group full-width">
@@ -112,8 +117,15 @@ const form = useForm({
     Statut: 'Dépublié',
     StatutVerrouillageProgression: 'Libre',
     ApercuVideo: '',
-    IdCategorie: null
+    IdCategorie: null,
+    Langue: 'fr'
 });
+
+const languages = [
+    { label: 'Français', value: 'fr' },
+    { label: 'Anglais', value: 'en' },
+    { label: 'Malgache', value: 'mg' }
+];
 
 
 
@@ -128,9 +140,11 @@ watch(() => props.programToEdit, (newVal) => {
         form.StatutVerrouillageProgression = newVal.StatutVerrouillageProgression;
         form.ApercuVideo = newVal.ApercuVideo;
         form.IdCategorie = newVal.IdCategorie;
+        form.Langue = newVal.Langue || 'fr';
     } else {
         form.reset();
         form.Statut = 'Dépublié'; // Ensure default
+        form.Langue = 'fr';
     }
 }, { immediate: true });
 

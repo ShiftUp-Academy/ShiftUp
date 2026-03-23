@@ -8,6 +8,11 @@
                         <PremiumSlideToggle v-model="form.Statut" checkedValue="Publié" uncheckedValue="Dépublié"
                             activeColor="#22c55e" />
                     </div>
+                    <div class="field-group">
+                        <label>Langue du Séminaire</label>
+                        <Select v-model="form.Langue" :options="languages" optionLabel="label" optionValue="value"
+                            placeholder="Sélectionnez une langue" class="w-full" appendTo="body" />
+                    </div>
                 </div>
 
                 <div class="field-group full-width">
@@ -156,8 +161,15 @@ const form = useForm({
     LieuSeminaire: '',
     LienGoogleMeet: '',
     NombreDeJours: null,
-    IdCategorie: null
+    IdCategorie: null,
+    Langue: 'fr'
 });
+
+const languages = [
+    { label: 'Français', value: 'fr' },
+    { label: 'Anglais', value: 'en' },
+    { label: 'Malgache', value: 'mg' }
+];
 
 watch(() => props.programToEdit, (newVal) => {
     if (newVal) {
@@ -180,10 +192,12 @@ watch(() => props.programToEdit, (newVal) => {
         form.LienGoogleMeet = newVal.LienGoogleMeet || '';
         form.NombreDeJours = newVal.NombreDeJours || null;
         form.IdCategorie = newVal.IdCategorie;
+        form.Langue = newVal.Langue || 'fr';
     } else {
         form.reset();
         form.Type = 'Seminaire';
         form.Statut = 'Dépublié';
+        form.Langue = 'fr';
         form.ModaliteSeminaire = 'Présentiel';
     }
 }, { immediate: true });

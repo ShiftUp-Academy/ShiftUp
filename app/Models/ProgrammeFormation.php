@@ -20,6 +20,7 @@ class ProgrammeFormation extends Model
     protected $fillable = [
         'Type',
         'Titre',
+        'Langue',
         'LienPhoto',
         'ApercuVideo',
         'Statut',
