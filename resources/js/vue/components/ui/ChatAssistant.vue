@@ -1,9 +1,9 @@
 <template>
     <div :class="['chat-assistant-container', embedded ? 'embedded' : 'floating']">
-        <button v-if="!embedded" @click="toggleChat" class="chat-toggle-btn">
-            <svg v-if="!isOpen" viewBox="0 0 24 24" class="icon-gemini">
-                <path d="M12 2L14.7 8.6L21.3 11.3L14.7 14L12 20.6L9.3 14L2.7 11.3L9.3 8.6L12 2Z" />
-            </svg>
+        <button v-if="!embedded" @click="toggleChat" class="chat-toggle-btn" :class="{ 'is-open': isOpen }">
+            <div v-if="!isOpen" class="toggle-avatar-wrapper">
+                <UnicornAvatar :size="45" />
+            </div>
             <svg v-else xmlns="http://www.w3.org/2000/svg" class="icon-close" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -28,6 +28,7 @@
 import { ref, watch, nextTick } from 'vue';
 import axios from 'axios';
 import ChatContent from './ChatContent.vue';
+import UnicornAvatar from './UnicornAvatar.vue';
 
 const props = defineProps({
     embedded: {
@@ -153,5 +154,48 @@ const sendMessage = async (userMsg) => {
 .fade-slide-leave-to {
     opacity: 0;
     transform: translateY(30px) scale(0.98);
+}
+
+.chat-toggle-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #090909;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+.chat-toggle-btn:hover {
+    transform: scale(1.05) translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+}
+
+.chat-toggle-btn.is-open {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+}
+
+.toggle-avatar-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-close {
+    width: 25px;
+    height: 25px;
+    color: white;
 }
 </style>

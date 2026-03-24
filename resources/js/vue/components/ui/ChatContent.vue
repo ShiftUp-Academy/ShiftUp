@@ -13,9 +13,7 @@
         <div v-if="!embedded" class="chat-header">
             <div class="header-info">
                 <div class="header-avatar">
-                    <svg viewBox="0 0 24 24" class="icon-avatar">
-                        <path d="M12 2L14.7 8.6L21.3 11.3L14.7 14L12 20.6L9.3 14L2.7 11.3L9.3 8.6L12 2Z" />
-                    </svg>
+                   <UnicornAvatar :size="24" />
                 </div>
                 <div class="header-text">
                     <h3 class="title">ShiftUp AI</h3>
@@ -25,11 +23,14 @@
         </div>
 
         <div class="messages-area custom-scrollbar" ref="scrollContainer" @click="handleChatClick">
-            <div class="messages-list">
+            <TransitionGroup name="msg-fade" tag="div" class="messages-list">
                 <div v-for="(msg, index) in messages" :key="index" :class="['message-row', msg.role]">
                     <div v-if="msg.role === 'assistant'" class="bubble-wrapper assistant">
+                        <div class="avatar-assistant">
+                            <UnicornAvatar :size="24" />
+                        </div>
                         <div class="bubble assistant-bubble">
-                            <div class="markdown-body" v-html="renderMarkdown(msg.content)"></div>
+                            <div v-html="renderMarkdown(msg.content)" class="markdown-body"></div>
                         </div>
                     </div>
 
@@ -40,12 +41,10 @@
                     </div>
                 </div>
 
-                <div v-if="isLoading" class="message-row assistant">
+                <div v-if="isLoading" class="message-row assistant" key="loading">
                     <div class="bubble-wrapper assistant">
                         <div class="avatar-assistant loading-icon-container" ref="loadingIconRef">
-                            <svg viewBox="0 0 24 24" class="icon-star">
-                                <path d="M12 2L14.7 8.6L21.3 11.3L14.7 14L12 20.6L9.3 14L2.7 11.3L9.3 8.6L12 2Z" />
-                            </svg>
+                            <UnicornAvatar :size="24" />
                         </div>
                         <div class="bubble assistant-bubble loading-bubble" ref="loadingBubbleRef">
                             <div class="dots-container">
@@ -56,7 +55,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </TransitionGroup>
         </div>
 
         <div class="input-container">
@@ -82,6 +81,7 @@ import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import { marked } from 'marked';
 import { gsap } from 'gsap';
 import { router } from '@inertiajs/vue3';
+import UnicornAvatar from './UnicornAvatar.vue';
 
 const props = defineProps({
     messages: Array,
@@ -134,7 +134,6 @@ const startLoadingAnimation = () => {
     loadingTimeline = gsap.timeline({ repeat: -1 });
 
     if (loadingIconRef.value) {
-        // Star Icon: Floating + Rotation + Glow
         loadingTimeline.to(loadingIconRef.value, {
             y: -8,
             rotation: 15,
@@ -184,7 +183,7 @@ const startLoadingAnimation = () => {
 
 watch(() => props.isLoading, (loading) => {
     if (loading) {
-        setTimeout(startLoadingAnimation, 50); // Small delay to ensure DOM is ready
+        setTimeout(startLoadingAnimation, 50);
         scrollToBottom();
     } else {
         if (loadingTimeline) loadingTimeline.kill();
@@ -224,11 +223,15 @@ onMounted(() => {
 }
 
 .header-avatar {
-    width: 32px;
-    height: 32px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #1a73e8, #6e39f5);
-    padding: 6px;
+    background: transparent;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .icon-avatar {
@@ -296,7 +299,6 @@ onMounted(() => {
     width: 24px;
     height: 24px;
     flex-shrink: 0;
-    margin-bottom: 4px;
 }
 
 .icon-star path,
@@ -478,5 +480,23 @@ onMounted(() => {
     flex-shrink: 0;
     margin-top: 2vh;
     margin-bottom: 4px;
+}
+
+/* Message Fade Transitions */
+.msg-fade-enter-active,
+.msg-fade-leave-active {
+    transition: all 0.5s ease;
+}
+.msg-fade-enter-from {
+    opacity: 0;
+    transform: translateY(10px);
+}
+.msg-fade-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
+    position: absolute;
+}
+.msg-fade-move {
+    transition: transform 0.5s ease;
 }
 </style>

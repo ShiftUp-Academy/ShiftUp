@@ -58,21 +58,30 @@ class GeminiChatService
 
             $context = $this->getSiteContext();
             
-            $systemPrompt = "Tu es l'assistant IA expert de 'ShiftUp'. 
+            $systemPrompt = "Tu es l'assistant IA expert et exclusif de 'ShiftUp'. 
             
-            CONSIGNES COMPORTEMENTALES :
-            1. NE TE PRÉSENTE JAMAIS après le premier message. Ignore les salutations si la discussion est lancée.
-            2. GUIDE L'UTILISATEUR avec précision dans l'interface. Si on cherche des avis, dis d'aller dans 'Témoignages' du menu. Si on cherche du gratuit, parle de la section 'Ressources Gratuites' sur l'accueil.
-            3. Tu connais à la fois la ARCHITECTURE du site (sections, menus, boutons) et les DONNÉES (formations, prix).
+            MISSION : Guider l'utilisateur précisément vers le contenu (formations, coaching, articles) qui répond à son besoin.
 
-            CONNAISSANCE DU SITE :
+            RÈGLES DE LIENS (TRÈS IMPORTANT) :
+            1. UTILISE TOUJOURS LE FORMAT [Nom](Lien) avec les motifs suivants :
+               - Programmes/Formations : /programmes/{id} (ex: [Titre de formation](/programmes/42))
+               - Séminaires : /seminaires/{id}
+               - Offres Spéciales : /offres
+               - Coaching : /coaching
+               - Articles & Conseils (Gratuit) : /articles-conseils
+            2. SOIS PRÉCIS : Si l'utilisateur demande une formation spécifique que tu vois dans la liste DB ci-dessous, donne-lui le lien DIRECT avec son ID exact.
+
+            RÈGLES DE RÉPONSE :
+            1. DOMAINE : Réponds UNIQUEMENT sur ShiftUp.
+            2. REFUS : Refuse les hors-sujets poliment.
+            3. PAS D'INVENTION : Si un programme n'est pas dans la liste DB ci-dessous, dis que tu ne le trouves pas.
+            4. CONCISION : Réponds en Markdown de manière concise.
+
+            STRUCTURE DU SITE :
             $siteStructure
 
             DONNÉES ACTUELLES (DB) :
-            $context
-            
-            Réponds de manière concise, efficace, en Markdown. 
-            IMPORTANT : Propose toujours des liens cliquables à l'utilisateur vers les sections correspondantes s'il en a besoin.";
+            $context";
 
             $fullPrompt = "INSTRUCTIONS :\n$systemPrompt\n\nMESSAGE UTILISATEUR : $userMessage";
 
@@ -92,20 +101,43 @@ class GeminiChatService
 
     private function getSiteContext(): string
     {
-        $programmes = ProgrammeFormation::select('Titre', 'Descriptions', 'Prix', 'Type')->where('Statut', 'Publié')->get();
-        $offres = Offre::where('Statut', 'Publié')->get();
+        // 1. Programmes et Formations (Payants / Gratuits)
+        $programmes = ProgrammeFormation::select('IdProgrammeFormation', 'Titre', 'Descriptions', 'Prix', 'Type')
+            ->where('Statut', 'Publié')
+            ->get();
+        
+        // 2. Offres
+        $offres = Offre::select('IdOffre', 'Titre', 'Descriptions', 'ReductionGlobal')
+            ->where('Statut', 'Publié')
+            ->get();
+            
+        // 3. Coaching
+        $coachings = \App\Models\TypeDeCoaching::select('IdTypeCoaching', 'NomDeType', 'Descriptions', 'Prix')
+            ->where('Statut', 'Publié')
+            ->get();
 
-        $context = "PROGRAMMES ET FORMATIONS :\n";
+        $context = "LISTE DES CONTENUS DISPONIBLES :\n\n";
+        
+        $context .= "--- FORMATIONS ET SÉMINAIRES ---\n";
         foreach ($programmes as $p) {
-            $type = $p->Type ?? 'Formation';
-            $context .= "- [$type] {$p->Titre} : {$p->Descriptions} (Prix indicatif: {$p->Prix}Ar)\n";
+            $isGratuit = ($p->Prix == 0 || is_null($p->Prix));
+            $label = $isGratuit ? "ARTICLE/CONSEIL GRATUIT" : ($p->Type ?? 'FORMATION');
+            $route = ($p->Type === 'Seminaire') ? "/seminaires/" : "/programmes/";
+            $context .= "- ID:{$p->IdProgrammeFormation} | $label: \"{$p->Titre}\" | Prix: " . ($isGratuit ? '0' : $p->Prix) . "Ar | Lien: $route{$p->IdProgrammeFormation}\n";
+            $context .= "  Desc: " . substr($p->Descriptions, 0, 150) . "...\n";
         }
 
-        $context .= "\nOFFRES SPECIALES ET PACKS :\n";
+        $context .= "\n--- OFFRES SPÉCIALES (Packs) ---\n";
         foreach ($offres as $o) {
             $reduction = $o->ReductionGlobal ? " (Réduction: {$o->ReductionGlobal}%)" : "";
-            $context .= "- {$o->Titre} : {$o->Descriptions}$reduction\n";
+            $context .= "- \"{$o->Titre}\" : {$o->Descriptions}$reduction | Lien: /offres\n";
         }
+
+        $context .= "\n--- TYPES DE COACHING ---\n";
+        foreach ($coachings as $c) {
+            $context .= "- \"{$c->NomDeType}\" : {$c->Descriptions} (Prix: {$c->Prix}Ar) | Lien: /coaching\n";
+        }
+
         return $context;
     }
 }
