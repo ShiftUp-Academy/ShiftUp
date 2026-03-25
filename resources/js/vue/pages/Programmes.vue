@@ -164,11 +164,12 @@ const digits = computed(() => getFormattedString(activeIndex.value).split(''));
 
 const initScrollTriggers = () => {
     ScrollTrigger.getAll().forEach(t => t.kill());
-    imageRefs.value = [];
 
     nextTick(() => {
-        imageRefs.value.forEach((img, i) => {
-            if (!img) return;
+        const wrappers = document.querySelectorAll('.program-image-wrapper');
+        if (!wrappers.length) return;
+
+        wrappers.forEach((img, i) => {
             ScrollTrigger.create({
                 trigger: img,
                 start: "top center",
@@ -181,20 +182,20 @@ const initScrollTriggers = () => {
         ScrollTrigger.create({
             onUpdate: (self) => {
                 const velocity = Math.abs(self.getVelocity());
-                const targetScale = 1 - Math.min(velocity / 12000, 0.15);
+                const targetScale = 1 - Math.min(velocity / 9000, 0.2); // Légèrement plus prononcé
                 const inverseScale = 1 / targetScale;
 
-                gsap.to(imageRefs.value, {
+                gsap.to(wrappers, {
                     scale: targetScale,
-                    duration: 0.8,
+                    duration: 0.7,
                     ease: "power2.out",
                     overwrite: "auto"
                 });
 
-                const images = imageRefs.value.filter(Boolean).map(ref => ref.querySelector('.program-img'));
+                const images = Array.from(wrappers).map(el => el.querySelector('.program-img'));
                 gsap.to(images, {
                     scale: inverseScale,
-                    duration: 0.8,
+                    duration: 0.7,
                     ease: "power2.out",
                     overwrite: "auto"
                 });
@@ -287,21 +288,23 @@ onMounted(() => {
 
     initScrollTriggers();
 
-    if (displayPrograms.value.length > 0) {
-        const lastImg = imageRefs.value[displayPrograms.value.length - 1];
+    nextTick(() => {
+        const wrappers = document.querySelectorAll('.program-image-wrapper');
+        if (wrappers.length > 0) {
+            const lastImg = wrappers[wrappers.length - 1];
 
-        // Se déclenche exactement quand la dernière image finit de défiler
-        gsap.to([".info-col", ".separator-line"], {
-            y: "-100vh",
-            ease: "none",
-            scrollTrigger: {
-                trigger: lastImg,
-                start: "bottom bottom",
-                end: "bottom top",
-                scrub: true
-            }
-        });
-    }
+            gsap.to([".info-col", ".separator-line"], {
+                y: "-100vh",
+                ease: "none",
+                scrollTrigger: {
+                    trigger: lastImg,
+                    start: "bottom bottom",
+                    end: "bottom top",
+                    scrub: true
+                }
+            });
+        }
+    });
 });
 
 onBeforeUnmount(() => {
