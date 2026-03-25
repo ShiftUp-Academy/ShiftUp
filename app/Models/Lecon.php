@@ -34,6 +34,12 @@ class Lecon extends Model
         'PointsOfferts'
     ];
 
+    protected $casts = [
+        'Titre' => 'array',
+        'Descriptions' => 'array',
+        'Contenu' => 'array',
+    ];
+
     /**
      * Get the program that owns the lesson.
      */

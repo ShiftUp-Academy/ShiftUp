@@ -11,15 +11,11 @@
             </div>
         </div>
 
-        <div class="filter-section container" v-if="articles.length > 0">
-            <SectionFilters v-model:searchValue="searchValue" v-model:selectedCategory="selectedCategory"
-                :categories="formattedCategories" :suggestions="filteredSuggestions" :showViewAll="false"
-                @complete="searchSuggestions" @reset="resetFilters" />
-        </div>
+
 
         <div class="articles-container container">
-            <div class="articles-grid" v-if="filteredArticles.length > 0" ref="gridRef">
-                <div v-for="(article, index) in filteredArticles" :key="article.IdProgrammeFormation"
+            <div class="articles-grid" v-if="articles.length > 0" ref="gridRef">
+                <div v-for="(article, index) in articles" :key="article.IdProgrammeFormation"
                     class="article-card-wrapper">
                     <div class="article-card" @click="openReader(article)"
                         :style="{ backgroundColor: getCardColor(index) }">
@@ -43,8 +39,6 @@
                 </div>
                 <h3>{{ $t('ArticlesConseils.aucun_article_trouv') }}</h3>
                 <p>{{ $t('ArticlesConseils.essayez_de_modifier') }}</p>
-                <button @click="resetFilters" class="reset-btn">{{ $t('ArticlesConseils.rinitialiser_les_filtres')
-                    }}</button>
             </div>
         </div>
 
@@ -78,7 +72,6 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import PremiumModal from '../components/ui/PremiumModal.vue';
 import LessonContentPlayer from '../components/sections/LessonContentPlayer.vue';
-import SectionFilters from '../components/ui/SectionFilters.vue';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -96,8 +89,6 @@ const props = defineProps({
 const page = usePage();
 const currentLocale = computed(() => page.props.locale || 'fr');
 
-const searchValue = ref('');
-const selectedCategory = ref(null);
 const pageRef = ref(null);
 const titleRef = ref(null);
 const subtitleRef = ref(null);
@@ -119,44 +110,7 @@ const colors = [
 
 const getCardColor = (index) => colors[index % colors.length];
 
-const formattedCategories = computed(() => {
-    return props.categories.map(c => ({
-        name: c.Nom,
-        code: c.IdCategorie
-    }));
-});
 
-const filteredArticles = computed(() => {
-    return props.articles.filter(article => {
-        const title = article.Titre || '';
-        const description = article.Descriptions || '';
-        const search = searchValue.value.toLowerCase();
-
-        const matchesSearch = title.toLowerCase().includes(search) ||
-            description.toLowerCase().includes(search);
-
-        const matchesCategory = !selectedCategory.value || article.IdCategorie === selectedCategory.value.code;
-        return matchesSearch && matchesCategory;
-    });
-});
-
-const allSuggestions = computed(() => {
-    return props.articles.map(a => a.Titre || '');
-});
-
-const filteredSuggestions = ref([]);
-
-const searchSuggestions = (event) => {
-    const query = event.query.toLowerCase();
-    filteredSuggestions.value = allSuggestions.value.filter(s =>
-        s.toLowerCase().includes(query)
-    );
-};
-
-const resetFilters = () => {
-    searchValue.value = '';
-    selectedCategory.value = null;
-};
 
 const allArticleLessons = computed(() => {
     if (!selectedArticle.value) return [];
@@ -232,7 +186,7 @@ const initAnimations = () => {
     });
 };
 
-watch(filteredArticles, () => {
+watch(() => props.articles, () => {
     initAnimations();
 }, { deep: true });
 
@@ -530,24 +484,4 @@ onMounted(() => {
     }
 }
 
-/* Filters Layout */
-.filter-section {
-    margin-bottom: 3rem;
-    display: flex;
-    justify-content: center;
-}
-
-.filter-section :deep(.filters-container) {
-    max-width: 1000px;
-    background: rgba(255, 255, 255, 0.03);
-    padding: 20px 30px;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-@media (max-width: 768px) {
-    .filter-section :deep(.filters-container) {
-        padding: 15px;
-    }
-}
 </style>

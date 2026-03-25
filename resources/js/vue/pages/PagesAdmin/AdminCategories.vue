@@ -126,6 +126,11 @@ const submitForm = () => {
         onSuccess: () => {
             closeModal();
             toast.add({ severity: 'success', summary: 'Succès', detail: 'Opération réussie', life: 3000 });
+        },
+        onError: (errs) => {
+            Object.values(errs).forEach(msg => {
+                toast.add({ severity: 'error', summary: 'Erreur', detail: msg, life: 5000 });
+            });
         }
     });
 };

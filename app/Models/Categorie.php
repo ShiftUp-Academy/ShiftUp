@@ -15,6 +15,11 @@ class Categorie extends Model
     public $timestamps = false;
 
     protected $fillable = ['Nom', 'Statut', 'Descriptions'];
+    
+    protected $casts = [
+        'Nom' => 'array',
+        'Descriptions' => 'array',
+    ];
 
     public function questionsLibres()
     {

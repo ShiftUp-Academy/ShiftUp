@@ -28,6 +28,12 @@ class Etape extends Model
         'PointsOfferts',
         'NecessiteValidationAdmin'
     ];
+
+    protected $casts = [
+        'Titre' => 'array',
+        'Descriptions' => 'array',
+    ];
+
     public function lecon(): BelongsTo
     {
         return $this->belongsTo(Lecon::class, 'IdLecon', 'IdLecon');

@@ -198,6 +198,20 @@ watch(() => props.isOpen, (newVal) => {
 });
 
 const submitLesson = () => {
+    // Validation client
+    if (lessonForm.TypeLecon === 'Vidéo' && !lessonForm.Contenu) {
+        toast.add({ severity: 'error', summary: 'Contenu manquant', detail: 'Veuillez saisir le lien de la vidéo.', life: 3000 });
+        return;
+    }
+    if (lessonForm.TypeLecon === 'PDF' && !lessonForm.Contenu && !lessonForm.ContenuFile) {
+        toast.add({ severity: 'error', summary: 'Contenu manquant', detail: 'Veuillez sélectionner un fichier PDF.', life: 3000 });
+        return;
+    }
+    if (lessonForm.TypeLecon === 'Texte' && (!lessonForm.Contenu || lessonForm.Contenu.trim() === '')) {
+        toast.add({ severity: 'error', summary: 'Contenu manquant', detail: 'Le contenu du texte ne peut pas être vide.', life: 3000 });
+        return;
+    }
+
     const url = props.lessonToEdit
         ? '/admin/lecons/' + props.lessonToEdit.IdLecon + '/maj'
         : '/admin/lecons/insertion';
@@ -209,6 +223,11 @@ const submitLesson = () => {
                 severity: 'success',
                 summary: props.lessonToEdit ? 'Mis à jour' : 'Ajouté',
                 life: 3000
+            });
+        },
+        onError: (errs) => {
+            Object.values(errs).forEach(msg => {
+                toast.add({ severity: 'error', summary: 'Erreur', detail: msg, life: 5000 });
             });
         }
     });

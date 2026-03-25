@@ -20,6 +20,7 @@ class OptionQuestion extends Model
 
     protected $casts = [
         'EstCorrecte' => 'boolean',
+        'TexteOption' => 'array',
     ];
 
     /**

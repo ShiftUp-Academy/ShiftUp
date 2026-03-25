@@ -25,6 +25,11 @@ class Theme extends Model
         'Ordre'
     ];
 
+    protected $casts = [
+        'Titre' => 'array',
+        'Descriptions' => 'array',
+    ];
+
     public function programme(): BelongsTo
     {
         return $this->belongsTo(ProgrammeFormation::class, 'IdProgramme', 'IdProgrammeFormation');

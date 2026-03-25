@@ -341,6 +341,12 @@ class ProgrammeController extends Controller
                                 });
                         });
                 })
+                ->whereDoesntHave('categorie', function ($q) {
+                    $q->where(function ($sub) {
+                        $sub->whereRaw('"Nom"->>\'fr\' = ?', ['Article et conseil'])
+                           ->orWhereRaw('"Nom"#>>\'{}\' = ?', ['Article et conseil']);
+                    });
+                })
                 ->with(['lecons' => function ($query) {
                     $query->where('Statut', 'Publié')->select('IdLecon', 'IdProgramme');
                 }])

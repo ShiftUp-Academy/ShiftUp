@@ -92,6 +92,7 @@ import InputNumber from 'primevue/inputnumber';
 import Button from 'primevue/button';
 import FileUpload from 'primevue/fileupload';
 import Toast from 'primevue/toast';
+import { useToast } from "primevue/usetoast";
 import Select from 'primevue/select';
 
 const props = defineProps({
@@ -107,6 +108,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close']);
+const toast = useToast();
 
 const form = useForm({
     Titre: '',
@@ -126,9 +128,6 @@ const languages = [
     { label: 'Anglais', value: 'en' },
     { label: 'Malgache', value: 'mg' }
 ];
-
-
-
 
 watch(() => props.programToEdit, (newVal) => {
     if (newVal) {
@@ -154,22 +153,29 @@ const onFileSelect = (event) => {
 
 const submitCreate = () => {
     if (props.programToEdit) {
-        // Handle Update
-        // router.post does not support multipart/form-data for PUT/PATCH easily with Inertia sometimes, 
-        // but Laravel allows POST method spoofing if we were using it. 
-        // Here we use a dedicated POST route for update to simplify file upload handling.
         form.post(`/admin/programmes/${props.programToEdit.IdProgrammeFormation}/update`, {
             onSuccess: () => {
                 emit('close');
                 form.reset();
+                toast.add({ severity: 'success', summary: 'Succès', detail: 'Programme mis à jour', life: 3000 });
+            },
+            onError: (errs) => {
+                Object.values(errs).forEach(msg => {
+                    toast.add({ severity: 'error', summary: 'Erreur', detail: msg, life: 5000 });
+                });
             }
         });
     } else {
-        // Handle Create
         form.post('/admin/programmes/insertion', {
             onSuccess: () => {
                 emit('close');
                 form.reset();
+                toast.add({ severity: 'success', summary: 'Succès', detail: 'Programme créé', life: 3000 });
+            },
+            onError: (errs) => {
+                Object.values(errs).forEach(msg => {
+                    toast.add({ severity: 'error', summary: 'Erreur', detail: msg, life: 5000 });
+                });
             }
         });
     }

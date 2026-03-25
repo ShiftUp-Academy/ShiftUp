@@ -31,6 +31,9 @@ class QuestionLibre extends Model
 
     protected $casts = [
         'DateReponse' => 'datetime',
+        'Titre' => 'array',
+        'ContenuQuestion' => 'array',
+        'ContenuReponse' => 'array',
     ];
 
     /**

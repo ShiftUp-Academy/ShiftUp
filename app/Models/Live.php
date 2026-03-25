@@ -29,6 +29,11 @@ class Live extends Model
         'Statut'
     ];
 
+    protected $casts = [
+        'Titre' => 'array',
+        'Descriptions' => 'array',
+    ];
+
     public function categorie(): BelongsTo
     {
         return $this->belongsTo(Categorie::class, 'IdCategorie', 'IdCategorie');

@@ -28,6 +28,11 @@ class Consultation extends Model
         'SourceType'
     ];
 
+    protected $casts = [
+        'Titre' => 'array',
+        'Question' => 'array',
+    ];
+
     public function lecon(): BelongsTo
     {
         return $this->belongsTo(Lecon::class, 'IdLecon', 'IdLecon');

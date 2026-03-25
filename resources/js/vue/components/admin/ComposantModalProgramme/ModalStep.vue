@@ -219,7 +219,17 @@ const toggleCorrectOption = (opt) => { if (stepForm.TypeEtape !== 'Quiz') opt.es
 
 const submitStep = () => {
     const url = props.stepToEdit ? '/admin/etapes/' + props.stepToEdit.IdEtape + '/maj' : '/admin/etapes/insertion';
-    stepForm.post(url, { onSuccess: () => { emit('close'); toast.add({ severity: 'success', summary: 'Succès', life: 3000 }); } });
+    stepForm.post(url, {
+        onSuccess: () => {
+            emit('close');
+            toast.add({ severity: 'success', summary: 'Succès', detail: 'Étape enregistrée', life: 3000 });
+        },
+        onError: (errs) => {
+            Object.values(errs).forEach(msg => {
+                toast.add({ severity: 'error', summary: 'Erreur', detail: msg, life: 5000 });
+            });
+        }
+    });
 };
 </script>
 

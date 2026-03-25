@@ -19,6 +19,10 @@ class QuestionEtape extends Model
         'Ordre'
     ];
 
+    protected $casts = [
+        'Intitule' => 'array',
+    ];
+
     /**
      * Get the step that owns current question.
      */

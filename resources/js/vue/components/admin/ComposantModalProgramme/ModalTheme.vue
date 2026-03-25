@@ -82,6 +82,11 @@ const submitTheme = () => {
         onSuccess: () => {
             emit('close');
             toast.add({ severity: 'success', summary: props.themeToEdit ? 'Chapitre Modifié' : 'Chapitre Ajouté', life: 3000 });
+        },
+        onError: (errs) => {
+            Object.values(errs).forEach(msg => {
+                toast.add({ severity: 'error', summary: 'Erreur', detail: msg, life: 5000 });
+            });
         }
     });
 };

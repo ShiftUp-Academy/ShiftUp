@@ -23,6 +23,11 @@ class Offre extends Model
         'Statut'
     ];
 
+    protected $casts = [
+        'Titre' => 'array',
+        'Descriptions' => 'array',
+    ];
+
     const CREATED_AT = 'DateCreation';
     const UPDATED_AT = 'DateMiseAJour';
 

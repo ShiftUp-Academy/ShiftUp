@@ -38,6 +38,11 @@ class ProgrammeFormation extends Model
         'idAuteur'
     ];
 
+    protected $casts = [
+        'Titre' => 'array',
+        'Descriptions' => 'array',
+    ];
+
     public function categorie(): BelongsTo
     {
         return $this->belongsTo(Categorie::class, 'IdCategorie', 'IdCategorie');

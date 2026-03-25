@@ -27,6 +27,10 @@ class Temoignage extends Model
         'DateMiseAJour'
     ];
 
+    protected $casts = [
+        'ContenuTexte' => 'array',
+    ];
+
     public function utilisateur()
     {
         return $this->belongsTo(Utilisateur::class, 'IdUtilisateur', 'IdUtilisateur');

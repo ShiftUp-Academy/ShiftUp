@@ -129,6 +129,7 @@ import InputNumber from 'primevue/inputnumber';
 import Button from 'primevue/button';
 import FileUpload from 'primevue/fileupload';
 import Toast from 'primevue/toast';
+import { useToast } from "primevue/usetoast";
 import Select from 'primevue/select';
 import DatePicker from 'primevue/datepicker';
 
@@ -145,6 +146,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close']);
+const toast = useToast();
 
 const form = useForm({
     Type: 'Seminaire',
@@ -224,11 +226,16 @@ const submitCreate = () => {
         ? `/admin/programmes/${props.programToEdit.IdProgrammeFormation}/update`
         : '/admin/programmes/insertion';
 
-    router.post(url, dataToSend, {
-        forceFormData: true,
+    form.post(url, {
         onSuccess: () => {
             emit('close');
             form.reset();
+            toast.add({ severity: 'success', summary: 'Succès', detail: 'Séminaire enregistré', life: 3000 });
+        },
+        onError: (errs) => {
+            Object.values(errs).forEach(msg => {
+                toast.add({ severity: 'error', summary: 'Erreur', detail: msg, life: 5000 });
+            });
         }
     });
 };

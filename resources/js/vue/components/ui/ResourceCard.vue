@@ -20,7 +20,7 @@
           <span class="prog-text">{{ progression }}%</span>
         </div>
         <div class="view-more">
-          <span class="btn-text">VOIR PLUS</span>
+          <span class="btn-text">{{ $t('voir_plus') }}</span>
           <svg viewBox="0 0 24 24" fill="none" class="arrow-icon">
             <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"
               stroke-linejoin="round" />
@@ -33,7 +33,12 @@
 
 <script setup>
 import { reactive } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
+
+const page = usePage();
+const $t = (key) => {
+    return page.props.translations?.[key] || key;
+};
 
 const props = defineProps({
   id: {
@@ -80,6 +85,7 @@ function handleFlashLeave() {
   transition: opacity 0.4s ease, filter 0.4s ease;
   will-change: transform, opacity, filter;
   transform: translateZ(0);
+  text-decoration: none !important;
 }
 
 .image-container {
