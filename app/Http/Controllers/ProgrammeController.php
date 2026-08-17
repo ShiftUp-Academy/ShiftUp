@@ -1154,7 +1154,7 @@ class ProgrammeController extends Controller
             'details.question'
         ])
         ->where('StatutValidation', 'Attente')
-        ->orderBy('created_at', 'desc')
+        ->orderBy('IdReponse', 'desc')
         ->get();
 
         return response()->json($submissions);

@@ -8,6 +8,9 @@ import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
 import ToastService from 'primevue/toastservice';
 
+import { gsap } from 'gsap';
+gsap.config({ nullTargetWarn: false });
+
 import AppLayout from './vue/layout/AppLayout.vue';
 import AdminLayout from './vue/layout/AdminLayout.vue';
 

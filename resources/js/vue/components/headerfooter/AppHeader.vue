@@ -569,6 +569,22 @@ const forceRemoveSplineLogo = () => {
   const viewers = document.querySelectorAll('spline-viewer');
   viewers.forEach(viewer => {
     if (viewer && viewer.shadowRoot) {
+      if (!viewer.shadowRoot.querySelector('#hide-spline-logo-style')) {
+        const style = document.createElement('style');
+        style.id = 'hide-spline-logo-style';
+        style.textContent = `
+          #logo, #spline-logo, .spline-watermark, a[href*="spline.design"],
+          div[style*="bottom: 0px"], div[style*="z-index: 10000"],
+          canvas + div, a, img[src*="spline"] {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+          }
+        `;
+        viewer.shadowRoot.appendChild(style);
+      }
+
       const targets = [
         viewer.shadowRoot.querySelector('#logo'),
         viewer.shadowRoot.querySelector('a[href*="spline.design"]'),
@@ -580,11 +596,14 @@ const forceRemoveSplineLogo = () => {
       ];
 
       targets.forEach(el => {
-        if (el && el.style) {
-          el.style.display = 'none';
-          el.style.visibility = 'hidden';
-          el.style.opacity = '0';
-          el.style.pointerEvents = 'none';
+        if (el) {
+          if (el.style) {
+            el.style.setProperty('display', 'none', 'important');
+            el.style.setProperty('visibility', 'hidden', 'important');
+            el.style.setProperty('opacity', '0', 'important');
+            el.style.setProperty('pointer-events', 'none', 'important');
+          }
+          try { el.remove(); } catch (e) {}
         }
       });
     }

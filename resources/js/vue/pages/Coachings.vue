@@ -128,8 +128,11 @@ import LiquidGlass from '../components/ui/LiquidGlass.vue';
 import PremiumModal from '../components/ui/PremiumModal.vue';
 import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
-import { ref, computed } from 'vue';
+import { ref, computed, getCurrentInstance } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
+
+const { proxy } = getCurrentInstance() || {};
+const $t = (key) => proxy?.$t ? proxy.$t(key) : key;
 
 const page = usePage();
 const currentLocale = computed(() => page.props.locale || 'fr');

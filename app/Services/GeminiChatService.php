@@ -83,13 +83,13 @@ class GeminiChatService
             DONNÉES ACTUELLES (DB) :
             $context";
 
-            $fullPrompt = "INSTRUCTIONS :\n$systemPrompt\n\nMESSAGE UTILISATEUR : $userMessage";
+            $fullPrompt = $this->sanitizeUtf8("INSTRUCTIONS :\n$systemPrompt\n\nMESSAGE UTILISATEUR : " . $userMessage);
 
             \Log::info('GeminiChatService: Calling Gemini API');
             $result = Gemini::generativeModel('gemini-2.5-flash')->generateContent($fullPrompt);
             
             \Log::info('GeminiChatService: Response received');
-            return $result->text();
+            return $this->sanitizeUtf8($result->text());
         } catch (\Exception $e) {
             \Log::error('GeminiChatService: Error occurred', [
                 'message' => $e->getMessage(),
@@ -97,6 +97,14 @@ class GeminiChatService
             ]);
             throw $e;
         }
+    }
+
+    private function sanitizeUtf8(?string $text): string
+    {
+        if (empty($text)) {
+            return '';
+        }
+        return iconv('UTF-8', 'UTF-8//IGNORE', $text) ?: mb_convert_encoding($text, 'UTF-8', 'UTF-8');
     }
 
     private function getSiteContext(): string
@@ -120,22 +128,28 @@ class GeminiChatService
         
         $context .= "--- FORMATIONS ET SÉMINAIRES ---\n";
         foreach ($programmes as $p) {
+            $titre = $this->sanitizeUtf8($p->Titre);
+            $desc = $this->sanitizeUtf8($p->Descriptions);
             $isGratuit = ($p->Prix == 0 || is_null($p->Prix));
             $label = $isGratuit ? "ARTICLE/CONSEIL GRATUIT" : ($p->Type ?? 'FORMATION');
             $route = ($p->Type === 'Seminaire') ? "/seminaires/" : "/programmes/";
-            $context .= "- ID:{$p->IdProgrammeFormation} | $label: \"{$p->Titre}\" | Prix: " . ($isGratuit ? '0' : $p->Prix) . "Ar | Lien: $route{$p->IdProgrammeFormation}\n";
-            $context .= "  Desc: " . substr($p->Descriptions, 0, 150) . "...\n";
+            $context .= "- ID:{$p->IdProgrammeFormation} | $label: \"{$titre}\" | Prix: " . ($isGratuit ? '0' : $p->Prix) . "Ar | Lien: $route{$p->IdProgrammeFormation}\n";
+            $context .= "  Desc: " . mb_substr($desc, 0, 150, 'UTF-8') . "...\n";
         }
 
         $context .= "\n--- OFFRES SPÉCIALES (Packs) ---\n";
         foreach ($offres as $o) {
+            $titre = $this->sanitizeUtf8($o->Titre);
+            $desc = $this->sanitizeUtf8($o->Descriptions);
             $reduction = $o->ReductionGlobal ? " (Réduction: {$o->ReductionGlobal}%)" : "";
-            $context .= "- \"{$o->Titre}\" : {$o->Descriptions}$reduction | Lien: /offres\n";
+            $context .= "- \"{$titre}\" : {$desc}$reduction | Lien: /offres\n";
         }
 
         $context .= "\n--- TYPES DE COACHING ---\n";
         foreach ($coachings as $c) {
-            $context .= "- \"{$c->NomDeType}\" : {$c->Descriptions} (Prix: {$c->Prix}Ar) | Lien: /coaching\n";
+            $nom = $this->sanitizeUtf8($c->NomDeType);
+            $desc = $this->sanitizeUtf8($c->Descriptions);
+            $context .= "- \"{$nom}\" : {$desc} (Prix: {$c->Prix}Ar) | Lien: /coaching\n";
         }
 
         return $context;

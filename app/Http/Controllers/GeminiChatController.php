@@ -27,10 +27,11 @@ class GeminiChatController extends Controller
                 'response' => $response,
             ]);
         } catch (\Exception $e) {
+            $msg = iconv('UTF-8', 'UTF-8//IGNORE', $e->getMessage()) ?: mb_convert_encoding($e->getMessage(), 'UTF-8', 'UTF-8');
             return response()->json([
                 'status' => 'error',
                 'message' => 'Désolé, une erreur est survenue lors de la communication avec l\'IA.',
-                'debug' => config('app.debug') ? $e->getMessage() : null,
+                'debug' => config('app.debug') ? $msg : null,
             ], 500);
         }
     }
