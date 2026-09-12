@@ -16,7 +16,8 @@ class DisponibiliteCoaching extends Model
         'DateDisponible',
         'HeureDebut',
         'HeureFin',
-        'EstReserve'
+        'EstReserve',
+        'BlockedByReservationId',
     ];
 
     const CREATED_AT = 'DateCreation';
@@ -25,5 +26,10 @@ class DisponibiliteCoaching extends Model
     public function reservations()
     {
         return $this->hasMany(ReservationCoaching::class, 'IdDisponibilite', 'IdDisponibilite');
+    }
+
+    public function blockedByReservation()
+    {
+        return $this->belongsTo(ReservationCoaching::class, 'BlockedByReservationId', 'IdReservation');
     }
 }

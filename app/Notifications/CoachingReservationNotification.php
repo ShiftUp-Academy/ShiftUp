@@ -36,10 +36,13 @@ class CoachingReservationNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $clientName = ($this->reservation->utilisateur->profil->Prenom ?? '') . ' ' . ($this->reservation->utilisateur->profil->Nom ?? '');
-        $coachingName = $this->reservation->type->NomDeType ?? 'Coaching';
-        $date = $this->reservation->disponibilite->DateDisponible;
-        $heure = $this->reservation->HeureDebutReservation;
+        $clientName = trim(($this->reservation->utilisateur?->profil?->Prenom ?? '') . ' ' . ($this->reservation->utilisateur?->profil?->Nom ?? ''));
+        if (empty($clientName)) {
+            $clientName = $this->reservation->utilisateur?->email ?? 'Client';
+        }
+        $coachingName = $this->reservation->type?->NomDeType ?? 'Coaching';
+        $date = $this->reservation->disponibilite?->DateDisponible ?? '';
+        $heure = $this->reservation->HeureDebutReservation ?? '';
 
         if ($this->typeNotification === 'admin') {
             return (new MailMessage)
@@ -60,7 +63,7 @@ class CoachingReservationNotification extends Notification
             return (new MailMessage)
                 ->subject('Confirmation de votre réservation - ShiftUp')
                 ->view('emails.notification', [
-                    'prenom' => $this->reservation->utilisateur->profil->Prenom ?? 'Membre ShiftUp',
+                    'prenom' => $this->reservation->utilisateur?->profil?->Prenom ?? 'Membre ShiftUp',
                     'titre' => 'Confirmation de Réservation',
                     'description' => "Coaching : {$coachingName}\nDate : {$date}\nHeure : {$heure}\nStatut : En attente de confirmation.",
                     'image' => url('images/categorie.jpg'),
@@ -81,18 +84,21 @@ class CoachingReservationNotification extends Notification
      */
     public function toDatabase(object $notifiable): array
     {
-        $clientName = ($this->reservation->utilisateur->profil->Prenom ?? '') . ' ' . ($this->reservation->utilisateur->profil->Nom ?? '');
+        $clientName = trim(($this->reservation->utilisateur?->profil?->Prenom ?? '') . ' ' . ($this->reservation->utilisateur?->profil?->Nom ?? ''));
+        if (empty($clientName)) {
+            $clientName = $this->reservation->utilisateur?->email ?? 'Client';
+        }
         
         if ($this->typeNotification === 'admin') {
             return [
-                'message' => 'Nouvelle réservation de ' . $clientName . ' pour ' . ($this->reservation->type->NomDeType ?? 'Coaching'),
+                'message' => 'Nouvelle réservation de ' . $clientName . ' pour ' . ($this->reservation->type?->NomDeType ?? 'Coaching'),
                 'icone' => 'fas fa-calendar-check',
                 'lien' => '/admin/coachings',
                 'TypeObjet' => 'ReservationCoaching'
             ];
         } else {
             return [
-                'message' => 'Votre réservation pour ' . ($this->reservation->type->NomDeType ?? 'Coaching') . ' est enregistrée.',
+                'message' => 'Votre réservation pour ' . ($this->reservation->type?->NomDeType ?? 'Coaching') . ' est enregistrée.',
                 'icone' => 'fas fa-clock',
                 'lien' => '/profil',
                 'TypeObjet' => 'ReservationCoaching'

@@ -118,12 +118,12 @@ class GeminiChatService
         $offres = Offre::select('IdOffre', 'Titre', 'Descriptions', 'ReductionGlobal')
             ->where('Statut', 'Publié')
             ->get();
-            
+          
         // 3. Coaching
         $coachings = \App\Models\TypeDeCoaching::select('IdTypeCoaching', 'NomDeType', 'Descriptions', 'Prix')
             ->where('Statut', 'Publié')
             ->get();
-
+        
         $context = "LISTE DES CONTENUS DISPONIBLES :\n\n";
         
         $context .= "--- FORMATIONS ET SÉMINAIRES ---\n";

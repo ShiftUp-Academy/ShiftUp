@@ -1,5 +1,6 @@
 <template>
   <div class="admin-content">
+    <Toast />
     <div class="page-header">
       <h1 class="page-title">Réussites</h1>
       <PremiumButton @click="openCreateModal" width="220">
@@ -128,6 +129,10 @@ import Dropdown from 'primevue/dropdown';
 import InputNumber from 'primevue/inputnumber';
 import InputSwitch from 'primevue/inputswitch';
 import Button from 'primevue/button';
+import Toast from 'primevue/toast';
+import { useToast } from 'primevue/usetoast';
+
+const toast = useToast();
 
 const props = defineProps({
   reussites: { type: Array, default: () => [] }
@@ -179,7 +184,26 @@ const submitForm = () => {
   }
   const payload = { ...form.value, valeur_requise: valReq };
   const url = editingId.value ? `/admin/reussites/${editingId.value}/update` : '/admin/reussites';
-  router.post(url, payload, { onSuccess: () => closeModal() });
+  router.post(url, payload, {
+    onSuccess: () => {
+      closeModal();
+      toast.add({
+        severity: 'success',
+        summary: 'Succès',
+        detail: editingId.value ? 'Réussite modifiée avec succès' : 'Réussite créée avec succès',
+        life: 3000
+      });
+    },
+    onError: (errors) => {
+      const msg = Object.values(errors).flat().join(' ') || "Une erreur est survenue lors de l'enregistrement";
+      toast.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: msg,
+        life: 5000
+      });
+    }
+  });
 };
 
 const confirmDelete = (r) => { reussiteToDelete.value = r; isDeleteModalOpen.value = true; };
@@ -187,7 +211,23 @@ const confirmDelete = (r) => { reussiteToDelete.value = r; isDeleteModalOpen.val
 const executeDelete = () => {
   if (reussiteToDelete.value) {
     router.delete(`/admin/reussites/${reussiteToDelete.value.id}`, {
-      onSuccess: () => { isDeleteModalOpen.value = false; }
+      onSuccess: () => {
+        isDeleteModalOpen.value = false;
+        toast.add({
+          severity: 'success',
+          summary: 'Succès',
+          detail: 'Réussite supprimée avec succès',
+          life: 3000
+        });
+      },
+      onError: () => {
+        toast.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Impossible de supprimer cette réussite',
+          life: 5000
+        });
+      }
     });
   }
 };

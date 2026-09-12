@@ -31,12 +31,17 @@ class ReussiteController extends Controller
             'nom' => 'required|string|max:255',
             'description' => 'nullable|string',
             'video_link' => 'required|string',
-            'type_action' => 'required|in:lecon_terminee,etape_passee,seuil_points,reservation_evenement,temoignage_laisse,offre_achetee,autre',
+            'type_action' => 'required|in:lecon_terminee,chapitre_fini,etape_passee,seuil_points,reservation_evenement,temoignage_laisse,offre_achetee,autre',
             'seuil_points' => 'nullable|integer',
             'points_recompense' => 'nullable|integer',
             'est_actif' => 'boolean',
-            'valeur_requise' => 'nullable|array' // or json string depending on how it's sent
+            'valeur_requise' => 'nullable'
         ]);
+
+        if (isset($validated['valeur_requise']) && is_string($validated['valeur_requise'])) {
+            $decoded = json_decode($validated['valeur_requise'], true);
+            $validated['valeur_requise'] = (json_last_error() === JSON_ERROR_NONE) ? $decoded : null;
+        }
 
         Reussite::create($validated);
 
@@ -51,12 +56,17 @@ class ReussiteController extends Controller
             'nom' => 'required|string|max:255',
             'description' => 'nullable|string',
             'video_link' => 'required|string',
-            'type_action' => 'required|in:lecon_terminee,etape_passee,seuil_points,reservation_evenement,temoignage_laisse,offre_achetee,autre',
+            'type_action' => 'required|in:lecon_terminee,chapitre_fini,etape_passee,seuil_points,reservation_evenement,temoignage_laisse,offre_achetee,autre',
             'seuil_points' => 'nullable|integer',
             'points_recompense' => 'nullable|integer',
             'est_actif' => 'boolean',
-            'valeur_requise' => 'nullable|array'
+            'valeur_requise' => 'nullable'
         ]);
+
+        if (isset($validated['valeur_requise']) && is_string($validated['valeur_requise'])) {
+            $decoded = json_decode($validated['valeur_requise'], true);
+            $validated['valeur_requise'] = (json_last_error() === JSON_ERROR_NONE) ? $decoded : null;
+        }
 
         $reussite->update($validated);
 

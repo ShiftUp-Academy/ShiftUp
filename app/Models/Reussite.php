@@ -26,9 +26,31 @@ class Reussite extends Model
     ];
 
     protected $casts = [
+        'nom' => 'json',
+        'description' => 'json',
         'valeur_requise' => 'array',
         'est_actif' => 'boolean',
     ];
+
+    public function getNomAttribute($value)
+    {
+        $decoded = is_string($value) ? json_decode($value, true) : $value;
+        if (is_array($decoded)) {
+            $locale = app()->getLocale();
+            return $decoded[$locale] ?? $decoded['fr'] ?? reset($decoded) ?? '';
+        }
+        return is_string($decoded) ? $decoded : $value;
+    }
+
+    public function getDescriptionAttribute($value)
+    {
+        $decoded = is_string($value) ? json_decode($value, true) : $value;
+        if (is_array($decoded)) {
+            $locale = app()->getLocale();
+            return $decoded[$locale] ?? $decoded['fr'] ?? reset($decoded) ?? '';
+        }
+        return is_string($decoded) ? $decoded : $value;
+    }
 
     public function utilisateurs()
     {

@@ -124,18 +124,30 @@ class CoachingController extends Controller
         // Notifications
         $reservation->load(['utilisateur.profil', 'type', 'disponibilite']);
         
-        // Au client
-        auth()->user()->notify(new \App\Notifications\CoachingReservationNotification($reservation, 'client'));
+        try {
+            // Au client
+            auth()->user()->notify(new \App\Notifications\CoachingReservationNotification($reservation, 'client'));
+        } catch (\Throwable $e) {
+            \Log::error("Erreur envoi notification client réservation coaching: " . $e->getMessage());
+        }
         
-        // À l'admin
-        $admin = Utilisateur::where('Role', 'admin')->first();
-        if ($admin) {
-            $admin->notify(new \App\Notifications\CoachingReservationNotification($reservation, 'admin'));
+        try {
+            // À l'admin
+            $admin = Utilisateur::where('Role', 'admin')->first();
+            if ($admin) {
+                $admin->notify(new \App\Notifications\CoachingReservationNotification($reservation, 'admin'));
+            }
+        } catch (\Throwable $e) {
+            \Log::error("Erreur envoi notification admin réservation coaching: " . $e->getMessage());
         }
 
-        // Débloquer les réussites
-        $reussiteService = app(\App\Services\ReussiteService::class);
-        $reussiteService->checkAndUnlock(auth()->user(), 'reservation_evenement');
+        try {
+            // Débloquer les réussites
+            $reussiteService = app(\App\Services\ReussiteService::class);
+            $reussiteService->checkAndUnlock(auth()->user(), 'reservation_evenement');
+        } catch (\Throwable $e) {
+            \Log::error("Erreur vérification réussite coaching: " . $e->getMessage());
+        }
 
         return back()->with('success', 'Votre demande de coaching a été envoyée avec succès.');
     }
