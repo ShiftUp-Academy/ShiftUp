@@ -83,7 +83,11 @@ const getDate = computed(() => {
 
 const getTime = computed(() => {
     if (props.type === 'coaching') return props.item.HeureDebutReservation?.substring(0, 5);
-    if (props.type === 'seminar') return props.item.HeureSeminaire?.substring(0, 5);
+    if (props.type === 'seminar') {
+        if (!props.item.HeureSeminaire) return '';
+        const match = props.item.HeureSeminaire.match(/(\d{2}):(\d{2})/);
+        return match ? `${match[1]}h${match[2]}` : props.item.HeureSeminaire.substring(0, 5);
+    }
     if (props.type === 'live') {
         const date = new Date(props.item.DateDebut);
         return date.toLocaleTimeString(currentLocale.value, { hour: '2-digit', minute: '2-digit' });

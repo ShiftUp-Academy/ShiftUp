@@ -177,7 +177,16 @@ const pastCoachings = computed(() => {
 });
 
 const getSeminaireDateTime = (s) => {
-    return new Date(`${s.DateSeminaire}T${s.HeureSeminaire || '00:00:00'}`);
+    if (!s.DateSeminaire) return new Date(0);
+    let dateStr = s.DateSeminaire.includes('T') ? s.DateSeminaire.split('T')[0] : s.DateSeminaire;
+    let timeStr = '00:00:00';
+    if (s.HeureSeminaire) {
+        const match = s.HeureSeminaire.match(/(\d{2}):(\d{2})(?::(\d{2}))?/);
+        if (match) {
+            timeStr = `${match[1]}:${match[2]}:${match[3] || '00'}`;
+        }
+    }
+    return new Date(`${dateStr}T${timeStr}`);
 };
 
 const upcomingSeminaires = computed(() => {

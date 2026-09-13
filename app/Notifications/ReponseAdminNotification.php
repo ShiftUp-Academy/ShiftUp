@@ -45,12 +45,22 @@ class ReponseAdminNotification extends Notification
              $image = $this->consultation->lecon->theme->programme->Image;
         }
 
+        $titreConsultation = $this->consultation->Titre;
+        if (is_array($titreConsultation)) {
+            $titreConsultation = $titreConsultation[app()->getLocale()] ?? $titreConsultation['fr'] ?? reset($titreConsultation) ?? '';
+        }
+
+        $desc = $this->reponse->Descriptions ?? $this->reponse->Titre ?? '';
+        if (is_array($desc)) {
+            $desc = $desc[app()->getLocale()] ?? $desc['fr'] ?? reset($desc) ?? '';
+        }
+
         return (new MailMessage)
-                    ->subject('Réponse à votre question : ' . $this->consultation->Titre)
+                    ->subject('Réponse à votre question : ' . $titreConsultation)
                     ->view('emails.notification', [
                         'prenom' => $notifiable->profil->Prenom ?? 'Membre ShiftUp',
-                        'titre' => 'Réponse à : ' . $this->consultation->Titre,
-                        'description' => \Illuminate\Support\Str::limit(strip_tags($this->reponse), 200), // Extrait de la réponse
+                        'titre' => 'Réponse à : ' . $titreConsultation,
+                        'description' => \Illuminate\Support\Str::limit(strip_tags((string)$desc), 200), // Extrait de la réponse
                         'image' => $image,
                         'actionText' => 'Voir la réponse complète',
                         'actionUrl' => url('/consultations'),
@@ -72,8 +82,13 @@ class ReponseAdminNotification extends Notification
 
     public function toDatabase(object $notifiable): array
     {
+        $titreConsultation = $this->consultation->Titre;
+        if (is_array($titreConsultation)) {
+            $titreConsultation = $titreConsultation[app()->getLocale()] ?? $titreConsultation['fr'] ?? reset($titreConsultation) ?? '';
+        }
+
         return [
-            'message' => 'L\'admin a répondu à votre question : ' . $this->consultation->Titre,
+            'message' => 'L\'admin a répondu à votre question : ' . $titreConsultation,
             'icone' => 'fas fa-reply',
             'lien' => '/consultations',
             'TypeObjet' => 'reponse'

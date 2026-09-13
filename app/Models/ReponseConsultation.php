@@ -31,26 +31,6 @@ class ReponseConsultation extends Model
     const CREATED_AT = 'DateCreation';
     const UPDATED_AT = 'DateMiseAJour';
 
-    public function getTitreAttribute($value)
-    {
-        $decoded = is_string($value) ? json_decode($value, true) : $value;
-        if (is_array($decoded)) {
-            $locale = app()->getLocale();
-            return $decoded[$locale] ?? $decoded['fr'] ?? reset($decoded) ?? '';
-        }
-        return is_string($decoded) ? $decoded : $value;
-    }
-
-    public function getDescriptionsAttribute($value)
-    {
-        $decoded = is_string($value) ? json_decode($value, true) : $value;
-        if (is_array($decoded)) {
-            $locale = app()->getLocale();
-            return $decoded[$locale] ?? $decoded['fr'] ?? reset($decoded) ?? '';
-        }
-        return is_string($decoded) ? $decoded : $value;
-    }
-
     public function categorie()
     {
         return $this->belongsTo(Categorie::class, 'IdCategorie', 'IdCategorie');

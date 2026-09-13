@@ -21,8 +21,8 @@
 
                 <div class="date-time-block">
                     <p class="date-text">{{ formattedDate }}</p>
-                    <p class="time-text" v-if="seminaire.HeureSeminaire">
-                        à {{ seminaire.HeureSeminaire.replace(':', 'h') }}
+                    <p class="time-text" v-if="formattedTime">
+                        à {{ formattedTime }}
                     </p>
                 </div>
 
@@ -101,22 +101,36 @@ const formattedDate = computed(() => {
     return startDate.toLocaleDateString(currentLocale.value, { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
 });
 
+const formattedTime = computed(() => {
+    if (!props.seminaire.HeureSeminaire) return '';
+    const match = props.seminaire.HeureSeminaire.match(/(\d{2}):(\d{2})/);
+    if (match) {
+        return `${match[1]}h${match[2]}`;
+    }
+    return props.seminaire.HeureSeminaire.replace(':', 'h');
+});
+
 const calculateTimeLeft = () => {
     if (!props.seminaire.DateSeminaire) return;
 
-    // Combine Date and Time
-    let targetDateStr = props.seminaire.DateSeminaire;
-    if (props.seminaire.HeureSeminaire) {
-        targetDateStr += 'T' + props.seminaire.HeureSeminaire;
-    } else {
-        targetDateStr += 'T00:00:00';
+    let dateStr = props.seminaire.DateSeminaire;
+    if (dateStr.includes('T')) {
+        dateStr = dateStr.split('T')[0];
     }
 
-    const targetDate = new Date(targetDateStr).getTime();
+    let timeStr = '00:00:00';
+    if (props.seminaire.HeureSeminaire) {
+        const match = props.seminaire.HeureSeminaire.match(/(\d{2}):(\d{2})(?::(\d{2}))?/);
+        if (match) {
+            timeStr = `${match[1]}:${match[2]}:${match[3] || '00'}`;
+        }
+    }
+
+    const targetDate = new Date(`${dateStr}T${timeStr}`).getTime();
     const now = new Date().getTime();
     const difference = targetDate - now;
 
-    if (difference > 0) {
+    if (!isNaN(difference) && difference > 0) {
         days.value = Math.floor(difference / (1000 * 60 * 60 * 24));
         hours.value = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         minutes.value = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));

@@ -182,10 +182,14 @@ watch(() => props.programToEdit, (newVal) => {
         form.Statut = newVal.Statut;
         form.DateSeminaire = newVal.DateSeminaire ? new Date(newVal.DateSeminaire) : null;
         if (newVal.HeureSeminaire) {
-            const [hours, minutes] = newVal.HeureSeminaire.split(':');
             const time = new Date();
-            time.setHours(parseInt(hours), parseInt(minutes), 0);
-            form.HeureSeminaire = time;
+            const match = newVal.HeureSeminaire.match(/(\d{2}):(\d{2})/);
+            if (match) {
+                time.setHours(parseInt(match[1]), parseInt(match[2]), 0, 0);
+                form.HeureSeminaire = time;
+            } else {
+                form.HeureSeminaire = null;
+            }
         } else {
             form.HeureSeminaire = null;
         }
@@ -209,24 +213,30 @@ const onFileSelect = (event) => {
 };
 
 const submitCreate = () => {
-    // Format dates before sending
-    const dataToSend = { ...form.data() };
-    if (dataToSend.DateSeminaire instanceof Date) {
-        dataToSend.DateSeminaire = dataToSend.DateSeminaire.toISOString().split('T')[0];
-    }
-    if (dataToSend.HeureSeminaire instanceof Date) {
-        dataToSend.HeureSeminaire = dataToSend.HeureSeminaire.toLocaleTimeString('fr-FR', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        });
-    }
-
     const url = props.programToEdit
         ? `/admin/programmes/${props.programToEdit.IdProgrammeFormation}/update`
         : '/admin/programmes/insertion';
 
-    form.post(url, {
+    form.transform((data) => {
+        let dateVal = data.DateSeminaire;
+        if (dateVal instanceof Date) {
+            const y = dateVal.getFullYear();
+            const m = String(dateVal.getMonth() + 1).padStart(2, '0');
+            const d = String(dateVal.getDate()).padStart(2, '0');
+            dateVal = `${y}-${m}-${d}`;
+        }
+        let heureVal = data.HeureSeminaire;
+        if (heureVal instanceof Date) {
+            const h = String(heureVal.getHours()).padStart(2, '0');
+            const min = String(heureVal.getMinutes()).padStart(2, '0');
+            heureVal = `${h}:${min}`;
+        }
+        return {
+            ...data,
+            DateSeminaire: dateVal,
+            HeureSeminaire: heureVal
+        };
+    }).post(url, {
         onSuccess: () => {
             emit('close');
             form.reset();
