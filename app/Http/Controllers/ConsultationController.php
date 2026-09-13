@@ -98,11 +98,16 @@ class ConsultationController extends Controller
 
         \DB::beginTransaction();
         try {
+            $videoUrl = trim($validated['videoUrl']);
+            if (preg_match_all('/https?:\/\/[^\s]+/i', $videoUrl, $matches) && count($matches[0]) > 1) {
+                $videoUrl = end($matches[0]);
+            }
+
             $reponse = \App\Models\ReponseConsultation::create([
                 'IdCategorie' => $validated['category_id'],
                 'Titre' => $validated['nom'],
                 'Descriptions' => $validated['description'],
-                'LienVideo' => $validated['videoUrl'],
+                'LienVideo' => $videoUrl,
                 'Statut' => $validated['Statut']
             ]);
 
@@ -140,6 +145,13 @@ class ConsultationController extends Controller
             'Statut' => 'sometimes|string|in:Publié,Dépublié',
             'IdCategorie' => 'sometimes|exists:Categories,IdCategorie',
         ]);
+
+        if (isset($validated['LienVideo'])) {
+            $videoUrl = trim($validated['LienVideo']);
+            if (preg_match_all('/https?:\/\/[^\s]+/i', $videoUrl, $matches) && count($matches[0]) > 1) {
+                $validated['LienVideo'] = end($matches[0]);
+            }
+        }
 
         $reponse->update($validated);
 

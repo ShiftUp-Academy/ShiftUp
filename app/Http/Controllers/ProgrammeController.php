@@ -28,17 +28,24 @@ class ProgrammeController extends Controller
 {
     public function index()
     {
-        $programmes = ProgrammeFormation::with(['auteur', 'themes' => function ($query) {
+        $programmes = ProgrammeFormation::with([
+            'auteur',
+            'themes' => function ($query) {
                 $query->orderBy('IdTheme', 'asc');
-            }, 'themes.lecons' => function ($query) {
+            },
+            'themes.lecons' => function ($query) {
                 $query->orderBy('IdLecon', 'asc');
-            }, 'themes.lecons.etapes' => function ($query) {
+            },
+            'themes.lecons.etapes' => function ($query) {
                 $query->orderBy('IdEtape', 'asc');
-            }, 'themes.lecons.etapes.questions' => function ($query) {
+            },
+            'themes.lecons.etapes.questions' => function ($query) {
                 $query->orderBy('IdQuestion', 'asc');
-            }, 'themes.lecons.etapes.questions.options' => function ($query) {
+            },
+            'themes.lecons.etapes.questions.options' => function ($query) {
                 $query->orderBy('IdOption', 'asc');
-            }])
+            }
+        ])
             ->where(function ($query) {
                 $query->where('Type', '!=', 'Seminaire')
                     ->orWhereNull('Type')
@@ -55,7 +62,7 @@ class ProgrammeController extends Controller
             })
             ->orderBy('DateCreation', 'desc')
             ->get();
-        
+
         $categories = \App\Models\Categorie::where('Statut', 'Publié')->get();
 
         return Inertia::render('PagesAdmin/AdminProgrammes', [
@@ -82,9 +89,12 @@ class ProgrammeController extends Controller
                             });
                     });
             })
-            ->with(['auteur', 'lecons' => function ($query) {
-                $query->where('Statut', 'Publié')->select('IdLecon', 'IdProgramme');
-            }])
+            ->with([
+                'auteur',
+                'lecons' => function ($query) {
+                    $query->where('Statut', 'Publié')->select('IdLecon', 'IdProgramme');
+                }
+            ])
             ->when(app()->getLocale() !== 'mg', function ($query) {
                 return $query->where('Langue', app()->getLocale());
             })
@@ -117,7 +127,7 @@ class ProgrammeController extends Controller
             ->get();
 
         $responsesQuery = \App\Models\ReponseConsultation::with(['categorie', 'questions.utilisateur.profil']);
-        
+
         if (\Auth::check()) {
         } else {
             $responsesQuery->where('Statut', 'Publié');
@@ -126,7 +136,7 @@ class ProgrammeController extends Controller
         $publishedConsultations = $responsesQuery->orderBy('DateCreation', 'desc')->get();
 
         $categories = \App\Models\Categorie::where('Statut', 'Publié')->get();
-        
+
         $offres = \App\Models\Offre::where('Statut', 'Publié')
             ->with(['programmes.programme', 'coachings.coaching'])
             ->orderBy('DateCreation', 'desc')
@@ -144,40 +154,49 @@ class ProgrammeController extends Controller
     public function show($id)
     {
         $programme = ProgrammeFormation::where('Statut', 'Publié')
-            ->with(['auteur', 'themes' => function ($query) {
-                $query->where('Statut', 'Publié')->orderBy('IdTheme', 'asc');
-            }, 'themes.lecons' => function ($query) {
-                $query->where('Statut', 'Publié')->orderBy('IdLecon', 'asc');
-            }, 'themes.lecons.etapes' => function ($query) {
-                $query->where('Statut', 'Publié')->orderBy('IdEtape', 'asc');
-            }, 'themes.lecons.etapes.questions' => function ($query) {
-                $query->orderBy('IdQuestion', 'asc');
-            }, 'themes.lecons.etapes.questions.options' => function ($query) {
-                $query->orderBy('IdOption', 'asc');
-            }])
+            ->with([
+                'auteur',
+                'themes' => function ($query) {
+                    $query->where('Statut', 'Publié')->orderBy('IdTheme', 'asc');
+                },
+                'themes.lecons' => function ($query) {
+                    $query->where('Statut', 'Publié')->orderBy('IdLecon', 'asc');
+                },
+                'themes.lecons.etapes' => function ($query) {
+                    $query->where('Statut', 'Publié')->orderBy('IdEtape', 'asc');
+                },
+                'themes.lecons.etapes.questions' => function ($query) {
+                    $query->orderBy('IdQuestion', 'asc');
+                },
+                'themes.lecons.etapes.questions.options' => function ($query) {
+                    $query->orderBy('IdOption', 'asc');
+                }
+            ])
             ->findOrFail($id);
 
-        $programme->themes->each(function($theme) {
-            $theme->lecons->each(function($lesson) {
+        $programme->themes->each(function ($theme) {
+            $theme->lecons->each(function ($lesson) {
                 if ($lesson->TypeLecon === 'PDF' && $lesson->Contenu && str_starts_with($lesson->Contenu, '/storage/')) {
-                     $lesson->Contenu = asset($lesson->Contenu);
+                    $lesson->Contenu = asset($lesson->Contenu);
                 }
             });
         });
 
         $userId = Auth::id();
         $lessonProgress = [];
-        
+
         if ($userId) {
             $lessonProgress = \App\Models\Avancement::where('IdUtilisateur', $userId)
                 ->where('EntiteType', \App\Models\Lecon::class)
                 ->select('EntiteId', 'EstTermine', 'DateOuverture')
                 ->get()
                 ->mapWithKeys(function ($item) {
-                    return [$item->EntiteId => [
-                        'EstTermine' => $item->EstTermine,
-                        'DateOuverture' => $item->DateOuverture ? $item->DateOuverture->toIso8601String() : null,
-                    ]];
+                    return [
+                        $item->EntiteId => [
+                            'EstTermine' => $item->EstTermine,
+                            'DateOuverture' => $item->DateOuverture ? $item->DateOuverture->toIso8601String() : null,
+                        ]
+                    ];
                 })->toArray();
         }
 
@@ -204,14 +223,14 @@ class ProgrammeController extends Controller
     public function showLessonContent($id, Request $request)
     {
         $lesson = \App\Models\Lecon::findOrFail($id);
-        
+
         if (!$lesson->Contenu) {
             abort(404);
         }
 
         if (str_starts_with($lesson->Contenu, '/storage/')) {
             $relativePath = str_replace('/storage/', '', $lesson->Contenu);
-            
+
             if (Storage::disk('public')->exists($relativePath)) {
                 if ($request->has('download')) {
                     return response()->download(Storage::disk('public')->path($relativePath));
@@ -267,10 +286,10 @@ class ProgrammeController extends Controller
         if ($request->est_termine) {
             $user = Utilisateur::find($userId);
             $reussiteService = app(\App\Services\ReussiteService::class);
-            
+
             $actionType = null;
             $valeurs = [];
-            
+
             if ($request->entite_type === 'Lecon') {
                 $actionType = 'lecon_terminee';
                 $valeurs = ['lesson_id' => $request->entite_id];
@@ -278,7 +297,7 @@ class ProgrammeController extends Controller
                 $actionType = 'etape_passee';
                 $valeurs = ['step_id' => $request->entite_id];
             }
-            
+
             if ($actionType) {
                 $reussiteService->checkAndUnlock($user, $actionType, $valeurs);
             }
@@ -344,12 +363,14 @@ class ProgrammeController extends Controller
                 ->whereDoesntHave('categorie', function ($q) {
                     $q->where(function ($sub) {
                         $sub->whereRaw('"Nom"->>\'fr\' = ?', ['Article et conseil'])
-                           ->orWhereRaw('"Nom"#>>\'{}\' = ?', ['Article et conseil']);
+                            ->orWhereRaw('"Nom"#>>\'{}\' = ?', ['Article et conseil']);
                     });
                 })
-                ->with(['lecons' => function ($query) {
-                    $query->where('Statut', 'Publié')->select('IdLecon', 'IdProgramme');
-                }])
+                ->with([
+                    'lecons' => function ($query) {
+                        $query->where('Statut', 'Publié')->select('IdLecon', 'IdProgramme');
+                    }
+                ])
                 ->when(app()->getLocale() !== 'mg', function ($query) {
                     return $query->where('Langue', app()->getLocale());
                 })
@@ -375,7 +396,7 @@ class ProgrammeController extends Controller
             }
             unset($p->lecons);
         });
-            
+
         $temoignages = $cache->remember('home_temoignages', 300, function () {
             return \App\Models\Temoignage::where('Type', 'Texte')
                 ->where('Statut', 'Publié')
@@ -387,7 +408,7 @@ class ProgrammeController extends Controller
         $heroVideo = $cache->remember('home_hero_video', 300, function () {
             return \App\Models\HeropageVideo::first()?->video_url;
         });
-        
+
         $homeLives = $cache->remember('home_lives', 300, function () {
             return \App\Models\Live::where('Statut', 'Publié')
                 ->whereNotNull('LienReplay')
@@ -395,7 +416,7 @@ class ProgrammeController extends Controller
                 ->orderBy('DateDebut', 'desc')
                 ->get();
         });
-            
+
         $categories = $cache->remember('home_categories', 300, function () {
             return \App\Models\Categorie::all();
         });
@@ -429,9 +450,11 @@ class ProgrammeController extends Controller
                                 });
                         });
                 })
-                ->with(['lecons' => function ($query) {
-                    $query->where('Statut', 'Publié')->select('IdLecon', 'IdProgramme');
-                }])
+                ->with([
+                    'lecons' => function ($query) {
+                        $query->where('Statut', 'Publié')->select('IdLecon', 'IdProgramme');
+                    }
+                ])
                 ->when(app()->getLocale() !== 'mg', function ($query) {
                     return $query->where('Langue', app()->getLocale());
                 })
@@ -482,13 +505,18 @@ class ProgrammeController extends Controller
                 ->whereHas('lecons', function ($query) {
                     $query->where('TypeLecon', 'Texte');
                 })
-                ->with(['auteur', 'lecons' => function ($query) {
-                    $query->where('Statut', 'Publié')->where('TypeLecon', 'Texte')->orderBy('Ordre');
-                }, 'themes' => function ($query) {
-                    $query->where('Statut', 'Publié')->orderBy('Ordre');
-                }, 'themes.lecons' => function ($query) {
-                    $query->where('Statut', 'Publié')->where('TypeLecon', 'Texte')->orderBy('Ordre');
-                }])
+                ->with([
+                    'auteur',
+                    'lecons' => function ($query) {
+                        $query->where('Statut', 'Publié')->where('TypeLecon', 'Texte')->orderBy('Ordre');
+                    },
+                    'themes' => function ($query) {
+                        $query->where('Statut', 'Publié')->orderBy('Ordre');
+                    },
+                    'themes.lecons' => function ($query) {
+                        $query->where('Statut', 'Publié')->where('TypeLecon', 'Texte')->orderBy('Ordre');
+                    }
+                ])
                 ->when(app()->getLocale() !== 'mg', function ($query) {
                     return $query->where('Langue', app()->getLocale());
                 })
@@ -558,7 +586,7 @@ class ProgrammeController extends Controller
             'Langue' => $valide['Langue'] ?? 'fr',
             'idAuteur' => Auth::id() ?? Utilisateur::where('Role', 'admin')->first()?->IdUtilisateur,
         ]);
-        
+
         if (($valide['Type'] ?? 'Formation') === 'Formation') {
             \App\Models\Theme::create([
                 'IdProgramme' => $programme->IdProgrammeFormation,
@@ -615,7 +643,7 @@ class ProgrammeController extends Controller
         }
 
         $wasPublished = $programme->Statut === 'Publié';
-        
+
         $programme->update([
             'Type' => $valide['Type'] ?? $programme->Type,
             'Titre' => $valide['Titre'],
@@ -639,7 +667,7 @@ class ProgrammeController extends Controller
 
         if ($valide['Statut'] === 'Publié' && !$wasPublished) {
             $users = Utilisateur::where('Role', '!=', 'admin')->get();
-             $programme->refresh();
+            $programme->refresh();
             Notification::send($users, new NouveauContenuNotification($programme, $programme->Type ?? 'Programme'));
         }
 
@@ -652,9 +680,9 @@ class ProgrammeController extends Controller
         foreach ($programme->lecons as $lecon) {
             $lecon->etapes()->delete();
             $lecon->delete();
-        }      
+        }
         foreach ($programme->themes as $theme) {
-             $theme->delete();
+            $theme->delete();
         }
 
         $programme->delete();
@@ -665,18 +693,18 @@ class ProgrammeController extends Controller
     public function duplicate($id)
     {
         $original = ProgrammeFormation::with(['lecons.etapes', 'themes.lecons.etapes'])->findOrFail($id);
-        
+
         $copy = $original->replicate();
         $copy->Titre = $original->Titre . ' (Copie)';
         $copy->Statut = 'Dépublié';
         $copy->DateCreation = now();
         $copy->save();
-        
+
         foreach ($original->themes as $theme) {
             $themeCopy = $theme->replicate();
             $themeCopy->IdProgramme = $copy->IdProgrammeFormation;
             $themeCopy->save();
-            
+
             foreach ($theme->lecons as $lecon) {
                 $leconCopy = $lecon->replicate();
                 $leconCopy->IdProgramme = $copy->IdProgrammeFormation;
@@ -739,8 +767,8 @@ class ProgrammeController extends Controller
         }
 
         if (empty($validated['Ordre'])) {
-             $maxOrdre = \App\Models\Lecon::where('IdTheme', $validated['IdTheme'])->max('Ordre');
-             $validated['Ordre'] = $maxOrdre ? $maxOrdre + 1 : 1;
+            $maxOrdre = \App\Models\Lecon::where('IdTheme', $validated['IdTheme'])->max('Ordre');
+            $validated['Ordre'] = $maxOrdre ? $maxOrdre + 1 : 1;
         }
 
         \App\Models\Lecon::create($validated);
@@ -751,7 +779,7 @@ class ProgrammeController extends Controller
     public function miseAJourLecon(Request $request, $id)
     {
         $lesson = \App\Models\Lecon::findOrFail($id);
-        
+
         $validated = $request->validate([
             'Titre' => 'required|string|max:255',
             'Descriptions' => 'nullable|string',
@@ -790,7 +818,7 @@ class ProgrammeController extends Controller
     public function supprimerLecon($id)
     {
         $lesson = \App\Models\Lecon::findOrFail($id);
-        
+
         if ($lesson->TypeLecon === 'PDF' && $lesson->Contenu && str_starts_with($lesson->Contenu, '/storage/')) {
             Storage::disk('public')->delete(str_replace('/storage/', '', $lesson->Contenu));
         }
@@ -804,7 +832,7 @@ class ProgrammeController extends Controller
     public function dupliquerLecon($id)
     {
         $original = \App\Models\Lecon::with('etapes')->findOrFail($id);
-        
+
         $copy = $original->replicate();
         $copy->Titre = $original->Titre . ' (Copie)';
         $copy->save();
@@ -869,16 +897,18 @@ class ProgrammeController extends Controller
         ]);
 
         if (empty($validated['Ordre'])) {
-             $maxOrdre = \App\Models\Etape::where('IdLecon', $validated['IdLecon'])->max('Ordre');
-             $validated['Ordre'] = $maxOrdre ? $maxOrdre + 1 : 1;
+            $maxOrdre = \App\Models\Etape::where('IdLecon', $validated['IdLecon'])->max('Ordre');
+            $validated['Ordre'] = $maxOrdre ? $maxOrdre + 1 : 1;
         }
 
         $etape = \App\Models\Etape::create($validated);
 
         if (!empty($validated['Question'])) {
             $typeQuestion = 'Unique';
-            if ($validated['TypeEtape'] === 'Cocher') $typeQuestion = 'Multiple';
-            if ($validated['TypeEtape'] === 'QuestionReponse') $typeQuestion = 'Ouverte';
+            if ($validated['TypeEtape'] === 'Cocher')
+                $typeQuestion = 'Multiple';
+            if ($validated['TypeEtape'] === 'QuestionReponse')
+                $typeQuestion = 'Ouverte';
 
             $question = \App\Models\QuestionEtape::create([
                 'IdEtape' => $etape->IdEtape,
@@ -905,7 +935,7 @@ class ProgrammeController extends Controller
     public function majEtape(Request $request, $id)
     {
         $etape = \App\Models\Etape::findOrFail($id);
-        
+
         $validated = $request->validate([
             'Titre' => 'required|string|max:255',
             'Descriptions' => 'nullable|string',
@@ -919,12 +949,14 @@ class ProgrammeController extends Controller
         ]);
 
         $etape->update($validated);
-        $etape->questions()->delete(); 
+        $etape->questions()->delete();
 
         if (!empty($validated['Question'])) {
             $typeQuestion = 'Unique';
-            if ($validated['TypeEtape'] === 'Cocher') $typeQuestion = 'Multiple';
-            if ($validated['TypeEtape'] === 'QuestionReponse') $typeQuestion = 'Ouverte';
+            if ($validated['TypeEtape'] === 'Cocher')
+                $typeQuestion = 'Multiple';
+            if ($validated['TypeEtape'] === 'QuestionReponse')
+                $typeQuestion = 'Ouverte';
 
             $question = \App\Models\QuestionEtape::create([
                 'IdEtape' => $etape->IdEtape,
@@ -977,9 +1009,11 @@ class ProgrammeController extends Controller
             ->whereHas('lecons', function ($q) {
                 $q->onlyTrashed();
             })
-            ->with(['lecons' => function ($q) {
-                $q->onlyTrashed();
-            }])
+            ->with([
+                'lecons' => function ($q) {
+                    $q->onlyTrashed();
+                }
+            ])
             ->get()
             ->map(function ($p) {
                 $p->trash_status = 'has_deleted_content';
@@ -992,9 +1026,11 @@ class ProgrammeController extends Controller
             ->whereHas('themes', function ($q) {
                 $q->onlyTrashed();
             })
-            ->with(['themes' => function ($q) {
-                $q->onlyTrashed();
-            }])
+            ->with([
+                'themes' => function ($q) {
+                    $q->onlyTrashed();
+                }
+            ])
             ->get()
             ->map(function ($p) {
                 $p->trash_status = 'has_deleted_content';
@@ -1002,7 +1038,7 @@ class ProgrammeController extends Controller
                 $p->display_title = $p->Titre;
                 return $p;
             });
-        
+
         $merged = $deletedPrograms
             ->concat($programsWithDeletedLessons)
             ->concat($programsWithDeletedThemes)
@@ -1010,19 +1046,19 @@ class ProgrammeController extends Controller
             ->values();
 
 
-        $deletedLives = Live::onlyTrashed()->with('auteur')->get()->map(function($item) {
+        $deletedLives = Live::onlyTrashed()->with('auteur')->get()->map(function ($item) {
             $item->trash_type = 'live';
             $item->display_title = $item->Titre;
             return $item;
         });
 
-        $deletedConsultations = Consultation::onlyTrashed()->with('utilisateur.profil')->get()->map(function($item) {
+        $deletedConsultations = Consultation::onlyTrashed()->with('utilisateur.profil')->get()->map(function ($item) {
             $item->trash_type = 'consultation';
             $item->display_title = $item->Titre;
             return $item;
         });
 
-        $deletedRentrees = ReponseConsultation::onlyTrashed()->with('categorie')->get()->map(function($item) {
+        $deletedRentrees = ReponseConsultation::onlyTrashed()->with('categorie')->get()->map(function ($item) {
             $item->trash_type = 'consultation_reponse';
             $item->display_title = "[Archive] " . $item->Titre;
             return $item;
@@ -1030,32 +1066,32 @@ class ProgrammeController extends Controller
 
         $deletedConsultations = $deletedConsultations->concat($deletedRentrees);
 
-        $deletedOffres = Offre::onlyTrashed()->get()->map(function($item) {
+        $deletedOffres = Offre::onlyTrashed()->get()->map(function ($item) {
             $item->trash_type = 'offre';
             $item->display_title = $item->Titre;
             return $item;
         });
 
-        $deletedTemoignages = Temoignage::onlyTrashed()->with('utilisateur.profil')->get()->map(function($item) {
+        $deletedTemoignages = Temoignage::onlyTrashed()->with('utilisateur.profil')->get()->map(function ($item) {
             $item->trash_type = 'temoignage';
             $prenom = $item->utilisateur && $item->utilisateur->profil ? $item->utilisateur->profil->Prenom : 'Inconnu';
             $item->display_title = "Témoignage de " . $prenom;
             return $item;
         });
 
-        $deletedCoachings = TypeDeCoaching::onlyTrashed()->get()->map(function($item) {
+        $deletedCoachings = TypeDeCoaching::onlyTrashed()->get()->map(function ($item) {
             $item->trash_type = 'coaching';
             $item->display_title = $item->NomDeType;
             return $item;
         });
 
-        $deletedCategories = Categorie::onlyTrashed()->get()->map(function($item) {
+        $deletedCategories = Categorie::onlyTrashed()->get()->map(function ($item) {
             $item->trash_type = 'categorie';
             $item->display_title = "Catégorie: " . $item->Nom;
             return $item;
         });
 
-        $deletedReussites = Reussite::onlyTrashed()->get()->map(function($item) {
+        $deletedReussites = Reussite::onlyTrashed()->get()->map(function ($item) {
             $item->trash_type = 'reussite';
             $item->display_title = "Réussite: " . $item->nom;
             return $item;
@@ -1085,10 +1121,10 @@ class ProgrammeController extends Controller
                 $program = ProgrammeFormation::onlyTrashed()->findOrFail($id);
                 $deletedAt = $program->deleted_at;
                 $program->restore();
-                
-                 $program->lecons()->onlyTrashed()->where('deleted_at', '>=', $deletedAt)->restore();
-                 $program->themes()->onlyTrashed()->where('deleted_at', '>=', $deletedAt)->restore();
-                 
+
+                $program->lecons()->onlyTrashed()->where('deleted_at', '>=', $deletedAt)->restore();
+                $program->themes()->onlyTrashed()->where('deleted_at', '>=', $deletedAt)->restore();
+
                 return back()->with('success', 'Le programme a été restauré.');
 
             case 'lesson':
@@ -1153,9 +1189,9 @@ class ProgrammeController extends Controller
             'etape.lecon.theme.programme',
             'details.question'
         ])
-        ->where('StatutValidation', 'Attente')
-        ->orderBy('IdReponse', 'desc')
-        ->get();
+            ->where('StatutValidation', 'Attente')
+            ->orderBy('IdReponse', 'desc')
+            ->get();
 
         return response()->json($submissions);
     }
@@ -1163,7 +1199,7 @@ class ProgrammeController extends Controller
     public function validateSubmission(Request $request, $id)
     {
         $submission = ReponseEtapeUtilisateur::with(['etape', 'utilisateur'])->findOrFail($id);
-        
+
         $request->validate([
             'StatutValidation' => 'required|in:Validé,Rejeté',
             'ReponseAdmin' => 'nullable|string'
@@ -1201,7 +1237,7 @@ class ProgrammeController extends Controller
                 ->count();
 
             if ($allStepsCount === $completedStepsCount) {
-                 \App\Models\Avancement::updateOrCreate(
+                \App\Models\Avancement::updateOrCreate(
                     [
                         'IdUtilisateur' => $submission->IdUtilisateur,
                         'EntiteId' => $lesson->IdLecon,
@@ -1227,7 +1263,7 @@ class ProgrammeController extends Controller
     public function submitStepResponse(Request $request, $id)
     {
         $etape = Etape::findOrFail($id);
-        
+
         $request->validate([
             'responses' => 'required|array'
         ]);
