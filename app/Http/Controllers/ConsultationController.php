@@ -108,14 +108,11 @@ class ConsultationController extends Controller
                 'Statut' => $validated['Statut']
             ]);
 
-            // Link questions and close them
-            $reponse->questions()->attach($questionIds);
-            
-            $consultations = Consultation::whereIn('IdConsultation', $questionIds)->get();
-            
-            foreach ($consultations as $consultation) {
-                $consultation->update(['Statut' => 'Fermée']);
-            }
+            // Link questions avoiding duplicate key errors
+            $reponse->questions()->syncWithoutDetaching($questionIds);
+
+            // Close linked consultations in one batch update
+            Consultation::whereIn('IdConsultation', $questionIds)->update(['Statut' => 'Fermée']);
 
             \DB::commit();
         } catch (\Exception $e) {
@@ -128,7 +125,8 @@ class ConsultationController extends Controller
         }
 
         // Send notifications outside the transaction so mail delivery doesn't block or abort DB operations
-        if (isset($consultations)) {
+        try {
+            $consultations = Consultation::with('utilisateur')->whereIn('IdConsultation', $questionIds)->get();
             foreach ($consultations as $consultation) {
                 if ($consultation->utilisateur) {
                     try {
@@ -138,10 +136,13 @@ class ConsultationController extends Controller
                     }
                 }
             }
+        } catch (\Throwable $e) {
+            \Log::warning('Erreur lors de la récupération des consultations pour notification: ' . $e->getMessage());
         }
 
         return redirect()->route('admin.consultations')->with('success', 'La réponse à la consultation a été enregistrée.');
     }
+
     public function updateResponse(Request $request, $id)
     {
         $reponse = \App\Models\ReponseConsultation::findOrFail($id);
