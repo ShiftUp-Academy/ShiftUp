@@ -96,6 +96,8 @@ class ConsultationController extends Controller
             'question_ids.*' => 'exists:Consultations,IdConsultation'
         ]);
 
+        $questionIds = array_values(array_unique($validated['question_ids']));
+
         \DB::beginTransaction();
         try {
             $reponse = \App\Models\ReponseConsultation::create([
@@ -107,19 +109,15 @@ class ConsultationController extends Controller
             ]);
 
             // Link questions and close them
-            $reponse->questions()->attach($validated['question_ids']);
+            $reponse->questions()->attach($questionIds);
             
-            $consultations = Consultation::whereIn('IdConsultation', $validated['question_ids'])->get();
+            $consultations = Consultation::whereIn('IdConsultation', $questionIds)->get();
             
             foreach ($consultations as $consultation) {
                 $consultation->update(['Statut' => 'Fermée']);
-                if ($consultation->utilisateur) {
-                    $consultation->utilisateur->notify(new ReponseAdminNotification($consultation, $reponse));
-                }
             }
 
             \DB::commit();
-            return redirect()->route('admin.consultations')->with('success', 'La réponse à la consultation a été enregistrée.');
         } catch (\Exception $e) {
             \DB::rollback();
             \Log::error('Erreur lors de l\'enregistrement de la réponse consultation: ' . $e->getMessage(), [
@@ -128,6 +126,21 @@ class ConsultationController extends Controller
             ]);
             return back()->with('error', 'Une erreur est survenue lors de l\'enregistrement : ' . $e->getMessage());
         }
+
+        // Send notifications outside the transaction so mail delivery doesn't block or abort DB operations
+        if (isset($consultations)) {
+            foreach ($consultations as $consultation) {
+                if ($consultation->utilisateur) {
+                    try {
+                        $consultation->utilisateur->notify(new ReponseAdminNotification($consultation, $reponse));
+                    } catch (\Throwable $ne) {
+                        \Log::warning('Impossible d\'envoyer la notification pour la consultation ' . $consultation->IdConsultation . ': ' . $ne->getMessage());
+                    }
+                }
+            }
+        }
+
+        return redirect()->route('admin.consultations')->with('success', 'La réponse à la consultation a été enregistrée.');
     }
     public function updateResponse(Request $request, $id)
     {
